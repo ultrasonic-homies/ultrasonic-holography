@@ -1,0 +1,8 @@
+[package]
+name = "rust_sonic_surface"
+version = "0.0.0"
+authors = ["Kevin"]
+edition = "2021"
+
+[dependencies]
+serialport = "4.2.2"
