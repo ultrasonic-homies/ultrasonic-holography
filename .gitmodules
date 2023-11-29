@@ -1,0 +1,3 @@
+[submodule "fpga/proto245"]
+	path = fpga/proto245
+	url = https://github.com/esynr3z/proto245.git
