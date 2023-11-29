@@ -66,7 +66,7 @@ class SonicSurface:
         self.serialConn.write(bytes([253])) #commit
 
 
-def particle_SHM(ts, midpoint=[0.05, 0.05, 0.1], amp=0.025, axis=0, freq=1):
+def particle_SHM(ts, midpoint=[0.05, 0.05, 0.05], amp=0.025, axis=0, freq=1):
     r = np.full([len(ts), 3], midpoint)
     r[:, axis] += amp * np.sin(2 * np.pi * freq * ts)
     return r
@@ -77,21 +77,32 @@ if __name__ == "__main__":
     surface.listSerial()
     port_num = input("Pick serial port: ")
     surface.connect(int(port_num))
-    
-    # run for 30 seconds with 0.1 second interval
-    ts = np.linspace(0, 30, 300)
-    xs = particle_SHM(ts, freq=1)
+
+
+    # using 0.1 sec increments
+    ts = np.linspace(0, 10, 100)
+    xs = particle_SHM(ts, freq=0.1)
     
     phase_list = []
     for x in xs:
         # need phases to be from 0 to 2pi
         phases = np.angle(hat.run_hat([x], phase_res=32)) + np.pi
         phase_list.append(phases)
+
+    # send the first position and hold
+    phases = np.angle(hat.run_hat([x[0]], phase_res=32)) + np.pi
+    phases_padded = np.pad(phases, [(6, 0), (0, 6)], constant_values=np.NaN)
+    surface.sendPhases(phases_padded.flatten())
     
-    for phases in phase_list:
+    input("Hit Enter to start")
+    
+    i = 0
+    while True:
+        phases = phase_list[i % 100]
         phases_padded = np.pad(phases, [(6, 0), (0, 6)], constant_values=np.NaN)
         surface.sendPhases(phases_padded.flatten())
+        i += 1
         time.sleep(0.1)
     
     # turn off array
-    surface.sendPhases(np.full([16, 16], np.NaN).flatten())
+    # surface.sendPhases(np.full([16, 16], np.NaN).flatten())
