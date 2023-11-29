@@ -13,7 +13,6 @@ class SonicSurface:
     
     def __init__(self):
         self.serialConn = None
-        self.emittersPos = np.array( self.EMITTERS_POS ).reshape(self.N_EMMITERS, 3)
         self.phaseOffsets = np.zeros( [self.N_EMMITERS] )
         self.phases = np.zeros( [1,self.N_EMMITERS], dtype=np.complex128 )
         self.onOrOff = np.full(self.N_EMMITERS, False)

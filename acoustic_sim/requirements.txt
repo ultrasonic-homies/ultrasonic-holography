@@ -1,5 +1,6 @@
 numpy>=1.26.0
-scipy>=1.26.0
+scipy>=1.11.0
 matplotlib>=3.8.0
 jupyterlab>=4.0.6
 pillow>=10.0.1
+pyserial>=3.5
