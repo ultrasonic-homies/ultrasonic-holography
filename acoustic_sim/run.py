@@ -2,6 +2,9 @@ import time
 import numpy as np
 import hat
 
+import serial
+import serial.tools.list_ports
+
 # copied from https://github.com/upnalab/SonicSurface/blob/0ed2604fa0f35c3a1a2991216aaef871016f5ad7/ControlSoftware/Python/SonicSurface.py
 class SonicSurface:
     PHASE_DIVS = 32
