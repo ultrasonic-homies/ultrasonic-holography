@@ -79,9 +79,12 @@ if __name__ == "__main__":
     surface.connect(int(port_num))
 
 
-    # using 0.1 sec increments
-    ts = np.linspace(0, 10, 100)
-    xs = particle_SHM(ts, freq=0.1)
+    # constants
+    time_inc = 0.01 # secs
+    freq = 0.5 # secs
+    period = 1 / freq
+    ts = np.linspace(0, period, period // time_inc)
+    xs = particle_SHM(ts, freq=freq)
     
     phase_list = []
     for x in xs:
@@ -102,7 +105,8 @@ if __name__ == "__main__":
         phases_padded = np.pad(phases, [(6, 0), (0, 6)], constant_values=np.NaN)
         surface.sendPhases(phases_padded.flatten(), permuteToFPGAOrder=False)
         i += 1
-        time.sleep(0.1)
+        # not exact since sending phases takes time, but close enough
+        time.sleep(time_inc)
     
     # turn off array
     # surface.sendPhases(np.full([16, 16], np.NaN).flatten())
