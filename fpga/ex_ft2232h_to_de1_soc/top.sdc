@@ -39,8 +39,8 @@ set_clock_groups -asynchronous -group [get_clocks {ft_clk}] -group [get_clocks {
 #**************************************************************
 # Set False Path
 #**************************************************************
-set_false_path -from [get_clocks {CLOCK_50}] -to [get_ports {ledr[*]}]
-set_false_path -from [get_clocks {ft_clk}] -to [get_ports {ledr[*]}]
+set_false_path -from [get_clocks {CLOCK_50}] -to [get_ports {LEDR[*]}]
+set_false_path -from [get_clocks {ft_clk}] -to [get_ports {LEDR[*]}]
 
 #**************************************************************
 # Set Multicycle Path

@@ -1,0 +1,72 @@
+# Compile of receiver.sv failed with 1 errors.
+# Compile of tb_receiver.sv failed with 1 errors.
+# 2 compiles, 2 failed with 2 errors.
+# Compile of receiver.sv failed with 1 errors.
+# Compile of tb_receiver.sv failed with 1 errors.
+# 2 compiles, 2 failed with 2 errors.
+# Compile of receiver.sv failed with 2 errors.
+# Compile of tb_receiver.sv failed with 1 errors.
+# 2 compiles, 2 failed with 3 errors.
+# Compile of receiver.sv failed with 8 errors.
+# Compile of tb_receiver.sv was successful.
+# 2 compiles, 1 failed with 8 errors.
+# Compile of receiver.sv failed with 8 errors.
+# Compile of tb_receiver.sv was successful.
+# 2 compiles, 1 failed with 8 errors.
+# Compile of receiver.sv failed with 3 errors.
+# Compile of tb_receiver.sv was successful.
+# 2 compiles, 1 failed with 3 errors.
+# Compile of receiver.sv failed with 1 errors.
+# Compile of tb_receiver.sv was successful.
+# 2 compiles, 1 failed with 1 error.
+# Compile of receiver.sv failed with 7 errors.
+# Compile of tb_receiver.sv was successful.
+# 2 compiles, 1 failed with 7 errors.
+# Compile of receiver.sv failed with 3 errors.
+# Compile of tb_receiver.sv was successful.
+# 2 compiles, 1 failed with 3 errors.
+# Load canceled
+# Compile of receiver.sv failed with 5 errors.
+# Compile of tb_receiver.sv was successful.
+# 2 compiles, 1 failed with 5 errors.
+# Compile of receiver.sv failed with 1 errors.
+# Compile of tb_receiver.sv was successful.
+# 2 compiles, 1 failed with 1 error.
+# Compile of receiver.sv failed with 1 errors.
+# Compile of tb_receiver.sv was successful.
+# 2 compiles, 1 failed with 1 error.
+# Compile of receiver.sv was successful.
+# Compile of tb_receiver.sv was successful.
+# 2 compiles, 0 failed with no errors.
+vsim -gui work.tb_receiver
+# vsim -gui work.tb_receiver 
+# Start time: 13:19:47 on Nov 30,2023
+# Loading sv_std.std
+# Loading work.tb_receiver
+# Loading work.receiver
+add wave -position insertpoint sim:/tb_receiver/dut/*
+run
+run
+run
+run
+# Compile of receiver.sv was successful.
+# Compile of tb_receiver.sv was successful.
+# 2 compiles, 0 failed with no errors.
+restart
+# Loading work.tb_receiver
+# Loading work.receiver
+run
+run
+run
+run
+# Compile of receiver.sv was successful.
+# Compile of tb_receiver.sv was successful.
+# 2 compiles, 0 failed with no errors.
+restart
+# Loading work.tb_receiver
+# Loading work.receiver
+run
+run
+run
+run
+run
