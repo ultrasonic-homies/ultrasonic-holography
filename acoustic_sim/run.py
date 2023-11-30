@@ -66,7 +66,7 @@ class SonicSurface:
         self.serialConn.write(bytes([253])) #commit
 
 
-def particle_SHM(ts, midpoint=[0.05, 0.05, 0.05], amp=0.025, axis=0, freq=1):
+def particle_SHM(ts, midpoint=[0.05, 0.05, 0.14], amp=0.025, axis=0, freq=1):
     r = np.full([len(ts), 3], midpoint)
     r[:, axis] += amp * np.sin(2 * np.pi * freq * ts)
     return r
@@ -93,9 +93,9 @@ if __name__ == "__main__":
         phase_list.append(phases)
 
     # send the first position and hold
-    phases = np.angle(hat.run_hat([x[0]], phase_res=32)) + np.pi
-    phases_padded = np.pad(phases, [(6, 0), (0, 6)], constant_values=np.NaN)
-    surface.sendPhases(phases_padded.flatten(), permuteToFPGAOrder=False)
+    phase_one = phase_list[0]
+    phases_padded = np.pad(phase_one, [(6, 0), (0, 6)], constant_values=np.NaN)
+    surface.sendPhases(phases_padded.flatten())
     
     input("Hit Enter to start")
     
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     while True:
         phases = phase_list[i % 100]
         phases_padded = np.pad(phases, [(6, 0), (0, 6)], constant_values=np.NaN)
-        surface.sendPhases(phases_padded.flatten(), permuteToFPGAOrder=False)
+        surface.sendPhases(phases_padded.flatten())
         i += 1
         # not exact since sending phases takes time, but close enough
         time.sleep(time_inc)
