@@ -92,7 +92,7 @@ if __name__ == "__main__":
     # send the first position and hold
     phases = np.angle(hat.run_hat([x[0]], phase_res=32)) + np.pi
     phases_padded = np.pad(phases, [(6, 0), (0, 6)], constant_values=np.NaN)
-    surface.sendPhases(phases_padded.flatten())
+    surface.sendPhases(phases_padded.flatten(), permuteToFPGAOrder=False)
     
     input("Hit Enter to start")
     
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     while True:
         phases = phase_list[i % 100]
         phases_padded = np.pad(phases, [(6, 0), (0, 6)], constant_values=np.NaN)
-        surface.sendPhases(phases_padded.flatten())
+        surface.sendPhases(phases_padded.flatten(), permuteToFPGAOrder=False)
         i += 1
         time.sleep(0.1)
     

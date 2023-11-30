@@ -10,6 +10,8 @@ def run_hat(control_points, phase_res=16):
     control_points = np.asarray(control_points)
     tx, ty = np.meshgrid(np.linspace(0.005, 0.095, 10), np.linspace(0.005, 0.095, 10))
     transducers = np.dstack([tx, ty, np.zeros([10, 10])])
+    # unsure why it needs to be the conjugate but do it for now
+    # return np.conjugate(calc_transducer_phases(transducers, control_points, phase_res=phase_res))
     return calc_transducer_phases(transducers, control_points, phase_res=phase_res)
 
 # far field piston-source model: from https://jontallen.ece.illinois.edu/uploads/473.F18/Lectures/Chapter_7b.pdf
@@ -17,11 +19,10 @@ def p(r, theta, t):
     p_0 = 1.293 # density of air
     U_0 = 1 # intensity, specifically, the speed at which the piston moves
     a = 0.005 # 5 mm: radius of the emitter
-    # a = 1
     if np.sin(theta) == 0: # avoid a divide by 0
-        return 1j * omega * p_0 * a**2 * U_0 / (2 * r) * np.e**(1j * (omega * t - k * r))
+        return 1j * omega * p_0 * a**2 * U_0 / (2 * r) * np.e**(1j * (omega * t + k * r))
     else:
-        return 1j * omega * p_0 * a**2 * U_0 / (2 * r) * np.e**(1j * (omega * t - k * r)) * 2 * sp.special.j1(k * a * np.sin(theta)) / ( k * a * np.sin(theta))
+        return 1j * omega * p_0 * a**2 * U_0 / (2 * r) * np.e**(1j * (omega * t + k * r)) * 2 * sp.special.j1(k * a * np.sin(theta)) / ( k * a * np.sin(theta))
 
 def gen_propagators(transducers, control_points):
     # create propagators
