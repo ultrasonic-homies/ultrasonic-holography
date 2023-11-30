@@ -81,15 +81,32 @@ if __name__ == "__main__":
 
     # constants
     time_inc = 0.01 # secs
-    freq = 0.5 # secs
-    period = 1 / freq
-    ts = np.linspace(0, period, period // time_inc)
-    xs = particle_SHM(ts, freq=freq)
+    # linear SHM
+    # freq = 0.5 # secs
+    # period = 1 / freq
+    # ts = np.linspace(0, period, int(period / time_inc))
+    # xs = particle_SHM(ts, freq=freq)
+
+    # circular motion
+    start_x = 0.05 # 5cm
+    start_y = 0.05 # 5cm
+    start_z = 0.14 # 14cm
+    freq = 0.5
+    period = 1/freq
+    spacings = int(period/time_inc)
+    ts = np.linspace(0, 1/freq, spacings)
+    positions = []
+    for t in ts:
+        x = start_x + 0.02 * np.sin(2 * np.pi *freq * 2*t)
+        y = start_y + 0.02 * np.cos(2 * np.pi *freq * 2*t)
+        z = start_z #+ 0.02 * np.sin(2 * np.pi *freq*t)
+        positions.append((x, y, z))
+    
     
     phase_list = []
-    for x in xs:
+    for position in positions:
         # need phases to be from 0 to 2pi
-        phases = np.angle(hat.run_hat([x], phase_res=32)) + np.pi
+        phases = np.angle(hat.run_hat([position], phase_res=32)) + np.pi
         phase_list.append(phases)
 
     # send the first position and hold
@@ -101,7 +118,7 @@ if __name__ == "__main__":
     
     i = 0
     while True:
-        phases = phase_list[i % 100]
+        phases = phase_list[i % spacings]
         phases_padded = np.pad(phases, [(6, 0), (0, 6)], constant_values=np.NaN)
         surface.sendPhases(phases_padded.flatten())
         i += 1
