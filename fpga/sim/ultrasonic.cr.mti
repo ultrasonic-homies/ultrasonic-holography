@@ -1,8 +1,0 @@
-C:/Users/T460s_User/Documents/School/ENPH479/ultrasonic-holography/fpga/receiver.sv {1 {vlog -work work -sv -stats=none C:/Users/T460s_User/Documents/School/ENPH479/ultrasonic-holography/fpga/receiver.sv
-Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
--- Compiling module receiver
-
-Top level modules:
-	receiver
-
-} {} {}}
