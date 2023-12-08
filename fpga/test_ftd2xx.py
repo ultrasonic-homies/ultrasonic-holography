@@ -35,8 +35,8 @@ class FPGA:
     def test_led(self):
         self.ftdev.write(self.__cmd(0x1ED0, 1))
         sleep(2)
-        # self.ftdev.write(self.__cmd(0x1ED0, 0))
-        # sleep(2)
+        self.ftdev.write(self.__cmd(0x1ED0, 0))
+        sleep(2)
 
     def test_read(self, total_bytes=1 * MiB):
         # Prepare data
@@ -97,7 +97,7 @@ class FPGA:
 
 
 if __name__ == "__main__":
-    with FPGA(ftdi_serial=b'FT73Z219A', fifo245_mode='sync') as de1_soc:
+    with FPGA(ftdi_serial=b'FT7TEQ7VA', fifo245_mode='sync') as de1_soc:
         de1_soc.test_led()
-        # de1_soc.test_read(100 * MiB)
-        # de1_soc.test_write(100 * MiB)
+        de1_soc.test_read(20 * MiB)
+        de1_soc.test_write(20 * MiB)
