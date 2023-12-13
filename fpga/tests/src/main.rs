@@ -27,7 +27,8 @@ impl FPGA {
 
     fn open(&mut self) -> Result<(), FtStatus> {
         self.ftdev.reset()?;
-        self.ftdev.set_bit_mode(0xff, if self.fifo245_mode == "sync" { BitMode::SyncFifo } else { BitMode::Reset })?;
+        // self.ftdev.set_bit_mode(0xff, if self.fifo245_mode == "sync" { BitMode::SyncFifo } else { BitMode::Reset })?;
+        self.ftdev.set_bit_mode(0xff, BitMode::SyncFifo)?;
         self.ftdev.set_timeouts(Duration::from_millis(255), Duration::from_millis(255))?;
         self.ftdev.set_usb_parameters(64 * KIB)?;
         self.ftdev.set_flow_control_rts_cts()?;
@@ -60,6 +61,7 @@ impl FPGA {
 
         // Start read test
         self.ftdev.write_all(&self.cmd(0xBEEF, total_bytes - 1))?;
+        thread::sleep(Duration::from_secs(2));
 
         // Receive data
         let mut chunks = Vec::new();
@@ -73,11 +75,16 @@ impl FPGA {
                     chunks.push(chunk);
                     remaining_bytes -= len_chunk as u32;
                 }
-                TimeoutError => break
+                Err(timeout_error) => {
+                    println!("read timed out: {} ", timeout_error);
+                    break
+                }
             }
         }
         // If the above doesn't work:
-        // self.ftdev.read_all(chunks)?;
+
+        // let mut data = Vec::<u8>::new();
+        // self.ftdev.read_all(&mut data)?;
 
         let exec_time = start_time.elapsed().as_secs_f64();
 
@@ -98,56 +105,83 @@ impl FPGA {
         Ok(())
     }
 
-    // fn test_write(&mut self, total_bytes: u32) {
-    //     // Prepare data
-    //     let data: Vec<u8> = (0..total_bytes).map(|i| (i % 256) as u8).collect();
+    fn test_write(&mut self, total_bytes: Option<u32>) -> Result<(), TimeoutError> {
+        // Prepare data
+        let total_bytes = total_bytes.unwrap_or(1 * MIB);
+        let data: Vec<u8> = (0..total_bytes).map(|i| (i % 256) as u8).collect();
 
-    //     // Start write test
-    //     self.ftdev.write_all(&self.cmd(0xCAFE, (total_bytes - 1) as u64)).unwrap();
+        // Start write test
+        self.ftdev.write_all(&self.cmd(0xCAFE, total_bytes - 1))?;
+        thread::sleep(Duration::from_secs(2));
 
-    //     // Transmit data
-    //     let mut offset = 0;
-    //     let mut data_len = total_bytes;
-    //     let mut result = 0u8;
-    //     let start_time = std::time::Instant::now();
+        // Transmit data
+        let mut offset = 0;
+        let mut data_len = total_bytes;
+        let mut result = 0u8;
+        let start_time = std::time::Instant::now();
 
-    //     while data_len > 0 {
-    //         let chunk_len = std::cmp::min(1 * MIB, data_len);
-    //         let written_len = self.ftdev.write_all(&data[offset..offset + chunk_len]).unwrap();
-    //         data_len -= written_len;
-    //         offset += written_len;
-    //     }
+        while data_len > 0 {
+            let chunk_len = std::cmp::min(1 * MIB, data_len);
+            match self.ftdev.write_all(&data[offset..offset + chunk_len]) {
+                Ok(written_len) => {
+                    data_len -= written_len;
+                }
+                Err(err) => {
+                    return
+                }
+            }
+            data_len -= written_len;
+            offset += written_len;
+        }
 
-    //     let _ = self.ftdev.read_all(&mut [result]);
+        self.ftdev.read_all(&mut [result])?;
 
-    //     let exec_time = start_time.elapsed().as_secs_f64();
+        let exec_time = start_time.elapsed().as_secs_f64();
 
-    //     // Print statistics
-    //     let data_len_mb = total_bytes as f64 / MIB as f64;
-    //     println!(
-    //         "Wrote {:.02} MiB ({} bytes) to FPGA in {} seconds ({:.02} MiB/s)",
-    //         data_len_mb,
-    //         total_bytes,
-    //         exec_time,
-    //         data_len_mb / exec_time
-    //     );
+        // Print statistics
+        let data_len_mb = total_bytes as f64 / MIB as f64;
+        println!(
+            "Wrote {:.02} MiB ({} bytes) to FPGA in {} seconds ({:.02} MiB/s)",
+            data_len_mb,
+            total_bytes,
+            exec_time,
+            data_len_mb / exec_time
+        );
 
-    //     // Verify data
-    //     let result = if result == 0 { "ok" } else { "error" };
-    //     println!("Verify data: {}", result);
-    // }
+        // Verify data
+        let result = if result == 0 { "ok" } else { "error" };
+        println!("Verify data: {}", result);
+    }
 }
 
 fn main() {
-    if let Ok(mut de1_soc) = FPGA::new("FT7TEQ7VA", "async") {
-        if let Ok(()) = de1_soc.open() {
-            let _ = de1_soc.test_led();
-            // let _ = de1_soc.test_read(Some(20 * MIB));
+    match FPGA::new("FT7TEQ7VA", "sync") {
+        Ok(mut de1_soc) => {
+            match de1_soc.test_led() {
+                Ok(()) => {
+                    println!("test_led completed");
+                }
+                Err(timeout_error) => {
+                    println!("test_led failed with TimeoutError: {}", timeout_error);
+                    let _ = de1_soc.close();
+                    return
+                }
+            }
+            match de1_soc.test_read(Some(10 * MIB)) {
+                Ok(()) => {
+                    println!("test_read completed");
+                }
+                Err(timeout_error) => {
+                    println!("test_read failed with TimeoutError: {}", timeout_error);
+                    let _ = de1_soc.close();
+                    return
+                }
+            }
             // de1_soc.test_write(20 * MIB);
+            let _ = de1_soc.close();
         }
-        let _ = de1_soc.close();
-    } else {
-
+        Err(device_type_error) => {
+            println!("Initialization failed with error: {}", device_type_error)
+        }
     }
-    println!("Hello World!");
 }
