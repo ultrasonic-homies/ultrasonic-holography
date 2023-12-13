@@ -30,9 +30,15 @@ logic [7:0] phases [0:1];
 logic read_error;
 
 assign sys_clk = CLOCK_50;
-assign rst = ~SW[3];
+assign rst = ~KEY[3];
 assign LEDR[7:0] = phases[0];
 assign LEDR[8] = read_error;
+assign HEX0 = 7'b1111111;
+assign HEX1 = 7'b1111111;
+assign HEX2 = 7'b1111111;
+assign HEX3 = 7'b1111111;
+assign HEX4 = 7'b1111111;
+assign HEX5 = 7'b1111111;
 
 // system clock heartbeat
 logic [24:0] sys_heartbeat_cnt;
