@@ -6,4 +6,4 @@ simulation/*
 *.qpf
 *.qsf
 *.qws
-top_description.txt
+*.txt

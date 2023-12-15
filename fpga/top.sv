@@ -139,7 +139,7 @@ proto245a #(
 // TODO generate new ip to match crystal on v1 board
 pll50 pll (
     .refclk   (sys_clk),
-    .rst      (rst),
+    .rst      (),
     .outclk_0 (clk), // 10.24MHz
     .locked   ()
 );

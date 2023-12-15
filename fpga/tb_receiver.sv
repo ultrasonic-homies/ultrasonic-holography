@@ -4,7 +4,7 @@ module tb_receiver();
 
 localparam CLK_FREQ = 256;
 localparam OUT_FREQ = 1;
-localparam NUM_CHANNELS = 10;
+localparam NUM_CHANNELS = 256;
 localparam TX_FIFO_LOAD_W = 13; // log2(4096) + 1;
 localparam RX_FIFO_LOAD_W = 13;
 
@@ -61,12 +61,16 @@ initial begin
     #2;
     rxfifo_valid = 1;
     rxfifo_empty = 0;
-
+    #2;
+    rxfifo_valid = 0;
+    rxfifo_empty = 1;
+    #2;
+    rxfifo_data = 'h56;
+    #2;
 end
 
 initial begin
     clk = 0;
-    
     forever begin
         #1 clk = ~clk;
     end

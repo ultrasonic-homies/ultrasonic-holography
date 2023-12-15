@@ -1,4 +1,4 @@
-`timescale 1ps/1ps
+`timescale 10ns/1ps
 
 module tb_de1_soc_top();
 
@@ -38,14 +38,13 @@ initial begin
     ft_rxfn = 0;
     ft_clk = 0;
     KEY[3] = 0;
-    #5;
+    #10;
     KEY[3] = 1;
 
 end
 
 initial begin
     CLOCK_50 = 0;
-    #1;
     forever begin
         #1 CLOCK_50 = ~CLOCK_50;
     end
