@@ -6,6 +6,7 @@ use std::time::Duration;
 
 pub const KIB: u32 = 1024;
 pub const MIB: u32 = KIB * 1024;
+pub const PHASE_OPER: u8 = 0x01;
 
 pub struct FPGA {
     ftdi_serial: &'static str,
@@ -150,6 +151,12 @@ impl FPGA {
         // Verify data
         let result = if result == 0 { "ok" } else { "error" };
         println!("Verify data: {}", result);
+        Ok(())
+    }
+
+    pub fn set_phase(&mut self, address: u8, phase: u8) -> Result<(), TimeoutError> {
+        let oper: Vec<u8> = [PHASE_OPER, address, phase].to_vec();
+        self.ftdev.write_all(&oper)?;
         Ok(())
     }
 }

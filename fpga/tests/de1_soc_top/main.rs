@@ -1,12 +1,12 @@
 use test_lib::FPGA;
 
-const phase = 0x40;
-const address = 0x01;
+const PHASE: u8 = 0x40;
+const ADDRESS: u8 = 0x01;
 
 fn main() {
-    match FPGA::new("FT7TEQ7VA", "sync") {
+    match FPGA::new("FT7TEQ7VA", "async") {
         Ok(mut de1_soc) => {
-            match de1_soc.set_phase(phase, address) {
+            match de1_soc.set_phase(PHASE, ADDRESS) {
                 Ok(()) => {
                     println!("set_phase completed");
                 }
