@@ -4,8 +4,8 @@ module top (
     input           sync_in,
     input           rst, // synchronous active high reset
     // outputs
-    output          sync_out,
-    output [1:0]    trans,
+    output logic    sync_out,
+    output [3:0]    trans,
     // ft chip
     inout  [7:0]    ft_data,
     input           ft_txen,
@@ -16,7 +16,7 @@ module top (
     output          ft_oen,  // sync mode only
     output          ft_siwu, // sync mode only
     // for debug only! TODO remove in production
-    output [7:0]    phases [0:1],
+    output [7:0]    phases [0:3],
     output          read_error
 );
 
@@ -28,7 +28,8 @@ module top (
 // system params
 localparam CLK_FREQ = 10_240_000;
 localparam OUT_FREQ = 40_000;
-localparam NUM_CHANNELS = 2;
+localparam NUM_CHANNELS = 4;
+localparam CLK_CNT_MAX = CLK_FREQ / OUT_FREQ;
 
 // proto245 params
 localparam TX_FIFO_SIZE       = 4096;
@@ -63,12 +64,32 @@ assign ft_oen  = 1'b1;
 assign ft_data = ft_rdn ? ft_dout : 'z;
 assign ft_din  = ft_data;
 
-// TODO replace with pulse generator
-assign sync_out = 0;
+logic [$clog2(CLK_CNT_MAX)-1:0] cnt;
+logic en [NUM_CHANNELS-1:0] = '{NUM_CHANNELS {1}};
 
-// TODO replace with pwm module
-assign trans[0] = 0;
-assign trans[1] = 0;
+always @(posedge clk) begin
+    if(rst) begin
+        cnt <= '0;
+        sync_out <= '0;
+    end
+    else begin
+        cnt <= cnt == (CLK_CNT_MAX-1) ? 0 : cnt + 1;
+        sync_out <= (cnt < CLK_CNT_MAX/2) ? '1 : '0;
+    end
+end
+genvar i;
+generate
+    for (i = 0; i < NUM_CHANNELS; i++) begin:pwms
+        pwm #(CLK_FREQ, OUT_FREQ) pwm  (
+            .clk,
+            .rst,
+            .en(en[i]),
+            .cnt,
+            .phase(phases[i]),
+            .out(trans[i])
+        );
+    end
+endgenerate
 
 receiver #(
     .CLK_FREQ       (CLK_FREQ),

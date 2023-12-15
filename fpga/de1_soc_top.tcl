@@ -15,7 +15,7 @@
 
 # Quartus Prime: Generate Tcl File for Project
 # File: de1_soc_top.tcl
-# Generated on: Wed Dec 13 01:08:55 2023
+# Generated on: Fri Dec 15 15:28:11 2023
 
 # Load Quartus Prime Tcl Project package
 package require ::quartus::project
@@ -32,9 +32,9 @@ if {[is_project_open]} {
 } else {
 	# Only open if not already open
 	if {[project_exists de1_soc_top]} {
-		project_open -revision top de1_soc_top
+		project_open -revision de1_soc_top de1_soc_top
 	} else {
-		project_new -revision top de1_soc_top
+		project_new -revision de1_soc_top de1_soc_top
 	}
 	set need_to_close_project 1
 }
@@ -43,9 +43,8 @@ if {[is_project_open]} {
 if {$make_assignments} {
 	set_global_assignment -name FAMILY "Cyclone V"
 	set_global_assignment -name DEVICE 5CSEMA5F31C6
-	set_global_assignment -name TOP_LEVEL_ENTITY de1_soc_top
 	set_global_assignment -name ORIGINAL_QUARTUS_VERSION 19.1.0
-	set_global_assignment -name PROJECT_CREATION_TIME_DATE "20:50:27  Ð¸ÑÐ½Ñ 05, 2021"
+	set_global_assignment -name PROJECT_CREATION_TIME_DATE "20:50:27  ÃÂ¸ÃÂÃÂ½ÃÂ 05, 2021"
 	set_global_assignment -name LAST_QUARTUS_VERSION "19.1.0 Lite Edition"
 	set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
 	set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
@@ -75,6 +74,7 @@ if {$make_assignments} {
 	set_global_assignment -name SDC_FILE de1_soc_top.sdc
 	set_global_assignment -name SYSTEMVERILOG_FILE top.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE receiver.sv
+	set_global_assignment -name SYSTEMVERILOG_FILE pwm.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE proto245/src/proto245a.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE proto245/src/fifo_sync.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE proto245/src/fifo_async.sv
@@ -120,6 +120,12 @@ if {$make_assignments} {
 	set_location_assignment PIN_AF19 -to ft_wrn
 	set_location_assignment PIN_AF18 -to ft_siwu
 	set_location_assignment PIN_AG18 -to ft_oen
+	set_location_assignment PIN_AB17 -to sync_in
+	set_location_assignment PIN_AB21 -to sync_out
+	set_location_assignment PIN_AH22 -to trans[0]
+	set_location_assignment PIN_AF24 -to trans[1]
+	set_location_assignment PIN_AE22 -to trans[2]
+	set_location_assignment PIN_AA20 -to trans[3]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to CLOCK_50
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to KEY[0]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to KEY[1]
@@ -166,6 +172,96 @@ if {$make_assignments} {
 	set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to ft_wrn
 	set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to ft_data
 	set_instance_assignment -name FAST_INPUT_REGISTER ON -to ft_data
+	set_location_assignment PIN_AE26 -to HEX0[0]
+	set_location_assignment PIN_AE27 -to HEX0[1]
+	set_location_assignment PIN_AE28 -to HEX0[2]
+	set_location_assignment PIN_AG27 -to HEX0[3]
+	set_location_assignment PIN_AF28 -to HEX0[4]
+	set_location_assignment PIN_AG28 -to HEX0[5]
+	set_location_assignment PIN_AH28 -to HEX0[6]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX0[0]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX0[1]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX0[2]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX0[3]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX0[4]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX0[5]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX0[6]
+	set_location_assignment PIN_AJ29 -to HEX1[0]
+	set_location_assignment PIN_AH29 -to HEX1[1]
+	set_location_assignment PIN_AH30 -to HEX1[2]
+	set_location_assignment PIN_AG30 -to HEX1[3]
+	set_location_assignment PIN_AF29 -to HEX1[4]
+	set_location_assignment PIN_AF30 -to HEX1[5]
+	set_location_assignment PIN_AD27 -to HEX1[6]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX1[0]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX1[1]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX1[2]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX1[3]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX1[4]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX1[5]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX1[6]
+	set_location_assignment PIN_AB23 -to HEX2[0]
+	set_location_assignment PIN_AE29 -to HEX2[1]
+	set_location_assignment PIN_AD29 -to HEX2[2]
+	set_location_assignment PIN_AC28 -to HEX2[3]
+	set_location_assignment PIN_AD30 -to HEX2[4]
+	set_location_assignment PIN_AC29 -to HEX2[5]
+	set_location_assignment PIN_AC30 -to HEX2[6]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX2[0]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX2[1]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX2[2]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX2[3]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX2[4]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX2[5]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX2[6]
+	set_location_assignment PIN_AD26 -to HEX3[0]
+	set_location_assignment PIN_AC27 -to HEX3[1]
+	set_location_assignment PIN_AD25 -to HEX3[2]
+	set_location_assignment PIN_AC25 -to HEX3[3]
+	set_location_assignment PIN_AB28 -to HEX3[4]
+	set_location_assignment PIN_AB25 -to HEX3[5]
+	set_location_assignment PIN_AB22 -to HEX3[6]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[0]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[1]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[2]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[3]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[4]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[5]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[6]
+	set_location_assignment PIN_AA24 -to HEX4[0]
+	set_location_assignment PIN_Y23 -to HEX4[1]
+	set_location_assignment PIN_Y24 -to HEX4[2]
+	set_location_assignment PIN_W22 -to HEX4[3]
+	set_location_assignment PIN_W24 -to HEX4[4]
+	set_location_assignment PIN_V23 -to HEX4[5]
+	set_location_assignment PIN_W25 -to HEX4[6]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[0]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[1]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[2]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[3]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[4]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[5]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[6]
+	set_location_assignment PIN_V25 -to HEX5[0]
+	set_location_assignment PIN_AA28 -to HEX5[1]
+	set_location_assignment PIN_Y27 -to HEX5[2]
+	set_location_assignment PIN_AB27 -to HEX5[3]
+	set_location_assignment PIN_AB26 -to HEX5[4]
+	set_location_assignment PIN_AA26 -to HEX5[5]
+	set_location_assignment PIN_AA25 -to HEX5[6]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[0]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[1]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[2]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[3]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[4]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[5]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[6]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to sync_in
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to sync_out
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[0]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[1]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[2]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[3]
 	set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
 	# Commit assignments

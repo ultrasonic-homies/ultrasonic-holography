@@ -156,7 +156,7 @@ impl FPGA {
 
     pub fn set_phase(&mut self, address: u8, phase: u8) -> Result<(), TimeoutError> {
         let oper: Vec<u8> = [PHASE_OPER, address, phase].to_vec();
-        self.ftdev.write_all(&oper)?;
+        self.ftdev.write_all(&self.cmd(0x0001, 1 << 16 | (address as u32) << 1 | phase as u32))?;
         Ok(())
     }
 }

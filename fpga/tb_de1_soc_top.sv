@@ -16,7 +16,7 @@ wire [6:0]  HEX5;
 // general i/o
 logic               sync_in;
 wire              sync_out;
-wire [1:0]        trans;
+wire [3:0]        trans;
 // ft chip
 wire  [7:0]        ft_data;
 logic               ft_txen;
@@ -37,9 +37,11 @@ initial begin
     ft_txen = 0;
     ft_rxfn = 0;
     ft_clk = 0;
+    dut.top.rxfifo_data = 1;
     KEY[3] = 0;
     #10;
     KEY[3] = 1;
+    #10;
 
 end
 

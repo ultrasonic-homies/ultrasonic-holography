@@ -13,7 +13,7 @@ module de1_soc_top(
     // general i/o
     input               sync_in,
     output              sync_out,
-    output [1:0]        trans,
+    output [3:0]        trans,
     // ft chip
     inout  [7:0]        ft_data,
     input               ft_txen,
@@ -26,7 +26,7 @@ module de1_soc_top(
 );
 
 logic sys_clk, rst;
-logic [7:0] phases [0:1];
+logic [7:0] phases [0:3];
 logic read_error;
 
 assign sys_clk = CLOCK_50;
