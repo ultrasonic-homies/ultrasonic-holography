@@ -6,6 +6,12 @@ module top #(
     input  [1:0] KEY,
     output [9:0] LEDR,
     input  [9:0] SW,
+    output [6:0] HEX0,
+    output [6:0] HEX1,
+    output [6:0] HEX2,
+    output [6:0] HEX3,
+    output [6:0] HEX4,
+    output [6:0] HEX5,
     // ft board
     output              ft_oen,
     input               ft_clk,
@@ -61,6 +67,9 @@ end
 //------------------------------------------------------------------------------
 // Test logic
 //------------------------------------------------------------------------------
+
+localparam NUM_CHANNELS = 4;
+
 enum logic [3:0] {
     CMD_WAIT_S,
     CMD_READ_S,
@@ -81,6 +90,29 @@ logic led0_drv, led0_drv_next;
 logic [31:0] word_cnt, word_cnt_next;
 logic [DATA_W-1:0] golden_data, golden_data_next;
 logic dbg_led, dbg_led_next;
+logic [7:0] phases [NUM_CHANNELS];
+logic phase_parser_en, phase_parser_en_next;
+logic [23:0] data, data_next;
+
+genvar i;
+generate
+    for (i = 0; i < NUM_CHANNELS; i++) begin:channels
+        phase_parser #(.CHANNEL(i)) phase_parser(
+            .clk(sys_clk),
+            .rst(sys_rst),
+            .en(phase_parser_en),
+            .phase_data(data[15:0]),
+            .phase(phases[i])
+        );
+    end
+endgenerate
+
+seven_seg seven_seg0(.in_byte(data[3:0]),   .display(HEX0));
+seven_seg seven_seg1(.in_byte(data[7:4]),   .display(HEX1));
+seven_seg seven_seg2(.in_byte(data[11:8]),  .display(HEX2));
+seven_seg seven_seg3(.in_byte(data[15:12]), .display(HEX3));
+seven_seg seven_seg4(.in_byte(data[19:16]), .display(HEX4));
+seven_seg seven_seg5(.in_byte(data[23:20]), .display(HEX5));
 
 assign {cmd_prefix, cmd_code, cmd_data, cmd_suffix} = cmd_shifter;
 
@@ -94,6 +126,8 @@ always_comb begin
     word_cnt_next    = word_cnt;
     golden_data_next = golden_data;
     dbg_led_next     = dbg_led;
+    phase_parser_en_next  = 0;
+    data_next        = data;
 
     case (fsm_state)
         CMD_WAIT_S: begin
@@ -115,6 +149,7 @@ always_comb begin
 
         CMD_PARSE_S: begin
             if ((cmd_prefix == 8'hAA) && (cmd_suffix == 8'h55)) begin
+                data_next = cmd_data[23:0];
                 case (cmd_code)
                     16'hbeef: begin
                         cmd_shifter_next = '0;
@@ -133,6 +168,12 @@ always_comb begin
                     16'h1ed0: begin
                         cmd_shifter_next = '0;
                         led0_drv_next    = cmd_data[0];
+                        fsm_next         = CMD_WAIT_S;
+                    end
+                    16'h0001: begin
+                        cmd_shifter_next = '0;
+                        phase_parser_en_next = 1;
+                        led0_drv_next    = cmd_data[8];
                         fsm_next         = CMD_WAIT_S;
                     end
                     default: begin
@@ -186,6 +227,8 @@ always_ff @(posedge sys_clk) begin
         word_cnt    <= '0;
         golden_data <= '0;
         dbg_led     <= 1'b0;
+        data        <= '0;
+        phase_parser_en <= '0;
     end else begin
         fsm_state   <= fsm_next;
         cmd_shifter <= cmd_shifter_next;
@@ -196,21 +239,26 @@ always_ff @(posedge sys_clk) begin
         word_cnt    <= word_cnt_next;
         golden_data <= golden_data_next;
         dbg_led     <= dbg_led_next;
+        data        <= data_next;
+        phase_parser_en <= phase_parser_en_next;
     end
 end
 
-`ifdef FIFO245_SYNC
-assign LEDR[7] = '0;
-`else
-assign LEDR[7] = '1;
-`endif
-assign LEDR[6] = ~ft_wrn;
-assign LEDR[5] = ~ft_rdn;
-assign LEDR[4] = ~ft_txen;
-assign LEDR[3] = ~ft_rxfn;
-assign LEDR[2] = rxfifo_rd;
-assign LEDR[1] = txfifo_wr;
+// `ifdef FIFO245_SYNC
+// assign LEDR[7] = '0;
+// `else
+// assign LEDR[7] = '1;
+// `endif
+// assign LEDR[6] = ~ft_wrn;
+// assign LEDR[5] = ~ft_rdn;
+// assign LEDR[4] = ~ft_txen;
+// assign LEDR[3] = ~ft_rxfn;
+// assign LEDR[2] = rxfifo_rd;
+// assign LEDR[1] = txfifo_wr;
 assign LEDR[0] = led0_drv;
+assign LEDR[8:1] = phases[0][7:0];
+
+
 
 //------------------------------------------------------------------------------
 // Heartbeats
@@ -228,13 +276,13 @@ end
 assign LEDR[9] = sys_heartbeat_cnt[HEARTBEAT_CNT_W-1];
 
 // FT clock domain
-logic [HEARTBEAT_CNT_W-1:0] ft_heartbeat_cnt;
-always_ff @(posedge ft_clk) begin
-    if (ft_rst)
-        ft_heartbeat_cnt <= '0;
-    else
-        ft_heartbeat_cnt <= ft_heartbeat_cnt + 1'b1;
-end
-assign LEDR[8] = ft_heartbeat_cnt[HEARTBEAT_CNT_W-1];
+// logic [HEARTBEAT_CNT_W-1:0] ft_heartbeat_cnt;
+// always_ff @(posedge ft_clk) begin
+//     if (ft_rst)
+//         ft_heartbeat_cnt <= '0;
+//     else
+//         ft_heartbeat_cnt <= ft_heartbeat_cnt + 1'b1;
+// end
+// assign LEDR[8] = ft_heartbeat_cnt[HEARTBEAT_CNT_W-1];
 
 endmodule
