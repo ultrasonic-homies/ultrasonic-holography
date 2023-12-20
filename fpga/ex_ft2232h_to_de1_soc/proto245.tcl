@@ -15,7 +15,7 @@
 
 # Quartus Prime: Generate Tcl File for Project
 # File: proto245.tcl
-# Generated on: Tue Dec 19 14:24:10 2023
+# Generated on: Wed Dec 20 12:14:34 2023
 
 # Load Quartus Prime Tcl Project package
 package require ::quartus::project
@@ -44,7 +44,7 @@ if {$make_assignments} {
 	set_global_assignment -name FAMILY "Cyclone V"
 	set_global_assignment -name DEVICE 5CSEMA5F31C6
 	set_global_assignment -name ORIGINAL_QUARTUS_VERSION 19.1.0
-	set_global_assignment -name PROJECT_CREATION_TIME_DATE "20:50:27  Ð¸ÑÐ½Ñ 05, 2021"
+	set_global_assignment -name PROJECT_CREATION_TIME_DATE "20:50:27  ÃÂ¸ÃÂÃÂ½ÃÂ 05, 2021"
 	set_global_assignment -name LAST_QUARTUS_VERSION "19.1.0 Lite Edition"
 	set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
 	set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
@@ -70,6 +70,8 @@ if {$make_assignments} {
 	set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 	set_global_assignment -name OPTIMIZATION_MODE BALANCED
 	set_global_assignment -name BOARD "DE1-SoC Board"
+	set_global_assignment -name SYSTEMVERILOG_FILE ../pwm.sv
+	set_global_assignment -name SYSTEMVERILOG_FILE ../seven_seg.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE ../phase_parser.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE ../proto245/src/proto245s.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE ../proto245/src/proto245a.sv
@@ -78,6 +80,7 @@ if {$make_assignments} {
 	set_global_assignment -name SYSTEMVERILOG_FILE ../proto245/src/dpram.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE top.sv
 	set_global_assignment -name SDC_FILE top.sdc
+	set_global_assignment -name QIP_FILE ../ip/pll50.qip
 	set_location_assignment PIN_AF14 -to CLOCK_50
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to CLOCK_50
 	set_location_assignment PIN_AA14 -to KEY[0]
@@ -248,6 +251,16 @@ if {$make_assignments} {
 	set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to ft_wrn
 	set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to ft_data
 	set_instance_assignment -name FAST_INPUT_REGISTER ON -to ft_data
+	set_location_assignment PIN_AB21 -to sync_out
+	set_location_assignment PIN_AH22 -to trans[0]
+	set_location_assignment PIN_AF24 -to trans[1]
+	set_location_assignment PIN_AE22 -to trans[2]
+	set_location_assignment PIN_AA20 -to trans[3]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to sync_out
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[0]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[1]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[2]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[3]
 	set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
 	# Commit assignments

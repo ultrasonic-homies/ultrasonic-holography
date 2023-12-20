@@ -20,7 +20,10 @@ module top #(
     output              ft_rdn,
     input               ft_txen,
     input               ft_rxfn,
-    inout  [DATA_W-1:0] ft_data
+    inout  [DATA_W-1:0] ft_data,
+
+    output logic sync_out,
+    output [3:0] trans
 );
 
 //------------------------------------------------------------------------------
@@ -32,12 +35,24 @@ assign sys_clk = CLOCK_50;
 // System synchronous active high reset
 logic [5:0] sys_reset_cnt = '0;
 logic sys_rst = 1'b1;
-always_ff @(posedge pwm_clk) begin
+always_ff @(posedge sys_clk) begin
     if (sys_reset_cnt < '1) begin
         sys_rst       <= 1'b1;
         sys_reset_cnt <= sys_reset_cnt + 1'b1;
     end else begin
         sys_rst       <= 1'b0;
+    end
+end
+
+// System synchronous active high reset
+logic [5:0] pwm_reset_cnt = '0;
+logic pwm_rst = 1'b1;
+always_ff @(posedge pwm_clk) begin
+    if (pwm_reset_cnt < '1) begin
+        pwm_rst       <= 1'b1;
+        pwm_reset_cnt <= pwm_reset_cnt + 1'b1;
+    end else begin
+        pwm_rst       <= 1'b0;
     end
 end
 
@@ -69,6 +84,10 @@ end
 //------------------------------------------------------------------------------
 
 localparam NUM_CHANNELS = 4;
+// system params
+localparam CLK_FREQ = 10_240_000;
+localparam OUT_FREQ = 40_000;
+localparam CLK_CNT_MAX = CLK_FREQ / OUT_FREQ;
 
 enum logic [3:0] {
     CMD_WAIT_S,
@@ -91,14 +110,37 @@ logic [31:0] word_cnt, word_cnt_next;
 logic [DATA_W-1:0] golden_data, golden_data_next;
 logic dbg_led, dbg_led_next;
 logic [7:0] phases [NUM_CHANNELS];
+logic [7:0] phases_1 [NUM_CHANNELS];
+logic [7:0] phases_2 [NUM_CHANNELS];
 logic phase_parser_en, phase_parser_en_next;
 logic [23:0] data, data_next;
-
+logic [$clog2(CLK_CNT_MAX)-1:0] cnt;
+logic en [NUM_CHANNELS-1:0] = '{NUM_CHANNELS {1}};
 genvar i;
+
+always @(posedge pwm_clk) begin
+    if(pwm_rst) begin
+        cnt <= '0;
+        sync_out <= '0;
+    end
+    else begin
+        cnt <= cnt == (CLK_CNT_MAX-1) ? 0 : cnt + 1;
+        sync_out <= (cnt < CLK_CNT_MAX/2) ? '1 : '0;
+    end
+end
+
 generate
     for (i = 0; i < NUM_CHANNELS; i++) begin:channels
-        phase_parser #(.CHANNEL(i)) phase_parser(
+        pwm #(CLK_FREQ, OUT_FREQ) pwm (
             .clk(pwm_clk),
+            .rst(pwm_rst),
+            .en(en[i]),
+            .cnt,
+            .phase(phases_2[i]),
+            .out(trans[i])
+        );
+        phase_parser #(.CHANNEL(i)) phase_parser(
+            .clk(sys_clk),
             .rst(sys_rst),
             .en(phase_parser_en),
             .phase_data(data[15:0]),
@@ -223,7 +265,7 @@ always_comb begin
    endcase
 end
 
-always_ff @(posedge pwm_clk) begin
+always_ff @(posedge sys_clk) begin
     if (sys_rst) begin
         fsm_state   <= CMD_WAIT_S;
         cmd_shifter <= '0;
@@ -251,6 +293,14 @@ always_ff @(posedge pwm_clk) begin
     end
 end
 
+// PWM CLOCK DOMAIN
+
+always_ff @(posedge pwm_clk) begin
+    phases_1 <= phases;
+    phases_2 <= phases_1;
+end
+
+
 // `ifdef FIFO245_SYNC
 // assign LEDR[7] = '0;
 // `else
@@ -274,7 +324,7 @@ localparam HEARTBEAT_CNT_W = 25;
 
 // System clock domain
 logic [HEARTBEAT_CNT_W-1:0] sys_heartbeat_cnt;
-always_ff @(posedge pwm_clk) begin
+always_ff @(posedge sys_clk) begin
     if (sys_rst)
         sys_heartbeat_cnt <= '0;
     else
