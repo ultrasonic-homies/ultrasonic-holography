@@ -1,23 +1,23 @@
 module top (
     // inputs
-    input           sys_clk,
-    input           sync_in,
-    input           rst, // synchronous active high reset
+    input               sys_clk,
+    input               sync_in,
+    input               rst, // synchronous active high reset
     // outputs
-    output logic    sync_out,
-    output [3:0]    trans,
+    output logic        sync_out,
+    output [3:0]        trans,
     // ft chip
-    inout  [7:0]    ft_data,
-    input           ft_txen,
-    input           ft_rxfn,
-    output          ft_rdn,
-    output          ft_wrn,
-    input           ft_clk,  // sync mode only
-    output          ft_oen,  // sync mode only
-    output          ft_siwu, // sync mode only
+    inout  [7:0]        ft_data,
+    input               ft_txen,
+    input               ft_rxfn,
+    output              ft_rdn,
+    output              ft_wrn,
+    input               ft_clk,  // sync mode only
+    output              ft_oen,  // sync mode only
+    output              ft_siwu, // sync mode only
     // for debug only! TODO remove in production
-    output [7:0]    phases [0:3],
-    output          read_error
+    output logic [7:0]  phases [4],
+    output              read_error
 );
 
 `define MASTER // comment out if not master
@@ -41,10 +41,7 @@ localparam TX_FIFO_LOAD_W     = $clog2(TX_FIFO_SIZE) + 1;
 localparam RX_FIFO_LOAD_W     = $clog2(RX_FIFO_SIZE) + 1;
 localparam DATA_W             = 8;
 
-// misc regs
-// logic [$clog2(CLK_FREQ/OUT_FREQ)-1:0] phases [0:NUM_CHANNELS-1];
-// logic   read_error;
-logic   clk;
+
 
 // proto245 regs
 logic [DATA_W-1:0] ft_din, ft_dout;
@@ -64,8 +61,15 @@ assign ft_oen  = 1'b1;
 assign ft_data = ft_rdn ? ft_dout : 'z;
 assign ft_din  = ft_data;
 
+// misc regs
+// logic [$clog2(CLK_FREQ/OUT_FREQ)-1:0] phases [0:NUM_CHANNELS-1];
+// logic   read_error;
+// Internal regs
+logic   clk;
 logic [$clog2(CLK_CNT_MAX)-1:0] cnt;
 logic en [NUM_CHANNELS-1:0] = '{NUM_CHANNELS {1}};
+logic phase_parse_en;
+logic [31:0] latest_data;
 
 always @(posedge clk) begin
     if(rst) begin
@@ -77,10 +81,11 @@ always @(posedge clk) begin
         sync_out <= (cnt < CLK_CNT_MAX/2) ? '1 : '0;
     end
 end
+
 genvar i;
 generate
-    for (i = 0; i < NUM_CHANNELS; i++) begin:pwms
-        pwm #(CLK_FREQ, OUT_FREQ) pwm  (
+    for (i = 0; i < NUM_CHANNELS; i++) begin:channel
+        pwm #(CLK_FREQ, OUT_FREQ) pwm (
             .clk,
             .rst,
             .en(en[i]),
@@ -88,13 +93,17 @@ generate
             .phase(phases[i]),
             .out(trans[i])
         );
+        phase_parser #(.CHANNEL(i)) phase_parser (
+            .clk,
+            .rst,
+            .en(phase_parse_en),
+            .phase_data(latest_data[15:0]),
+            .phase(phases[i])
+        );
     end
 endgenerate
 
 receiver #(
-    .CLK_FREQ       (CLK_FREQ),
-    .OUT_FREQ       (OUT_FREQ),
-    .NUM_CHANNELS       (NUM_CHANNELS),
     .TX_FIFO_LOAD_W     (TX_FIFO_LOAD_W),
     .RX_FIFO_LOAD_W     (RX_FIFO_LOAD_W)
 ) receiver (
@@ -102,8 +111,9 @@ receiver #(
     .clk,
     .rst,
     // internal outputs
-    .phases,
     .read_error,
+    .phase_parse_en,
+    .latest_data,
     // proto245 interface
     // RX: Host -> FPGA
     .rxfifo_data,
@@ -157,7 +167,7 @@ proto245a #(
     .txfifo_full  (txfifo_full)     // TX FIFO is full
 );
 
-// TODO generate new ip to match crystal on v1 board
+// TODO generate new ip to match crystal on v1 board + do not use lock / rst
 pll50 pll (
     .refclk   (sys_clk),
     .rst      (),

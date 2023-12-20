@@ -26,13 +26,13 @@ module top #(
 //------------------------------------------------------------------------------
 // Clocks and resets
 //------------------------------------------------------------------------------
-logic sys_clk;
+logic sys_clk, pwm_clk;
 assign sys_clk = CLOCK_50;
 
 // System synchronous active high reset
 logic [5:0] sys_reset_cnt = '0;
 logic sys_rst = 1'b1;
-always_ff @(posedge sys_clk) begin
+always_ff @(posedge pwm_clk) begin
     if (sys_reset_cnt < '1) begin
         sys_rst       <= 1'b1;
         sys_reset_cnt <= sys_reset_cnt + 1'b1;
@@ -98,7 +98,7 @@ genvar i;
 generate
     for (i = 0; i < NUM_CHANNELS; i++) begin:channels
         phase_parser #(.CHANNEL(i)) phase_parser(
-            .clk(sys_clk),
+            .clk(pwm_clk),
             .rst(sys_rst),
             .en(phase_parser_en),
             .phase_data(data[15:0]),
@@ -106,6 +106,13 @@ generate
         );
     end
 endgenerate
+
+pll50 pll (
+    .refclk   (sys_clk),
+    .rst      (),
+    .outclk_0 (pwm_clk), // 10.24MHz
+    .locked   ()
+);
 
 seven_seg seven_seg0(.in_byte(data[3:0]),   .display(HEX0));
 seven_seg seven_seg1(.in_byte(data[7:4]),   .display(HEX1));
@@ -216,7 +223,7 @@ always_comb begin
    endcase
 end
 
-always_ff @(posedge sys_clk) begin
+always_ff @(posedge pwm_clk) begin
     if (sys_rst) begin
         fsm_state   <= CMD_WAIT_S;
         cmd_shifter <= '0;
@@ -267,7 +274,7 @@ localparam HEARTBEAT_CNT_W = 25;
 
 // System clock domain
 logic [HEARTBEAT_CNT_W-1:0] sys_heartbeat_cnt;
-always_ff @(posedge sys_clk) begin
+always_ff @(posedge pwm_clk) begin
     if (sys_rst)
         sys_heartbeat_cnt <= '0;
     else

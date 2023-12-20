@@ -8,3 +8,4 @@
 !*.sh
 !de1_soc_async.sof
 !de1_soc_sync.sof
+!receiver_working.sof

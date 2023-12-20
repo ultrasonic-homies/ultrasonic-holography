@@ -28,7 +28,7 @@ proto245a #(
 ) proto245 (
     // FT interface - should be routed directly to IO
     .ft_rst   (sys_rst),
-    .ft_clk   (sys_clk),
+    .ft_clk   (pwm_clk),
     .ft_rxfn  (ft_rxfn),
     .ft_txen  (ft_txen),
     .ft_din   (ft_din),
@@ -37,7 +37,7 @@ proto245a #(
     .ft_wrn   (ft_wrn),
     .ft_siwu  (ft_siwu),
     // RX FIFO (Host -> FTDI chip -> FPGA -> FIFO)
-    .rxfifo_clk   (sys_clk),
+    .rxfifo_clk   (pwm_clk),
     .rxfifo_rst   (sys_rst),
     .rxfifo_rd    (rxfifo_rd),
     .rxfifo_data  (rxfifo_data),
@@ -45,7 +45,7 @@ proto245a #(
     .rxfifo_load  (rxfifo_load),
     .rxfifo_empty (rxfifo_empty),
     // TX FIFO (FIFO -> FPGA -> FTDI chip -> Host)
-    .txfifo_clk   (sys_clk),
+    .txfifo_clk   (pwm_clk),
     .txfifo_rst   (sys_rst),
     .txfifo_data  (txfifo_data),
     .txfifo_wr    (txfifo_wr),
