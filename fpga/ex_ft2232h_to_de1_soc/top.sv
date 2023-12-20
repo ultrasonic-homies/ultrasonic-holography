@@ -156,12 +156,12 @@ pll50 pll (
     .locked   ()
 );
 
-seven_seg seven_seg0(.in_byte(data[3:0]),   .display(HEX0));
-seven_seg seven_seg1(.in_byte(data[7:4]),   .display(HEX1));
-seven_seg seven_seg2(.in_byte(data[11:8]),  .display(HEX2));
-seven_seg seven_seg3(.in_byte(data[15:12]), .display(HEX3));
-seven_seg seven_seg4(.in_byte(data[19:16]), .display(HEX4));
-seven_seg seven_seg5(.in_byte(data[23:20]), .display(HEX5));
+hex_to_7seg hex0_7seg(.in_byte(data[3:0]),   .display(HEX0));
+hex_to_7seg hex1_7seg(.in_byte(data[7:4]),   .display(HEX1));
+hex_to_7seg hex2_7seg(.in_byte(data[11:8]),  .display(HEX2));
+hex_to_7seg hex3_7seg(.in_byte(data[15:12]), .display(HEX3));
+hex_to_7seg hex4_7seg(.in_byte(data[19:16]), .display(HEX4));
+hex_to_7seg hex5_7seg(.in_byte(data[23:20]), .display(HEX5));
 
 assign {cmd_prefix, cmd_code, cmd_data, cmd_suffix} = cmd_shifter;
 

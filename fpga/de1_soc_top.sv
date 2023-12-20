@@ -25,25 +25,25 @@ module de1_soc_top(
     output              ft_siwu
 );
 
-logic sys_clk, rst;
+logic sys_clk, ext_rst;
 logic [7:0] phases [0:3];
 logic read_error;
 
 assign sys_clk = CLOCK_50;
-assign rst = ~KEY[3];
+assign ext_rst = ~KEY[3];
 assign LEDR[7:0] = phases[0];
 assign LEDR[8] = read_error;
-assign HEX0 = 7'b1111111;
-assign HEX1 = 7'b1111111;
-assign HEX2 = 7'b1111111;
-assign HEX3 = 7'b1111111;
-assign HEX4 = 7'b1111111;
-assign HEX5 = 7'b1111111;
+hex_to_7seg hex0_7seg(.in_byte(phases[1][3:0]), .display(HEX0));
+hex_to_7seg hex1_7seg(.in_byte(phases[1][7:4]), .display(HEX1));
+hex_to_7seg hex2_7seg(.in_byte(phases[2][3:0]), .display(HEX2));
+hex_to_7seg hex3_7seg(.in_byte(phases[2][7:4]), .display(HEX3));
+hex_to_7seg hex4_7seg(.in_byte(phases[3][3:0]), .display(HEX4));
+hex_to_7seg hex5_7seg(.in_byte(phases[3][7:4]), .display(HEX5));
 
 // system clock heartbeat
 logic [24:0] sys_heartbeat_cnt;
 always_ff @(posedge sys_clk) begin
-    if (rst)
+    if (ext_rst)
         sys_heartbeat_cnt <= '0;
     else
         sys_heartbeat_cnt <= sys_heartbeat_cnt + 1'b1;

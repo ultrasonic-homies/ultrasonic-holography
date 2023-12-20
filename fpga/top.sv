@@ -2,7 +2,7 @@ module top (
     // inputs
     input               sys_clk,
     input               sync_in,
-    input               rst, // synchronous active high reset
+    input               ext_rst, // synchronous active high reset
     // outputs
     output logic        sync_out,
     output [3:0]        trans,
@@ -41,8 +41,6 @@ localparam TX_FIFO_LOAD_W     = $clog2(TX_FIFO_SIZE) + 1;
 localparam RX_FIFO_LOAD_W     = $clog2(RX_FIFO_SIZE) + 1;
 localparam DATA_W             = 8;
 
-
-
 // proto245 regs
 logic [DATA_W-1:0] ft_din, ft_dout;
 
@@ -61,41 +59,77 @@ assign ft_oen  = 1'b1;
 assign ft_data = ft_rdn ? ft_dout : 'z;
 assign ft_din  = ft_data;
 
-// misc regs
+// system regs
 // logic [$clog2(CLK_FREQ/OUT_FREQ)-1:0] phases [0:NUM_CHANNELS-1];
 // logic   read_error;
-// Internal regs
-logic   clk;
-logic [$clog2(CLK_CNT_MAX)-1:0] cnt;
-logic en [NUM_CHANNELS-1:0] = '{NUM_CHANNELS {1}};
-logic phase_parse_en;
-logic [31:0] latest_data;
+logic [$clog2(CLK_FREQ/OUT_FREQ)-1:0]   phases_1 [NUM_CHANNELS];
+logic [$clog2(CLK_FREQ/OUT_FREQ)-1:0]   phases_2 [NUM_CHANNELS];
+logic                                   sys_rst = 'b1; // synchronous active high reset
+logic [1:0]                             sys_reset_cnt = '0;
+logic                                   pwm_clk;
+logic                                   pwm_rst = 'b1; // synchronous active high reset
+logic [1:0]                             pwm_reset_cnt = '0;
+logic [$clog2(CLK_CNT_MAX)-1:0]         pwm_cnt;
+logic                                   pwm_en [NUM_CHANNELS] = '{NUM_CHANNELS {1}};
+logic                                   phase_parse_en;
+logic [31:0]                            latest_data;
 
-always @(posedge clk) begin
-    if(rst) begin
-        cnt <= '0;
-        sync_out <= '0;
-    end
-    else begin
-        cnt <= cnt == (CLK_CNT_MAX-1) ? 0 : cnt + 1;
-        sync_out <= (cnt < CLK_CNT_MAX/2) ? '1 : '0;
+
+// initial system reset
+always_ff @(posedge sys_clk) begin
+    if (sys_reset_cnt < '1) begin
+        sys_rst       <= 1'b1;
+        sys_reset_cnt <= sys_reset_cnt + 1'b1;
+    end else begin
+        sys_rst       <= ext_rst;
     end
 end
 
+// initial pwm reset
+
+always_ff @(posedge pwm_clk) begin
+    if (pwm_reset_cnt < '1) begin
+        pwm_rst       <= 1'b1;
+        pwm_reset_cnt <= pwm_reset_cnt + 1'b1;
+    end else begin
+        pwm_rst       <= ext_rst;
+    end
+end
+
+// phase synchronizer into pwm_clk domain
+always_ff @(posedge pwm_clk) begin
+    phases_1 <= phases;
+    phases_2 <= phases_1;
+end
+
+// sync out generator
+always @(posedge pwm_clk) begin
+    if(pwm_rst) begin
+        pwm_cnt <= '0;
+        sync_out <= '0;
+    end
+    else begin
+        pwm_cnt <= pwm_cnt == (CLK_CNT_MAX-1) ? 0 : pwm_cnt + 1;
+        sync_out <= (pwm_cnt < CLK_CNT_MAX/2) ? '1 : '0;
+    end
+end
+
+/** SUBMODULES **/
+
 genvar i;
 generate
-    for (i = 0; i < NUM_CHANNELS; i++) begin:channel
+    for (i = 0; i < NUM_CHANNELS; i++) begin:channels
         pwm #(CLK_FREQ, OUT_FREQ) pwm (
-            .clk,
-            .rst,
-            .en(en[i]),
-            .cnt,
-            .phase(phases[i]),
+            .clk(pwm_clk),
+            .rst(pwm_rst),
+            .en(pwm_en[i]),
+            .cnt(pwm_cnt),
+            .phase(phases_2[i]),
             .out(trans[i])
         );
         phase_parser #(.CHANNEL(i)) phase_parser (
-            .clk,
-            .rst,
+            .clk(sys_clk),
+            .rst(sys_rst),
             .en(phase_parse_en),
             .phase_data(latest_data[15:0]),
             .phase(phases[i])
@@ -108,8 +142,8 @@ receiver #(
     .RX_FIFO_LOAD_W     (RX_FIFO_LOAD_W)
 ) receiver (
     // internal inputs
-    .clk,
-    .rst,
+    .clk(sys_clk),
+    .rst(sys_rst),
     // internal outputs
     .read_error,
     .phase_parse_en,
@@ -137,8 +171,8 @@ proto245a #(
     .WRITE_TICKS       (WRITE_TICKS)
 ) proto245 (
     // FT interface (routes to IO)
-    .ft_rst   (rst),
-    .ft_clk   (clk),
+    .ft_rst   (sys_rst),
+    .ft_clk   (sys_clk),
     .ft_rxfn  (ft_rxfn),
     .ft_txen  (ft_txen),
     .ft_din   (ft_din),
@@ -148,8 +182,8 @@ proto245a #(
     .ft_siwu  (ft_siwu),
     // RX FIFO (Host -> FTDI chip -> FPGA -> FIFO)
     // inputs
-    .rxfifo_clk   (clk),
-    .rxfifo_rst   (rst),
+    .rxfifo_clk   (sys_clk),
+    .rxfifo_rst   (sys_rst),
     .rxfifo_rd    (rxfifo_rd),      // RX FIFO read enable
     // outputs
     .rxfifo_data  (rxfifo_data),    // RX FIFO read data
@@ -158,8 +192,8 @@ proto245a #(
     .rxfifo_empty (rxfifo_empty),   // RX FIFO is empty
     // TX FIFO (FIFO -> FPGA -> FTDI chip -> Host)
     // Inputs
-    .txfifo_clk   (clk),
-    .txfifo_rst   (rst),
+    .txfifo_clk   (sys_clk),
+    .txfifo_rst   (sys_rst),
     .txfifo_data  (txfifo_data),    // TX FIFO write data
     .txfifo_wr    (txfifo_wr),      // TX FIFO read enable
     // Outputs
@@ -171,7 +205,7 @@ proto245a #(
 pll50 pll (
     .refclk   (sys_clk),
     .rst      (),
-    .outclk_0 (clk), // 10.24MHz
+    .outclk_0 (pwm_clk), // 10.24MHz
     .locked   ()
 );
 
