@@ -56,6 +56,7 @@ logic [CLK_CNT_W-1:0]   pwm_cnt;
 logic                   pwm_en [NUM_CHANNELS] = '{NUM_CHANNELS {1}};
 logic                   phase_parse_en;
 logic [31:0]            latest_data;
+wire                    sync_pulse;
 
 // initial system reset
 always_ff @(posedge sys_clk) begin
@@ -81,18 +82,6 @@ end
 always_ff @(posedge pwm_clk) begin
     phases_1 <= phases;
     phases_2 <= phases_1;
-end
-
-// sync out generator
-always @(posedge pwm_clk) begin
-    if(pwm_rst) begin
-        pwm_cnt     <= '0;
-        sync_out    <= '0;
-    end
-    else begin
-        pwm_cnt     <= pwm_cnt == (CLK_CNT_MAX-1) ? 0 : pwm_cnt + 1;
-        sync_out    <= (pwm_cnt < CLK_CNT_MAX/2) ? '1 : '0;
-    end
 end
 
 /** SUBMODULES **/
@@ -180,6 +169,25 @@ proto245a #(
     // Outputs
     .txfifo_load  (txfifo_load),    // TX FIFO load counter
     .txfifo_full  (txfifo_full)     // TX FIFO is full
+);
+
+sync_receiver sync_receiver (
+    .clk(pwm_clk),
+    .rst(pwm_rst),
+    .sync_in,
+    .sync_pulse
+);
+
+sync_sender #(
+    .PHASE_JITTER   (PHASE_JITTER),
+    .CLK_CNT_W      (CLK_CNT_W),
+    .CLK_CNT_MAX    (CLK_CNT_MAX)
+) sync_sender (
+    .clk(pwm_clk),
+    .rst(pwm_rst),
+    .sync_pulse,
+    .cnt(pwm_cnt),
+    .sync_out
 );
 
 endmodule: top

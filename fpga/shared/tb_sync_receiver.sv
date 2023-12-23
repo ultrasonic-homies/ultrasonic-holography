@@ -1,5 +1,5 @@
 `timescale 1ps/1ps
-module tb_sync_in();
+module tb_sync_receiver();
 
 localparam int clock_multiplier = 10;
 
@@ -8,7 +8,7 @@ logic rst;
 logic sync_in;
 wire sync_pulse;
 
-sync_in dut(.*);
+sync_receiver dut(.*);
 
 initial begin
     rst = 1;
@@ -36,4 +36,4 @@ initial begin
     end
 end
 
-endmodule: tb_sync_in
+endmodule: tb_sync_receiver

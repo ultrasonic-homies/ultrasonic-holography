@@ -77,6 +77,8 @@ if {$make_assignments} {
 	set_global_assignment -name SYSTEMVERILOG_FILE ../shared/pwm.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE ../shared/phase_parser.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE ../shared/hex_to_7seg.sv
+	set_global_assignment -name SYSTEMVERILOG_FILE ../shared/sync_receiver.sv
+	set_global_assignment -name SYSTEMVERILOG_FILE ../shared/sync_sender.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE ../proto245/src/proto245a.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE ../proto245/src/fifo_sync.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE ../proto245/src/fifo_async.sv

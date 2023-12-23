@@ -1,4 +1,4 @@
-module sync_in(
+module sync_receiver(
     input clk,
     input rst,
     input sync_in,
@@ -51,4 +51,4 @@ always_ff @(posedge clk) begin
     end
 end
 
-endmodule: sync_in
+endmodule: sync_receiver

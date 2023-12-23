@@ -13,26 +13,26 @@ logic [$clog2(CLK_FREQ/OUT_FREQ)-1:0] end_phase;
 assign end_phase = phase + CLK_CNT_MAX/2;
 
 typedef enum {
-    pwm_off_e,
-    pwm_on_e
+    PWM_OFF_E,
+    PWM_ON_E
 } pwm_state;
 
-pwm_state fsm_state = pwm_off_e;
+pwm_state fsm_state = PWM_OFF_E;
 
 always_ff @(posedge clk) begin
     if (rst) begin
-        fsm_state <= pwm_off_e;
+        fsm_state <= PWM_OFF_E;
     end
     else begin
         case (fsm_state)
-            pwm_off_e: begin
+            PWM_OFF_E: begin
                 if (cnt == phase) begin
-                    fsm_state <= pwm_on_e;
+                    fsm_state <= PWM_ON_E;
                 end
             end
-            pwm_on_e: begin
+            PWM_ON_E: begin
                 if (cnt == end_phase) begin
-                    fsm_state <= pwm_off_e;
+                    fsm_state <= PWM_OFF_E;
                 end
             end
         endcase
@@ -41,10 +41,10 @@ end
 
 always_comb begin
     case (fsm_state)
-        pwm_off_e: begin
+        PWM_OFF_E: begin
             out = 'b0;
         end
-        pwm_on_e: begin
+        PWM_ON_E: begin
             out = en;
         end
     endcase

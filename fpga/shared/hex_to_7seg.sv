@@ -52,4 +52,3 @@ module hex_to_7seg(input [3:0] in_byte, output[6:0] display);
     assign display = display_val;
 
 endmodule: hex_to_7seg
-
