@@ -1,4 +1,4 @@
-module de1_soc_top(
+module de0_cv_top(
     // peripherals
     input logic         CLOCK_50,
     input logic [3:0]   KEY,
@@ -50,6 +50,6 @@ always_ff @(posedge sys_clk) begin
 end
 assign LEDR[9] = sys_heartbeat_cnt[24];
 
-top top(.*);
+top #(.NUM_CHANNELS(4)) top(.*);
 
-endmodule: de1_soc_top
+endmodule: de0_cv_top

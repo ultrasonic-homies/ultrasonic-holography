@@ -14,8 +14,8 @@
 # https://fpgasoftware.intel.com/eula.
 
 # Quartus Prime: Generate Tcl File for Project
-# File: de1_soc_top.tcl
-# Generated on: Fri Dec 15 15:28:11 2023
+# File: de0_cv_top.tcl
+# Generated on: Fri Dec 22 14:05:42 2023
 
 # Load Quartus Prime Tcl Project package
 package require ::quartus::project
@@ -25,16 +25,16 @@ set make_assignments 1
 
 # Check that the right project is open
 if {[is_project_open]} {
-	if {[string compare $quartus(project) "de1_soc_top"]} {
-		puts "Project de1_soc_top is not open"
+	if {[string compare $quartus(project) "de0_cv_top"]} {
+		puts "Project de0_cv_top is not open"
 		set make_assignments 0
 	}
 } else {
 	# Only open if not already open
-	if {[project_exists de1_soc_top]} {
-		project_open -revision de1_soc_top de1_soc_top
+	if {[project_exists de0_cv_top]} {
+		project_open -revision de0_cv_top de0_cv_top
 	} else {
-		project_new -revision de1_soc_top de1_soc_top
+		project_new -revision de0_cv_top de0_cv_top
 	}
 	set need_to_close_project 1
 }
@@ -42,9 +42,9 @@ if {[is_project_open]} {
 # Make assignments
 if {$make_assignments} {
 	set_global_assignment -name FAMILY "Cyclone V"
-	set_global_assignment -name DEVICE 5CSEMA5F31C6
+	set_global_assignment -name DEVICE 5CEBA4F23C7
 	set_global_assignment -name ORIGINAL_QUARTUS_VERSION 19.1.0
-	set_global_assignment -name PROJECT_CREATION_TIME_DATE "20:50:27  ÃÂ¸ÃÂÃÂ½ÃÂ 05, 2021"
+	set_global_assignment -name PROJECT_CREATION_TIME_DATE "20:50:27  ÃÂÃÂÃÂÃÂ¸ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ½ÃÂÃÂÃÂÃÂ 05, 2021"
 	set_global_assignment -name LAST_QUARTUS_VERSION "19.1.0 Lite Edition"
 	set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
 	set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
@@ -70,62 +70,67 @@ if {$make_assignments} {
 	set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 	set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 	set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-	set_global_assignment -name SYSTEMVERILOG_FILE de1_soc_top.sv
-	set_global_assignment -name SDC_FILE de1_soc_top.sdc
-	set_global_assignment -name SYSTEMVERILOG_FILE top.sv
-	set_global_assignment -name SYSTEMVERILOG_FILE receiver.sv
-	set_global_assignment -name SYSTEMVERILOG_FILE pwm.sv
-	set_global_assignment -name SYSTEMVERILOG_FILE proto245/src/proto245a.sv
-	set_global_assignment -name SYSTEMVERILOG_FILE proto245/src/fifo_sync.sv
-	set_global_assignment -name SYSTEMVERILOG_FILE proto245/src/fifo_async.sv
-	set_global_assignment -name SYSTEMVERILOG_FILE proto245/src/dpram.sv
-	set_global_assignment -name QIP_FILE ip/pll50.qip
-	set_location_assignment PIN_AF14 -to CLOCK_50
-	set_location_assignment PIN_AA14 -to KEY[0]
-	set_location_assignment PIN_AA15 -to KEY[1]
-	set_location_assignment PIN_W15 -to KEY[2]
-	set_location_assignment PIN_Y16 -to KEY[3]
-	set_location_assignment PIN_V16 -to LEDR[0]
-	set_location_assignment PIN_W16 -to LEDR[1]
-	set_location_assignment PIN_V17 -to LEDR[2]
-	set_location_assignment PIN_V18 -to LEDR[3]
-	set_location_assignment PIN_W17 -to LEDR[4]
-	set_location_assignment PIN_W19 -to LEDR[5]
-	set_location_assignment PIN_Y19 -to LEDR[6]
-	set_location_assignment PIN_W20 -to LEDR[7]
-	set_location_assignment PIN_W21 -to LEDR[8]
-	set_location_assignment PIN_Y21 -to LEDR[9]
-	set_location_assignment PIN_AB12 -to SW[0]
-	set_location_assignment PIN_AC12 -to SW[1]
-	set_location_assignment PIN_AF9 -to SW[2]
-	set_location_assignment PIN_AF10 -to SW[3]
-	set_location_assignment PIN_AD11 -to SW[4]
-	set_location_assignment PIN_AD12 -to SW[5]
-	set_location_assignment PIN_AE11 -to SW[6]
-	set_location_assignment PIN_AC9 -to SW[7]
-	set_location_assignment PIN_AD10 -to SW[8]
-	set_location_assignment PIN_AE12 -to SW[9]
-	set_location_assignment PIN_AD17 -to ft_clk
-	set_location_assignment PIN_AJ17 -to ft_data[0]
-	set_location_assignment PIN_AH18 -to ft_data[1]
-	set_location_assignment PIN_AG16 -to ft_data[2]
-	set_location_assignment PIN_AF16 -to ft_data[3]
-	set_location_assignment PIN_AA18 -to ft_data[4]
-	set_location_assignment PIN_AE17 -to ft_data[5]
-	set_location_assignment PIN_AH19 -to ft_data[6]
-	set_location_assignment PIN_AH20 -to ft_data[7]
-	set_location_assignment PIN_AD19 -to ft_rxfn
-	set_location_assignment PIN_AE18 -to ft_txen
-	set_location_assignment PIN_AF20 -to ft_rdn
-	set_location_assignment PIN_AF19 -to ft_wrn
-	set_location_assignment PIN_AF18 -to ft_siwu
-	set_location_assignment PIN_AG18 -to ft_oen
-	set_location_assignment PIN_AB17 -to sync_in
-	set_location_assignment PIN_AB21 -to sync_out
-	set_location_assignment PIN_AH22 -to trans[0]
-	set_location_assignment PIN_AF24 -to trans[1]
-	set_location_assignment PIN_AE22 -to trans[2]
-	set_location_assignment PIN_AA20 -to trans[3]
+	set_global_assignment -name SYSTEMVERILOG_FILE de0_cv_top.sv
+	set_global_assignment -name SDC_FILE de0_cv_top.sdc
+	set_global_assignment -name SYSTEMVERILOG_FILE ../shared/top.sv
+	set_global_assignment -name SYSTEMVERILOG_FILE ../shared/receiver.sv
+	set_global_assignment -name SYSTEMVERILOG_FILE ../shared/pwm.sv
+	set_global_assignment -name SYSTEMVERILOG_FILE ../shared/phase_parser.sv
+	set_global_assignment -name SYSTEMVERILOG_FILE ../shared/hex_to_7seg.sv
+	set_global_assignment -name SYSTEMVERILOG_FILE ../proto245/src/proto245a.sv
+	set_global_assignment -name SYSTEMVERILOG_FILE ../proto245/src/fifo_sync.sv
+	set_global_assignment -name SYSTEMVERILOG_FILE ../proto245/src/fifo_async.sv
+	set_global_assignment -name SYSTEMVERILOG_FILE ../proto245/src/dpram.sv
+	set_global_assignment -name QIP_FILE ../ip/pll50.qip
+	set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -entity DE0_CV -section_id Top
+	set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -entity DE0_CV -section_id Top
+	set_global_assignment -name PARTITION_COLOR 16764057 -entity DE0_CV -section_id Top
+	set_location_assignment PIN_M9 -to CLOCK_50
+	set_location_assignment PIN_U7 -to KEY[0]
+	set_location_assignment PIN_W9 -to KEY[1]
+	set_location_assignment PIN_M7 -to KEY[2]
+	set_location_assignment PIN_M6 -to KEY[3]
+	set_location_assignment PIN_AA2 -to LEDR[0]
+	set_location_assignment PIN_AA1 -to LEDR[1]
+	set_location_assignment PIN_W2 -to LEDR[2]
+	set_location_assignment PIN_Y3 -to LEDR[3]
+	set_location_assignment PIN_N2 -to LEDR[4]
+	set_location_assignment PIN_N1 -to LEDR[5]
+	set_location_assignment PIN_U2 -to LEDR[6]
+	set_location_assignment PIN_U1 -to LEDR[7]
+	set_location_assignment PIN_L2 -to LEDR[8]
+	set_location_assignment PIN_L1 -to LEDR[9]
+	set_location_assignment PIN_U13 -to SW[0]
+	set_location_assignment PIN_V13 -to SW[1]
+	set_location_assignment PIN_T13 -to SW[2]
+	set_location_assignment PIN_T12 -to SW[3]
+	set_location_assignment PIN_AA15 -to SW[4]
+	set_location_assignment PIN_AB15 -to SW[5]
+	set_location_assignment PIN_AA14 -to SW[6]
+	set_location_assignment PIN_AA13 -to SW[7]
+	set_location_assignment PIN_AB13 -to SW[8]
+	set_location_assignment PIN_AB12 -to SW[9]
+		set_location_assignment PIN_M16 -to ft_clk
+	set_location_assignment PIN_M20 -to ft_data[0]
+	set_location_assignment PIN_N21 -to ft_data[1]
+	set_location_assignment PIN_R21 -to ft_data[2]
+	set_location_assignment PIN_N20 -to ft_data[3]
+	set_location_assignment PIN_M22 -to ft_data[4]
+	set_location_assignment PIN_L22 -to ft_data[5]
+	set_location_assignment PIN_P16 -to ft_data[6]
+	set_location_assignment PIN_L18 -to ft_data[7]
+	set_location_assignment PIN_L19 -to ft_rxfn
+	set_location_assignment PIN_K19 -to ft_txen
+	set_location_assignment PIN_R15 -to ft_rdn
+	set_location_assignment PIN_R16 -to ft_wrn
+	set_location_assignment PIN_T19 -to ft_siwu
+	set_location_assignment PIN_T17 -to ft_oen
+	set_location_assignment PIN_H16 -to sync_in
+	set_location_assignment PIN_H15 -to sync_out
+	set_location_assignment PIN_F13 -to trans[0]
+	set_location_assignment PIN_G16 -to trans[1]
+	set_location_assignment PIN_G13 -to trans[2]
+	set_location_assignment PIN_J17 -to trans[3]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to CLOCK_50
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to KEY[0]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to KEY[1]
@@ -172,13 +177,19 @@ if {$make_assignments} {
 	set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to ft_wrn
 	set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to ft_data
 	set_instance_assignment -name FAST_INPUT_REGISTER ON -to ft_data
-	set_location_assignment PIN_AE26 -to HEX0[0]
-	set_location_assignment PIN_AE27 -to HEX0[1]
-	set_location_assignment PIN_AE28 -to HEX0[2]
-	set_location_assignment PIN_AG27 -to HEX0[3]
-	set_location_assignment PIN_AF28 -to HEX0[4]
-	set_location_assignment PIN_AG28 -to HEX0[5]
-	set_location_assignment PIN_AH28 -to HEX0[6]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to sync_in
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to sync_out
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[0]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[1]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[2]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[3]
+	set_location_assignment PIN_U21 -to HEX0[0]
+	set_location_assignment PIN_V21 -to HEX0[1]
+	set_location_assignment PIN_W22 -to HEX0[2]
+	set_location_assignment PIN_W21 -to HEX0[3]
+	set_location_assignment PIN_Y22 -to HEX0[4]
+	set_location_assignment PIN_Y21 -to HEX0[5]
+	set_location_assignment PIN_AA22 -to HEX0[6]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX0[0]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX0[1]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX0[2]
@@ -186,13 +197,13 @@ if {$make_assignments} {
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX0[4]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX0[5]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX0[6]
-	set_location_assignment PIN_AJ29 -to HEX1[0]
-	set_location_assignment PIN_AH29 -to HEX1[1]
-	set_location_assignment PIN_AH30 -to HEX1[2]
-	set_location_assignment PIN_AG30 -to HEX1[3]
-	set_location_assignment PIN_AF29 -to HEX1[4]
-	set_location_assignment PIN_AF30 -to HEX1[5]
-	set_location_assignment PIN_AD27 -to HEX1[6]
+	set_location_assignment PIN_AA20 -to HEX1[0]
+	set_location_assignment PIN_AB20 -to HEX1[1]
+	set_location_assignment PIN_AA19 -to HEX1[2]
+	set_location_assignment PIN_AA18 -to HEX1[3]
+	set_location_assignment PIN_AB18 -to HEX1[4]
+	set_location_assignment PIN_AA17 -to HEX1[5]
+	set_location_assignment PIN_U22 -to HEX1[6]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX1[0]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX1[1]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX1[2]
@@ -200,13 +211,13 @@ if {$make_assignments} {
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX1[4]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX1[5]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX1[6]
-	set_location_assignment PIN_AB23 -to HEX2[0]
-	set_location_assignment PIN_AE29 -to HEX2[1]
-	set_location_assignment PIN_AD29 -to HEX2[2]
-	set_location_assignment PIN_AC28 -to HEX2[3]
-	set_location_assignment PIN_AD30 -to HEX2[4]
-	set_location_assignment PIN_AC29 -to HEX2[5]
-	set_location_assignment PIN_AC30 -to HEX2[6]
+	set_location_assignment PIN_Y19 -to HEX2[0]
+	set_location_assignment PIN_AB17 -to HEX2[1]
+	set_location_assignment PIN_AA10 -to HEX2[2]
+	set_location_assignment PIN_Y14 -to HEX2[3]
+	set_location_assignment PIN_V14 -to HEX2[4]
+	set_location_assignment PIN_AB22 -to HEX2[5]
+	set_location_assignment PIN_AB21 -to HEX2[6]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX2[0]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX2[1]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX2[2]
@@ -214,13 +225,13 @@ if {$make_assignments} {
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX2[4]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX2[5]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX2[6]
-	set_location_assignment PIN_AD26 -to HEX3[0]
-	set_location_assignment PIN_AC27 -to HEX3[1]
-	set_location_assignment PIN_AD25 -to HEX3[2]
-	set_location_assignment PIN_AC25 -to HEX3[3]
-	set_location_assignment PIN_AB28 -to HEX3[4]
-	set_location_assignment PIN_AB25 -to HEX3[5]
-	set_location_assignment PIN_AB22 -to HEX3[6]
+	set_location_assignment PIN_Y16 -to HEX3[0]
+	set_location_assignment PIN_W16 -to HEX3[1]
+	set_location_assignment PIN_Y17 -to HEX3[2]
+	set_location_assignment PIN_V16 -to HEX3[3]
+	set_location_assignment PIN_U17 -to HEX3[4]
+	set_location_assignment PIN_V18 -to HEX3[5]
+	set_location_assignment PIN_V19 -to HEX3[6]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[0]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[1]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[2]
@@ -228,13 +239,13 @@ if {$make_assignments} {
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[4]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[5]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[6]
-	set_location_assignment PIN_AA24 -to HEX4[0]
-	set_location_assignment PIN_Y23 -to HEX4[1]
-	set_location_assignment PIN_Y24 -to HEX4[2]
-	set_location_assignment PIN_W22 -to HEX4[3]
-	set_location_assignment PIN_W24 -to HEX4[4]
-	set_location_assignment PIN_V23 -to HEX4[5]
-	set_location_assignment PIN_W25 -to HEX4[6]
+	set_location_assignment PIN_U20 -to HEX4[0]
+	set_location_assignment PIN_Y20 -to HEX4[1]
+	set_location_assignment PIN_V20 -to HEX4[2]
+	set_location_assignment PIN_U16 -to HEX4[3]
+	set_location_assignment PIN_U15 -to HEX4[4]
+	set_location_assignment PIN_Y15 -to HEX4[5]
+	set_location_assignment PIN_P9 -to HEX4[6]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[0]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[1]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[2]
@@ -242,13 +253,13 @@ if {$make_assignments} {
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[4]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[5]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[6]
-	set_location_assignment PIN_V25 -to HEX5[0]
-	set_location_assignment PIN_AA28 -to HEX5[1]
-	set_location_assignment PIN_Y27 -to HEX5[2]
-	set_location_assignment PIN_AB27 -to HEX5[3]
-	set_location_assignment PIN_AB26 -to HEX5[4]
-	set_location_assignment PIN_AA26 -to HEX5[5]
-	set_location_assignment PIN_AA25 -to HEX5[6]
+	set_location_assignment PIN_N9 -to HEX5[0]
+	set_location_assignment PIN_M8 -to HEX5[1]
+	set_location_assignment PIN_T14 -to HEX5[2]
+	set_location_assignment PIN_P14 -to HEX5[3]
+	set_location_assignment PIN_C1 -to HEX5[4]
+	set_location_assignment PIN_C2 -to HEX5[5]
+	set_location_assignment PIN_W19 -to HEX5[6]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[0]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[1]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[2]
@@ -256,12 +267,7 @@ if {$make_assignments} {
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[4]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[5]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[6]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to sync_in
-	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to sync_out
-	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[0]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[1]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[2]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[3]
+
 	set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
 	# Commit assignments

@@ -4,3 +4,4 @@ members = [
     "de1_soc_ftd2xx",
     "de1_soc_top",
 ]
+resolver = "2"

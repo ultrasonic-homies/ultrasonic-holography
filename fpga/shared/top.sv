@@ -1,11 +1,13 @@
-module top (
+module top #(
+    parameter NUM_CHANNELS = 256
+)(
     // inputs
     input               sys_clk,
-    input               sync_in,
     input               ext_rst, // synchronous active high reset
+    input               sync_in,
     // outputs
     output logic        sync_out,
-    output [3:0]        trans,
+    output [NUM_CHANNELS-1:0] trans,
     // ft chip
     inout  [7:0]        ft_data,
     input               ft_txen,
@@ -16,30 +18,12 @@ module top (
     output              ft_oen,  // sync mode only
     output              ft_siwu, // sync mode only
     // for debug only! TODO remove in production
-    output logic [7:0]  phases [4],
+    output logic [7:0]  phases [NUM_CHANNELS],
     output              read_error
 );
 
-`define MASTER // comment out if not master
-
-`ifdef MASTER
-`endif
-
-// system params
-localparam CLK_FREQ = 10_240_000;
-localparam OUT_FREQ = 40_000;
-localparam NUM_CHANNELS = 4;
-localparam CLK_CNT_MAX = CLK_FREQ / OUT_FREQ;
-
-// proto245 params
-localparam TX_FIFO_SIZE       = 4096;
-localparam RX_FIFO_SIZE       = 4096;
-localparam SINGLE_CLK_DOMAIN  = 1;
-localparam READ_TICKS         = 2;
-localparam WRITE_TICKS        = 2;
-localparam TX_FIFO_LOAD_W     = $clog2(TX_FIFO_SIZE) + 1;
-localparam RX_FIFO_LOAD_W     = $clog2(RX_FIFO_SIZE) + 1;
-localparam DATA_W             = 8;
+// change the line below
+`include "de0_cv.svh"
 
 // proto245 regs
 logic [DATA_W-1:0] ft_din, ft_dout;
@@ -60,20 +44,18 @@ assign ft_data = ft_rdn ? ft_dout : 'z;
 assign ft_din  = ft_data;
 
 // system regs
-// logic [$clog2(CLK_FREQ/OUT_FREQ)-1:0] phases [0:NUM_CHANNELS-1];
+// logic [CLK_CNT_W-1:0] phases [NUM_CHANNELS];
 // logic   read_error;
-logic [$clog2(CLK_FREQ/OUT_FREQ)-1:0]   phases_1 [NUM_CHANNELS];
-logic [$clog2(CLK_FREQ/OUT_FREQ)-1:0]   phases_2 [NUM_CHANNELS];
-logic                                   sys_rst = 'b1; // synchronous active high reset
-logic [1:0]                             sys_reset_cnt = '0;
-logic                                   pwm_clk;
-logic                                   pwm_rst = 'b1; // synchronous active high reset
-logic [1:0]                             pwm_reset_cnt = '0;
-logic [$clog2(CLK_CNT_MAX)-1:0]         pwm_cnt;
-logic                                   pwm_en [NUM_CHANNELS] = '{NUM_CHANNELS {1}};
-logic                                   phase_parse_en;
-logic [31:0]                            latest_data;
-
+logic [CLK_CNT_W-1:0]   phases_1 [NUM_CHANNELS];
+logic [CLK_CNT_W-1:0]   phases_2 [NUM_CHANNELS];
+logic                   sys_rst = 'b1; // synchronous active high reset
+logic [1:0]             sys_reset_cnt = '0;
+logic                   pwm_rst = 'b1; // synchronous active high reset
+logic [1:0]             pwm_reset_cnt = '0;
+logic [CLK_CNT_W-1:0]   pwm_cnt;
+logic                   pwm_en [NUM_CHANNELS] = '{NUM_CHANNELS {1}};
+logic                   phase_parse_en;
+logic [31:0]            latest_data;
 
 // initial system reset
 always_ff @(posedge sys_clk) begin
@@ -86,7 +68,6 @@ always_ff @(posedge sys_clk) begin
 end
 
 // initial pwm reset
-
 always_ff @(posedge pwm_clk) begin
     if (pwm_reset_cnt < '1) begin
         pwm_rst       <= 1'b1;
@@ -96,7 +77,7 @@ always_ff @(posedge pwm_clk) begin
     end
 end
 
-// phase synchronizer into pwm_clk domain
+// phase synchronizer from sys_clk into pwm_clk domain
 always_ff @(posedge pwm_clk) begin
     phases_1 <= phases;
     phases_2 <= phases_1;
@@ -105,12 +86,12 @@ end
 // sync out generator
 always @(posedge pwm_clk) begin
     if(pwm_rst) begin
-        pwm_cnt <= '0;
-        sync_out <= '0;
+        pwm_cnt     <= '0;
+        sync_out    <= '0;
     end
     else begin
-        pwm_cnt <= pwm_cnt == (CLK_CNT_MAX-1) ? 0 : pwm_cnt + 1;
-        sync_out <= (pwm_cnt < CLK_CNT_MAX/2) ? '1 : '0;
+        pwm_cnt     <= pwm_cnt == (CLK_CNT_MAX-1) ? 0 : pwm_cnt + 1;
+        sync_out    <= (pwm_cnt < CLK_CNT_MAX/2) ? '1 : '0;
     end
 end
 
@@ -199,14 +180,6 @@ proto245a #(
     // Outputs
     .txfifo_load  (txfifo_load),    // TX FIFO load counter
     .txfifo_full  (txfifo_full)     // TX FIFO is full
-);
-
-// TODO generate new ip to match crystal on v1 board + do not use lock / rst
-pll50 pll (
-    .refclk   (sys_clk),
-    .rst      (),
-    .outclk_0 (pwm_clk), // 10.24MHz
-    .locked   ()
 );
 
 endmodule: top
