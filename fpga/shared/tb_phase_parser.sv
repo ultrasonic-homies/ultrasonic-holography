@@ -4,9 +4,16 @@ localparam NUM_CHANNELS = 4;
 
 logic clk;
 logic rst;
-logic en;
+logic phase_parse_en;
 logic [7:0] phases [NUM_CHANNELS];
-logic [15:0] phase_data;
+logic [31:0] phase_data;
+logic [7:0] pwm_en;
+logic [7:0] address;
+logic [7:0] phase;
+
+assign phase_data = {8'b0, pwm_en, address, phase};
+
+wire pwm_ens [NUM_CHANNELS];
 
 genvar i;
 generate
@@ -16,36 +23,51 @@ generate
             ) phase_parser (
                 .clk,
                 .rst,
-                .en,
+                .phase_parse_en,
                 .phase_data,
-                .phase(phases[i])
+                .phase(phases[i]),
+                .pwm_en(pwm_ens[i])
             );
     end
 endgenerate
 
+`define ASSERT \
+if (phase_parse_en) begin\
+    assert (phases[address] == phase) else $error("expected phase %h at address %h, actual %h", phase, address, phases[address]);\
+    assert (pwm_ens[address] == pwm_en) else $error("expected pwm_en value %h at address %h, actual %b", pwm_en, address, pwm_ens[address]);\
+end else begin\
+    assert (phases[address] == 'h00) else $error("expected phase %h at address %h, actual %h", 'h00, address, phases[address]);\
+    assert (pwm_ens[address] == 'h00) else $error("expected pwm_en value %h at address %h, actual %b", 'h00, address, pwm_ens[address]);\
+end
+
 initial begin
-    en = 0;
+    phase_parse_en = 0;
+    pwm_en = 'h01;
+    phase = 'h00;
+    address = 'h00;
+    // Reset
     rst = 1;
-    phase_data = 0;
     #4;
     rst = 0;
-    phase_data = 'h0101;
-    #2;
-    en = 1;
-    #2;
-    phase_data = 'h0202;
-    #2;
-    assert (phases[1] == 1) else $error("expected phases[1] == 1, actual %h", phases[1]);
-    assert (channel[1].phase_parser.phase == 1) else $error("expected phase_parser.phase[1] == 1, actual %h", channel[1].phase_parser.phase);
-    en = 0;
-    phase_data = 'h0303;
-    #2;
-    #2;
-    assert (phases[2] == 2) else $error("expected phases[2] == 2, actual %h", phases[2]);
-    assert (channel[2].phase_parser.phase == 2) else $error("expected phase_parser.phase[2] == 2, actual %h", channel[2].phase_parser.phase);
-    #2;
-    assert (phases[3] == 0) else $error("expected phases[3] == 0, actual %h", phases[3]);
-    assert (channel[3].phase_parser.phase == 0) else $error("expected phase_parser.phase[3] == 0, actual %h", channel[3].phase_parser.phase);
+    // On rising edge: set address 1 phase 1
+    address = 'h01;
+    phase = 'h01;
+    phase_parse_en = 1;
+    #4;
+    `ASSERT
+    // On rising edge: set address 2 phase 2 but disable pwm
+    address = 'h02;
+    phase = 'h02;
+    pwm_en = 'h00;
+    #4;
+    `ASSERT
+    // On rising edge: set address 3 phase 3 but enable is not asserted
+    phase_parse_en = 0;
+    pwm_en = 'h01;
+    address = 'h03;
+    phase = 'h03;
+    #4;
+    `ASSERT
 end
 
 initial begin

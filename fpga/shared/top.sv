@@ -53,7 +53,7 @@ logic [1:0]             sys_reset_cnt = '0;
 logic                   pwm_rst = 'b1; // synchronous active high reset
 logic [1:0]             pwm_reset_cnt = '0;
 logic [CLK_CNT_W-1:0]   pwm_cnt;
-logic                   pwm_en [NUM_CHANNELS] = '{NUM_CHANNELS {1}};
+logic                   pwm_en [NUM_CHANNELS] = '{NUM_CHANNELS {0}};
 logic                   phase_parse_en;
 logic [31:0]            latest_data;
 wire                    sync_pulse;
@@ -100,9 +100,10 @@ generate
         phase_parser #(.CHANNEL(i)) phase_parser (
             .clk(sys_clk),
             .rst(sys_rst),
-            .en(phase_parse_en),
-            .phase_data(latest_data[15:0]),
-            .phase(phases[i])
+            .phase_parse_en(phase_parse_en),
+            .phase_data(latest_data),
+            .phase(phases[i]),
+            .pwm_en(pwm_en[i])
         );
     end
 endgenerate
