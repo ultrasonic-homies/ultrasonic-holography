@@ -1,4 +1,6 @@
-module de1_soc_top(
+module de1_soc_top #(
+    parameter NUM_CHANNELS = 128
+)(
     // peripherals
     input logic         CLOCK_50,
     input logic [3:0]   KEY,
@@ -13,7 +15,7 @@ module de1_soc_top(
     // general i/o
     input               sync_in,
     output              sync_out,
-    output [3:0]        trans,
+    output [NUM_CHANNELS-1:0] trans,
     // ft chip
     inout  [7:0]        ft_data,
     input               ft_txen,
@@ -26,7 +28,7 @@ module de1_soc_top(
 );
 
 logic sys_clk, ext_rst;
-logic [7:0] phases [0:3];
+logic [7:0] phases [0:NUM_CHANNELS];
 logic read_error;
 
 assign sys_clk = CLOCK_50;
@@ -50,6 +52,6 @@ always_ff @(posedge sys_clk) begin
 end
 assign LEDR[9] = sys_heartbeat_cnt[24];
 
-top #(.NUM_CHANNELS(4)) top(.*);
+top #(.NUM_CHANNELS(NUM_CHANNELS)) top(.*);
 
 endmodule: de1_soc_top
