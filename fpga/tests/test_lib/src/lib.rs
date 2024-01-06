@@ -178,4 +178,22 @@ impl FPGA {
         println!("Wrote {} phases ({} bytes) in {}s", num_writes, num_bytes, exec_time);
         Ok(())
     }
+
+    pub fn set_phase_multi_v2(&mut self, num_writes: u32) -> Result<(), TimeoutError> {
+        let num_channels: u32 = 4;
+        let max_phase: u32 = 256;
+        let mut buf = Vec::<u8>::new();
+        let num_bytes: u32 = num_writes * 2;
+        self.ftdev.write_all(&self.cmd(0x0002, num_bytes))?;
+        for i in 0..num_writes {
+            let data: Vec::<u8> = vec![(i % max_phase).try_into().unwrap(), (i % num_channels).try_into().unwrap()];
+            buf.extend(data);
+        }
+        // Time the write
+        let start_time = std::time::Instant::now();
+        self.ftdev.write_all(&buf)?;
+        let exec_time = start_time.elapsed().as_secs_f64();
+        println!("Wrote {} phases ({} bytes) in {}s", num_writes, num_bytes, exec_time);
+        Ok(())
+    }
 }
