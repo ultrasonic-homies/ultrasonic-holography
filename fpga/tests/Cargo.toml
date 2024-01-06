@@ -3,5 +3,6 @@ members = [
     "test_lib",
     "de1_soc_ftd2xx",
     "de1_soc_top",
+    "two_boards",
 ]
 resolver = "2"

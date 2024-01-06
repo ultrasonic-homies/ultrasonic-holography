@@ -77,3 +77,10 @@ version = "0.1.0"
 dependencies = [
  "libftd2xx",
 ]
+
+[[package]]
+name = "two_boards"
+version = "0.1.0"
+dependencies = [
+ "test_lib",
+]

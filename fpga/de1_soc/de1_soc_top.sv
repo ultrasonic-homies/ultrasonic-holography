@@ -1,5 +1,5 @@
 module de1_soc_top #(
-    parameter NUM_CHANNELS = 128
+    parameter NUM_CHANNELS = 4
 )(
     // peripherals
     input logic         CLOCK_50,
@@ -28,7 +28,7 @@ module de1_soc_top #(
 );
 
 logic sys_clk, ext_rst;
-logic [7:0] phases [0:NUM_CHANNELS];
+logic [7:0] phases [0:NUM_CHANNELS-1];
 logic read_error;
 
 assign sys_clk = CLOCK_50;

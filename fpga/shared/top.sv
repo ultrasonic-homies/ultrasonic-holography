@@ -24,6 +24,8 @@ module top #(
 
 // change the line below
 `include "de0_cv.svh"
+// `include "de1_soc.svh"
+// `include "cyclone10.svh"
 
 // proto245 regs
 logic [DATA_W-1:0] ft_din, ft_dout;

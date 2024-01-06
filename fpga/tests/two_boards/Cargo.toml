@@ -1,0 +1,12 @@
+[package]
+name = "two_boards"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Include the name of your library crate as a dependency
+test_lib = { path = "../test_lib" }
+
+[[bin]]
+name = "two_boards"
+path = "main.rs"

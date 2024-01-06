@@ -6,11 +6,12 @@ use std::io::{self, Write};
 fn main() {
     match FPGA::new("FT7TEQ7VB", "async") {
         Ok(mut de1_soc) => {
+            let enable: bool = true;
             for i in 0..=255 {
                 let a: u8 = 0;
                 thread::sleep(Duration::from_millis(10));
                 println!("Setting address {} with phase {}", a, i);
-                de1_soc.set_phase(a, 0x01*i).unwrap();
+                de1_soc.set_phase(a, 0x01*i, enable).unwrap();
             }
             let mut input = String::new();
             let mut address: u8;
@@ -46,7 +47,7 @@ fn main() {
                         }
                     }
                 }
-                de1_soc.set_phase(address, phase).unwrap();
+                de1_soc.set_phase(address, phase, enable).unwrap();
                 println!("Setting address {} with phase {}", address, phase);
             }
         }

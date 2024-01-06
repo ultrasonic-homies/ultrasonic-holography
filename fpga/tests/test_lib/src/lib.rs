@@ -154,8 +154,8 @@ impl FPGA {
         Ok(())
     }
 
-    pub fn set_phase(&mut self, address: u8, phase: u8) -> Result<(), TimeoutError> {
-        let data: u32 = (address as u32) << 8 | phase as u32;
+    pub fn set_phase(&mut self, address: u8, phase: u8, enable:bool) -> Result<(), TimeoutError> {
+        let data: u32 = (enable as u32) << 16 | (address as u32) << 8 | phase as u32;
         self.ftdev.write_all(&self.cmd(0x0001, data))?;
         Ok(())
     }
