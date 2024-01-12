@@ -6,3 +6,10 @@ edition = "2021"
 
 [dependencies]
 serialport = "4.2.2"
+eframe = "0.19"
+reqwest = { version = "0.11", features = ["json"] }
+serde = "1"
+serde_derive = "1"
+tokio = { version = "1", features = ["net", "rt-multi-thread"] }
+ndarray = "0.15"
+ndarray-linalg = "0.15"
