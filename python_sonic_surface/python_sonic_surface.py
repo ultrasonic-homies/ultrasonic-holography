@@ -16,7 +16,7 @@ off_message = bytes(off_message)
 
 # Open the serial connection
 try:
-    ser = serial.Serial('/dev/tty.usbserial-10', baudrate=230400)
+    ser = serial.Serial('/dev/ttyUSB0', baudrate=230400)
 except serial.SerialException as e:
     print("Failed to open serial port:", e)
 else:

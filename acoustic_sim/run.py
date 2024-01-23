@@ -80,33 +80,35 @@ if __name__ == "__main__":
 
 
     # constants
-    time_inc = 0.01 # secs
-    # linear SHM
-    # freq = 0.5 # secs
-    # period = 1 / freq
-    # ts = np.linspace(0, period, int(period / time_inc))
-    # xs = particle_SHM(ts, freq=freq)
+    time_inc = 0.02 # secs
+    start_x = 0.05 # m
+    start_y = 0.05 # m
+    start_z = 0.04 # m
+    height = 0.08 # m
+    freq = 0.1
+    radius = 0.02 # m
 
     # circular motion
-    start_x = 0.05 # 5cm
-    start_y = 0.05 # 5cm
-    start_z = 0.14 # 14cm
-    freq = 0.5
     period = 1/freq
     spacings = int(period/time_inc)
     ts = np.linspace(0, 1/freq, spacings)
     positions = []
     for t in ts:
-        x = start_x + 0.02 * np.sin(2 * np.pi *freq * 2*t)
-        y = start_y + 0.02 * np.cos(2 * np.pi *freq * 2*t)
-        z = start_z #+ 0.02 * np.sin(2 * np.pi *freq*t)
+        x = start_x + radius * np.sin(2 * np.pi * freq * t)
+        # x = start_x
+        y = start_y + radius * np.sin(2 * np.pi * freq * t)
+        # y = start_y
+        z = start_z + radius * np.sin(2 * np.pi * freq * t)
+        # z = start_z
         positions.append((x, y, z))
     
+    # surface.switchOnOrOff(False)
+    # input("Hit Enter to start calculation")
     
     phase_list = []
     for position in positions:
         # need phases to be from 0 to 2pi
-        phases = np.angle(hat.run_hat([position], phase_res=32)) + np.pi
+        phases = np.angle(hat.run_hat([position], phase_res=32, z=height)) + np.pi
         phase_list.append(phases)
 
     # send the first position and hold
@@ -118,12 +120,17 @@ if __name__ == "__main__":
     
     i = 0
     while True:
+        last_time = time.time()
         phases = phase_list[i % spacings]
         phases_padded = np.pad(phases, [(6, 0), (0, 6)], constant_values=np.NaN)
         surface.sendPhases(phases_padded.flatten())
         i += 1
-        # not exact since sending phases takes time, but close enough
-        time.sleep(time_inc)
+
+        sleep_time = time_inc - (time.time() - last_time)
+        if sleep_time > 0:
+            time.sleep(sleep_time)
+        else:
+            print("sleep time negative:", sleep_time)
     
     # turn off array
     # surface.sendPhases(np.full([16, 16], np.NaN).flatten())
