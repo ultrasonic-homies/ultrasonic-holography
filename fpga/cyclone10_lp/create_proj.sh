@@ -1,2 +1,2 @@
 #!/bin/bash
-quartus_sh -t cyclone10_lp.tcl
+quartus_sh -t top.tcl

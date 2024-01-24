@@ -17,10 +17,9 @@ localparam DATA_W             = 8;
 
 logic pwm_clk;
 
-// TODO generate new ip to match crystal on v1 board + do not use lock / rst
-pll50 pll (
-    .refclk   (sys_clk), // 50MHz
-    .rst      (),
-    .outclk_0 (pwm_clk), // 10.24MHz
-    .locked   ()
+PLL_24M576_TO_10M24_CYCLONE10LP pll (
+    .areset(),
+	.inclk0(sys_clk), // 24.576MHz
+	.c0(pwm_clk), // 10.24MHz
+	.locked()
 );
