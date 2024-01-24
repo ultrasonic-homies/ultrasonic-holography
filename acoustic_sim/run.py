@@ -74,18 +74,18 @@ def particle_SHM(ts, midpoint=[0.05, 0.05, 0.14], amp=0.025, axis=0, freq=1):
 if __name__ == "__main__":
     surface = SonicSurface()
     # connect to serial port for the SonicSurface
-    surface.listSerial()
-    port_num = input("Pick serial port: ")
-    surface.connect(int(port_num))
+    # surface.listSerial()
+    # port_num = input("Pick serial port: ")
+    # surface.connect(int(port_num))
 
 
     # constants
-    time_inc = 0.02 # secs
+    time_inc = 0.01 # secs
     start_x = 0.05 # m
     start_y = 0.05 # m
-    start_z = 0.04 # m
-    height = 0.08 # m
-    freq = 0.1
+    start_z = 0.05 # m
+    height = 0.1 # m
+    freq = 1 
     radius = 0.02 # m
 
     # circular motion
@@ -105,11 +105,16 @@ if __name__ == "__main__":
     # surface.switchOnOrOff(False)
     # input("Hit Enter to start calculation")
     
+    # benchmarking
+    start = time.time();
     phase_list = []
     for position in positions:
         # need phases to be from 0 to 2pi
         phases = np.angle(hat.run_hat([position], phase_res=32, z=height)) + np.pi
         phase_list.append(phases)
+    duration = time.time() - start;
+    print(f"Took {duration} seconds to compute frames")
+    print(f"frames per second: {spacings / duration}")
 
     # send the first position and hold
     phase_one = phase_list[0]

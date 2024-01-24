@@ -2,3 +2,4 @@
 venv/*
 .ipynb_checkpoints/
 __pycache__/
+acoustic_sim/rust/target/
