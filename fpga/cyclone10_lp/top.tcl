@@ -15,7 +15,7 @@
 
 # Quartus Prime: Generate Tcl File for Project
 # File: top.tcl
-# Generated on: Tue Jan 23 16:05:02 2024
+# Generated on: Thu Jan 25 14:15:47 2024
 
 # Load Quartus Prime Tcl Project package
 package require ::quartus::project
@@ -46,7 +46,6 @@ if {$make_assignments} {
 	set_global_assignment -name ORIGINAL_QUARTUS_VERSION 19.1.0
 	set_global_assignment -name PROJECT_CREATION_TIME_DATE "20:50:27  ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¸ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ½ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ 05, 2021"
 	set_global_assignment -name LAST_QUARTUS_VERSION "19.1.0 Lite Edition"
-	set_global_assignment -name DEVICE_FILTER_PACKAGE ANY
 	set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 	set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 	set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
@@ -81,6 +80,20 @@ if {$make_assignments} {
 	set_global_assignment -name SYSTEMVERILOG_FILE ../proto245/src/fifo_sync.sv
 	set_global_assignment -name SYSTEMVERILOG_FILE ../proto245/src/dpram.sv
 	set_global_assignment -name QIP_FILE ../ip/PLL_24M576_TO_10M24_CYCLONE10LP.qip
+	set_global_assignment -name ENABLE_OCT_DONE OFF
+	set_global_assignment -name USE_CONFIGURATION_DEVICE ON
+	set_global_assignment -name CYCLONEIII_CONFIGURATION_DEVICE EPCQ16A
+	set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
+	set_global_assignment -name FORCE_CONFIGURATION_VCCIO ON
+	set_global_assignment -name CONFIGURATION_VCCIO_LEVEL 3.3V
+	set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+	set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
+	set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
+	set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
+	set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+	set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF
+	set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF
+	set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
 	set_location_assignment PIN_A7 -to ft_clk
 	set_location_assignment PIN_B10 -to ft_data[0]
 	set_location_assignment PIN_C9 -to ft_data[1]
@@ -365,7 +378,7 @@ if {$make_assignments} {
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[125]
 	set_location_assignment PIN_A15 -to trans[126]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[126]
-	set_location_assignment PIN_A10 -to trans[127]
+	set_location_assignment PIN_F16 -to trans[127]
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to trans[127]
 	set_location_assignment PIN_B6 -to ext_rst
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ext_rst
