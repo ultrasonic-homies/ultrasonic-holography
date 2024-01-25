@@ -12,8 +12,66 @@ use std::io::prelude::*;
 use std::io::Error;
 use serialport::SerialPort;
 use ndarray::{Array2, Array1, s};
+use std::io::{self, Write};
+use serialport::available_ports;
 
-struct MyApp {
+const N_EMMITERS: usize = 256;
+
+
+fn list_serial_ports() -> Result<Vec<String>, serialport::Error> {
+    println!("Available Serial Ports:");
+
+    let mut port_names = Vec::new();
+
+    let Ok(ports) = available_ports() else {
+        eprintln!("Error listing serial ports");
+        return Err(serialport::Error::new(serialport::ErrorKind::Unknown, "Error listing serial ports"));
+    };
+
+    for (index, port) in ports.iter().enumerate() {
+        println!("{}: {}", index + 1, port.port_name);
+        port_names.push(port.port_name.clone());
+    }
+
+    Ok(port_names)
+}
+
+fn choose_serial_port(port_names: &[String]) -> Option<String> {
+    print!("Choose a serial port by entering its number: ");
+    io::stdout().flush().unwrap();
+ 
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).unwrap();
+    
+    let Ok(index) = input.trim().parse::<usize>() else {
+        println!("Invalid choice. Please enter a valid number.");
+        return None;
+    };
+    
+    let name = port_names.get(index.checked_sub(1)?)?;
+    Some(name.clone())
+}
+
+#[derive(Debug)]
+struct PositionPhases {
+    position: [f64; 3],
+    phases: [f64; N_EMMITERS],
+}
+
+impl PositionPhases {
+    // Constructor method to create a new instance of PositionPhases
+    fn new(position: [f64; 3], phases: [f64; N_EMMITERS]) -> PositionPhases {
+        PositionPhases { position, phases }
+    }
+}
+
+// let my_instance = RustStruct::new(position, phases);
+
+// // Print the instance for demonstration purposes
+// println!("{:?}", my_instance);
+
+
+struct ControlApp {
     // Sender/Receiver for async notifications.
     tx: Sender<u32>,
     rx: Receiver<u32>,
@@ -21,19 +79,24 @@ struct MyApp {
     // Silly app state.
     value: u32,
     count: u32,
+    position_phases: Vec<PositionPhases>,
+    serial_conn: SerialPort,
 }
 
-#[derive(Deserialize, Serialize)]
-struct HttpbinJson {
-    json: Body,
+impl ControlApp {
+    fn new(serial_conn: SerialPort) -> Self {
+        let (tx, rx) = std::sync::mpsc::channel();
+
+        Self {
+            tx,
+            rx,
+            value: 1,
+            count: 0,
+            position_phases: Vec::new(),
+            serial_conn: serial_conn
+        }
+    }
 }
-
-#[derive(Deserialize, Serialize)]
-struct Body {
-    incr: u32,
-}
-
-
 
 struct SonicSurface {
     phase_divs: usize,
@@ -42,9 +105,7 @@ struct SonicSurface {
     emitters_pos: Array2<f64>,
     emitters_order: Vec<usize>,
     serial_conn: Option<Box<dyn SerialPort>>,
-    phase_offsets: Vec<f64>,
     phases: Array2<f64>,
-    on_or_off: Vec<bool>,
 }
 
 impl SonicSurface {
@@ -74,9 +135,7 @@ impl SonicSurface {
             wavelength: Self::WAVELENGTH,
             emitters_order: Self::EMITTERS_ORDER.iter().map(|&val| val as usize).collect(),
             emitters_pos: Array2::from_shape_vec((Self::N_EMMITERS, 3), Vec::from(Self::EMITTERS_POS)).unwrap(),
-            phase_offsets: Vec::new(),
             phases: Array2::zeros((1, Self::N_EMMITERS)),
-            on_or_off: vec![false; Self::N_EMMITERS],
         }
     }
 
@@ -127,6 +186,25 @@ impl SonicSurface {
 
 
 fn main() {
+    let Ok(port_names) = list_serial_ports() else {
+        eprintln!("Error: Unable to list serial ports.");
+        return;
+    };
+    let Some(selected_port) = choose_serial_port(&port_names) else {
+        eprintln!("Invalid selected port, exiting.");
+        return;
+    };
+    println!("You selected serial port: {}", selected_port);
+
+    let baud_rate = 230_400;
+
+    let builder = serialport::new(selected_port.clone(), baud_rate);
+    println!("{:?}", &builder);
+    let mut port = builder.open().unwrap_or_else(|e| {
+        eprintln!("Failed to open \"{}\". Error: {}", selected_port, e);
+        ::std::process::exit(1);
+    });
+
     let rt = Runtime::new().expect("Unable to create Runtime");
 
     // Enter the runtime so that `tokio::spawn` is available immediately.
@@ -146,32 +224,19 @@ fn main() {
     eframe::run_native(
         "Sonic Surface GUI",
         eframe::NativeOptions::default(),
-        Box::new(|_cc| Box::new(MyApp::default())),
+        Box::new(|_cc| Box::new(ControlApp::new(port))),
     );
 }
 
-impl Default for MyApp {
-    fn default() -> Self {
-        let (tx, rx) = std::sync::mpsc::channel();
-
-        Self {
-            tx,
-            rx,
-            value: 1,
-            count: 0,
-        }
-    }
-}
-
-impl eframe::App for MyApp {
+impl eframe::App for ControlApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // Update the counter with the async response.
-        if let Ok(incr) = self.rx.try_recv() {
-            self.count += incr;
+        if let Ok(current_pos_phase) = self.rx.try_recv() {
+            self.position_phases = current_pos_phase;
         }
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.label("Press the button to initiate an HTTP request.");
+            ui.label("");
             ui.label("If successful, the count will increase by the following value.");
             ui.add(egui::Slider::new(&mut self.value, 1..=120).text("value"));
 
@@ -183,12 +248,7 @@ impl eframe::App for MyApp {
 }
 
 fn send_req(incr: u32, tx: Sender<u32>, ctx: egui::Context) {
-    tokio::spawn(async move {
-        let port_name = "/dev/tty.usbserial-10";
-        let baud_rate = 230_400;
-        let mut ss = SonicSurface::new();
-        ss.connect(port_name, baud_rate);
-        
+    tokio::spawn(async move {        
         // Send a request with an increment value.
         let body: HttpbinJson = Client::default()
             .post("https://httpbin.org/anything")
