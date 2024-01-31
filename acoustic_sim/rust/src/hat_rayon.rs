@@ -3,6 +3,8 @@ use std::f32::consts::PI;
 
 use scilib::math::bessel;
 
+use rayon::prelude::*;
+
 const WAVE_LENGTH: f32 = 343.0 / 40000.0;
 const OMEGA: f32 = 2.0 * PI * WAVE_LENGTH;
 const K: f32 = 2.0 * PI / WAVE_LENGTH;
@@ -105,25 +107,42 @@ fn p(r: f32, theta: f32, t: f32) -> Complex<f32> {
 }
 
 fn gen_propagators(transducers: &Vec<Point>, control_points: &Vec<Point>) -> Vec2D<Complex<f32>> {
-    let mut propagators: Vec2D<Complex<f32>> = Vec2D::new(
-        Complex::new(0.0, 0.0),
-        control_points.len(),
-        transducers.len(),
-    );
+    // let mut propagators: Vec2D<Complex<f32>> = Vec2D::new(
+    //     Complex::new(0.0, 0.0),
+    //     control_points.len(),
+    //     transducers.len(),
+    // );
 
-    // want blocked data
-    // eg: for k threads, data broken into k segments with segment length n//k = m
-    // segments 0..m, m..2m, 2m..3m, ..., (k-1)m..n [add any rounding to last thread]
-    for i in 0..control_points.len() {
-        for j in 0..transducers.len() {
-            let vec_r = control_points[i].sub(&transducers[j]);
+    let ij: Vec<(usize, usize)> = (0..control_points.len())
+        .flat_map(|i| (0..transducers.len()).map(move |j| (i, j)))
+        .collect();
+
+    let vec: Vec<Complex<f32>> = ij
+        .par_iter()
+        .map(|(i, j)| {
+            let vec_r = control_points[*i].sub(&transducers[*j]);
             let r = vec_r.norm();
             let theta = (vec_r.z / r).acos();
-            propagators.set(i, j, p(r, theta, 0.0));
-        }
-    }
+            return p(r, theta, 0.0);
+        })
+        .collect();
 
-    return propagators;
+    return Vec2D {
+        vec: vec,
+        len_i: control_points.len(),
+        len_j: transducers.len(),
+    };
+
+    // for i in 0..control_points.len() {
+    //     for j in 0..transducers.len() {
+    //         let vec_r = control_points[i].sub(&transducers[j]);
+    //         let r = vec_r.norm();
+    //         let theta = (vec_r.z / r).acos();
+    //         propagators.set(i, j, p(r, theta, 0.0));
+    //     }
+    // }
+
+    // return propagators;
 }
 
 fn calc_transducer_phases(
@@ -145,62 +164,107 @@ fn calc_transducer_phases(
     let mut t_pressures = vec![Complex::<f32>::new(1.0, 0.0); transducers.len()];
 
     for _iter in 0..10 {
+        let ij: Vec<(usize, usize)> = (0..control_points.len())
+            .flat_map(|i| (0..transducers.len()).map(move |j| (i, j)))
+            .collect();
+
         // forward propagate
-        for i in 0..c_pressures.len() {
-            let mut c = Complex::new(0.0, 0.0);
+        // for i in 0..c_pressures.len() {
+        c_pressures = (0..c_pressures.len())
+            .into_par_iter()
+            .map(|i| {
+                let mut c = Complex::new(0.0, 0.0);
 
-            // direct contributions
-            for j in 0..t_pressures.len() {
-                c += t_pressures[i] * propagators.ix(i, j);
-            }
+                // direct contributions
+                c += (0..t_pressures.len())
+                    .into_par_iter()
+                    .fold(
+                        || Complex::new(0.0, 0.0),
+                        |a, j| t_pressures[j] * propagators.ix(i, j),
+                    )
+                    .sum::<Complex<f32>>();
+                // for j in 0..t_pressures.len() {
+                //     c += t_pressures[j] * propagators.ix(i, j);
+                // }
 
-            // reflection contributions
-            // TODO: can possibly add a reflection coefficient here to account for imperfect
-            // reflective surface
-            for j in 0..t_pressures.len() {
-                c = c + t_pressures[i] * reflected_propagators.ix(i, j);
-            }
+                // reflection contributions
+                // TODO: can possibly add a reflection coefficient here to account for imperfect
+                // reflective surface
+                c += (0..t_pressures.len())
+                    .into_par_iter()
+                    .fold(
+                        || Complex::new(0.0, 0.0),
+                        |a, j| t_pressures[j] * reflected_propagators.ix(i, j),
+                    )
+                    .sum::<Complex<f32>>();
+                // for j in 0..t_pressures.len() {
+                //     c = c + t_pressures[j] * reflected_propagators.ix(i, j);
+                // }
 
-            // each control point has an amplitude of 1 / n
-            c_pressures[i] = c / c.norm() / c_pressures.len() as f32;
-        }
+                // each control point has an amplitude of 1 / n
+                // c_pressures[i] = c / c.norm() / c_pressures.len() as f32;
+                c / c.norm() / c_pressures.len() as f32
+            })
+            .collect();
 
         // backwards propagate
-        for j in 0..t_pressures.len() {
-            let mut pl: Complex<f32> = Complex::new(0.0, 0.0);
+        //for j in 0..t_pressures.len() {
+        t_pressures = (0..t_pressures.len())
+            .into_par_iter()
+            .map(|j| {
+                let mut pl: Complex<f32> = Complex::new(0.0, 0.0);
 
-            // direct contributions
-            for i in 0..c_pressures.len() {
-                pl = pl + c_pressures[i] * propagators.ix(i, j).conj();
-            }
+                // direct contributions
+                // for i in 0..c_pressures.len() {
+                //     pl = pl + c_pressures[i] * propagators.ix(i, j).conj();
+                // }
+                pl += (0..c_pressures.len())
+                    .into_par_iter()
+                    .fold(
+                        || Complex::new(0.0, 0.0),
+                        |a, i| c_pressures[i] * propagators.ix(i, j).conj(),
+                    )
+                    .sum::<Complex<f32>>();
 
-            // reflection contributions
-            // TODO: can possibly add a reflection coefficient here to account for imperfect
-            // reflective surface
-            for i in 0..c_pressures.len() {
-                pl = pl + c_pressures[i] * reflected_propagators.ix(i, j).conj();
-            }
+                // reflection contributions
+                // TODO: can possibly add a reflection coefficient here to account for imperfect
+                // reflective surface
+                // for i in 0..c_pressures.len() {
+                //     pl = pl + c_pressures[i] * reflected_propagators.ix(i, j).conj();
+                // }
+                pl += (0..c_pressures.len())
+                    .into_par_iter()
+                    .fold(
+                        || Complex::new(0.0, 0.0),
+                        |a, i| c_pressures[i] * reflected_propagators.ix(i, j).conj(),
+                    )
+                    .sum::<Complex<f32>>();
 
-            t_pressures[j] = pl;
-        }
+                pl
+            })
+            .collect();
 
         // normalize
         let max = t_pressures
-            .iter()
+            .par_iter()
             .map(|p| p.norm())
             .max_by(|a, b| a.total_cmp(b))
             .unwrap();
 
-        for p in &mut t_pressures {
-            *p = *p / max;
-        }
+        //for p in &mut t_pressures {
+        //    *p = *p / max;
+        //}
+        t_pressures = t_pressures.par_iter().map(|p| p / max).collect();
 
         // quantize
-        for p in &mut t_pressures {
-            let (_r, mut theta) = p.to_polar();
-            theta = (theta / (2.0 * PI) * phase_res).round() * 2.0 * PI / phase_res;
-            *p = Complex::from_polar(1.0, theta);
-        }
+        t_pressures = t_pressures
+            .par_iter()
+            .map(|p| {
+                let (_r, mut theta) = p.to_polar();
+                theta = (theta / (2.0 * PI) * phase_res).round() * 2.0 * PI / phase_res;
+                Complex::from_polar(1.0, theta)
+            })
+            .collect();
     }
 
     return t_pressures;

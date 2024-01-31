@@ -148,14 +148,14 @@ fn calc_transducer_phases(
 
             // direct contributions
             for j in 0..t_pressures.len() {
-                c += t_pressures[i] * propagators.ix(i, j);
+                c += t_pressures[j] * propagators.ix(i, j);
             }
 
             // reflection contributions
             // TODO: can possibly add a reflection coefficient here to account for imperfect
             // reflective surface
             for j in 0..t_pressures.len() {
-                c = c + t_pressures[i] * reflected_propagators.ix(i, j);
+                c = c + t_pressures[j] * reflected_propagators.ix(i, j);
             }
 
             // each control point has an amplitude of 1 / n

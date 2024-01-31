@@ -1,6 +1,7 @@
 #![allow(unused_imports)]
 // mod hat;
-mod hat_mt;
+// mod hat_mt;
+mod hat_rayon;
 
 use num::complex::Complex;
 use std::f32::consts::PI;
@@ -38,12 +39,12 @@ fn main() {
         .map(|t| 0.02 * (2.0 * PI * t).sin() + 0.05)
         .collect();
 
-    let cps: Vec<Vec<hat_mt::Point>> = xs
+    let cps: Vec<Vec<hat_rayon::Point>> = xs
         .iter()
         .zip(ys.iter())
         .zip(zs.iter())
         .map(|((x, y), z)| {
-            vec![hat_mt::Point {
+            vec![hat_rayon::Point {
                 x: *x,
                 y: *y,
                 z: *z,
@@ -56,7 +57,7 @@ fn main() {
     // benchmark
     let now = Instant::now();
     for control_points in cps {
-        phases.push(hat_mt::run_hat(Arc::new(control_points), 16.0, 0.1));
+        phases.push(hat_rayon::run_hat(&control_points, 16.0, 0.1));
     }
     let time = now.elapsed();
 
