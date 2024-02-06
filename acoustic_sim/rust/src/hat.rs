@@ -3,71 +3,15 @@ use std::f32::consts::PI;
 
 use scilib::math::bessel;
 
+use crate::util::Point;
+use crate::util::Vec2D;
+
 const WAVE_LENGTH: f32 = 343.0 / 40000.0;
 const OMEGA: f32 = 2.0 * PI * WAVE_LENGTH;
 const K: f32 = 2.0 * PI / WAVE_LENGTH;
 
 const P_0: f32 = 1.293; // density of air
 const EMITTER_RADIUS: f32 = 0.005; // radius of the emitter: 5 mm
-
-#[derive(Debug)]
-pub struct Vec2D<T> {
-    vec: Vec<T>,
-    len_i: usize,
-    len_j: usize,
-}
-
-impl<T: std::clone::Clone> Vec2D<T> {
-    /// create a new Vec2D initialized to 0
-    pub fn new(init: T, i: usize, j: usize) -> Vec2D<T> {
-        Vec2D {
-            len_i: i,
-            len_j: j,
-            vec: vec![init; i * j],
-        }
-    }
-
-    pub fn set(&mut self, i: usize, j: usize, val: T) {
-        self.vec[self.len_j * i + j] = val; // row-major order, row-first indexing
-    }
-
-    pub fn ix(&self, i: usize, j: usize) -> &T {
-        &self.vec[self.len_j * i + j] // row-major order, row-first indexing
-    }
-
-    pub fn size(&self) -> (usize, usize) {
-        (self.len_i, self.len_j)
-    }
-}
-
-#[derive(Debug)]
-pub struct Point {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-}
-
-impl Point {
-    pub fn add(&self, other: &Point) -> Point {
-        Point {
-            x: self.x + other.x,
-            y: self.y + other.y,
-            z: self.z + other.z,
-        }
-    }
-
-    pub fn sub(&self, other: &Point) -> Point {
-        Point {
-            x: self.x - other.x,
-            y: self.y - other.y,
-            z: self.z - other.z,
-        }
-    }
-
-    pub fn norm(&self) -> f32 {
-        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
-    }
-}
 
 // TODO: add support for different transducer arrangements
 pub fn run_hat(control_points: &Vec<Point>, phase_res: f32, z: f32) -> Vec<Complex<f32>> {

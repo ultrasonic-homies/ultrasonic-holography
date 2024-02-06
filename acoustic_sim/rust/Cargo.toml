@@ -9,4 +9,8 @@ edition = "2021"
 num = "0.4.1"
 rayon = "1.8.1"
 scilib = "1.0.0"
+serialport = "4.3.0"
 threadpool = "1.8.1"
+
+[features]
+benchmark = []
