@@ -26,7 +26,8 @@ module receiver #(parameter
 typedef enum{
     WAIT_E,
     READ_E,
-    PARSE_E
+    PARSE_E,
+    BURST_E
 } receiver_state;
 
 receiver_state fsm_state = WAIT_E;
@@ -39,6 +40,7 @@ logic rxfifo_rd_next;
 logic read_error_next;
 logic phase_parse_en_next;
 logic [31:0] latest_data_next;
+logic [31:0] word_count, word_count_next;
 logic [63:0] cmd_shifter, cmd_shifter_next;
 logic [7:0] cmd_prefix;
 logic [7:0] cmd_suffix;
@@ -52,6 +54,7 @@ always_comb begin
     cmd_shifter_next = cmd_shifter;
     rxfifo_rd_next = rxfifo_rd;
     latest_data_next = latest_data;
+    word_count_next = word_count;
     phase_parse_en_next = 'b0;
     read_error_next = read_error;
 
@@ -81,6 +84,11 @@ always_comb begin
                         phase_parse_en_next = 'b1;
                         fsm_next = WAIT_E;
                     end
+                    16'h0002: begin // Burst Phase
+                        cmd_shifter_next    = 'b0;
+                        word_count_next       = cmd_data;
+                        fsm_next = BURST_E;
+                    end
                     16'h1ed0: begin // Debug LED
                         cmd_shifter_next    = 'b0;
                         read_error_next     = cmd_data[0];
@@ -96,6 +104,25 @@ always_comb begin
             end
         end
 
+        BURST_E: begin
+            rxfifo_rd_next = !rxfifo_empty;
+            if (rxfifo_valid) begin
+                if (word_count == 0) begin
+                    rxfifo_rd_next = 1'b0;
+                    fsm_next       = WAIT_E;
+                end else begin
+                    if (word_count % 2 == 0) begin
+                        latest_data_next = {2'h1, latest_data[15:8], rxfifo_data}; // Write address
+                    end
+                    else begin
+                        latest_data_next = {2'h1, rxfifo_data, latest_data[7:0]}; // Write phase data
+                        phase_parse_en_next = 'b1;
+                    end
+                    word_count_next = word_count - 1'b1;
+                end
+            end
+        end
+
         default: begin
             // do nothing
         end
@@ -108,6 +135,7 @@ always_ff @(posedge clk) begin
         rxfifo_rd       <= '0;
         cmd_shifter     <= '0;
         latest_data     <= '0;
+        word_count      <= '0;
         read_error      <= 1'b0;
         phase_parse_en  <= 1'b0;
 
@@ -117,6 +145,7 @@ always_ff @(posedge clk) begin
         rxfifo_rd       <= rxfifo_rd_next;
         cmd_shifter     <= cmd_shifter_next;
         latest_data     <= latest_data_next;
+        word_count      <= word_count_next;
         read_error      <= read_error_next;
         phase_parse_en  <= phase_parse_en_next;
     end

@@ -1,19 +1,44 @@
-# FPGA
+# FPGA Repository
 
-## Generating Quartus Project
+## Compiling Quartus Project Locally
 
-The Quartus project (including .qpf file) is automatically generated using the .tcl file:
+Requirements
 
-```
-cd ultrasonic_holography/fpga
+* Intel Quartus Prime 19.1
+* Python
+
+### 1. Generating Quartus Project
+
+The Quartus project (including `.qpf` file) is configured in the `.tcl` file, and is generated with the shell script `create_proj.sh`
+
+```bash
+cd ultrasonic_holography/fpga/<your fpga>
 ./create_proj.sh
 ```
 
-Quartus project files are ignored in this folder. To clean project files, run:
-```
-cd ultrasonic_holography/fpga
+To clean the repository of Quartus project files, run `clean.sh`
+
+```bash
+cd ultrasonic_holography/fpga/<your fpga>
 ./clean.sh
 ```
+
+### 2. Change Pin Assignments
+
+To change the pinout assignments:
+1. Edit `\scripts\pinout.json`
+2. Run `\scripts\generate_pin_assignments.py` to generate a `.qsf` file.
+3. Import the `.qsf` file in Quartus: Assignments -> Import Assignments
+
+### 3. Compile Quartus Project
+
+1. In Quartus, click the blue triangle (or Processing -> Start Compilation)
+2. Once complete, your `top.sof` configuration file can be found in `ultrasonic_holography/fpga/<your fpga>/output_files`
+3. You'll need to convert this configuration file into `.jic`. Go to File -> Convert Programming Files
+
+    * Click "Open Conversion Setup Data"
+    * Select `jic_conversion_setup.cof`
+    * Click "Generate"
 
 ## Testing
 
@@ -31,7 +56,7 @@ Prerequisites:
 
 Running the test:
 
-```
+```bash
 cd ultrasonic_holography/fpga/tests/de1_soc_top
 cargo run
 ```

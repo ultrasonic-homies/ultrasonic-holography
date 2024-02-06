@@ -4,7 +4,7 @@ output_files/*
 simulation/*
 work/*
 *.qpf
-*.qsf
+*.qsf*
 *.qws
 *.txt
 *.mti

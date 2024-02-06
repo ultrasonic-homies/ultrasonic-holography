@@ -1,5 +1,5 @@
 module top #(
-    parameter NUM_CHANNELS = 256
+    parameter NUM_CHANNELS = 128
 )(
     // inputs
     input               sys_clk,
@@ -16,18 +16,20 @@ module top #(
     output              ft_wrn,
     input               ft_clk,  // sync mode only
     output              ft_oen,  // sync mode only
-    output              ft_siwu, // sync mode only
-    // for debug only! TODO remove in production
-    output logic [7:0]  phases [NUM_CHANNELS],
-    output              read_error
+    output              ft_siwu // sync mode only
+    // // for debug only! TODO remove in production
+    // output logic [7:0]  phases [NUM_CHANNELS],
+    // output              read_error
 );
 
-// change the line below
-`include "de0_cv.svh"
-// `include "de1_soc.svh"
-// `include "cyclone10.svh"
+/* HEADER FILE */
 
-// proto245 regs
+// `include "de0_cv.svh"
+// `include "de1_soc.svh"
+`include "cyclone10_lp.svh"
+
+/** PROTO245 REGS **/
+
 logic [DATA_W-1:0] ft_din, ft_dout;
 
 logic                      rxfifo_rd;
@@ -45,9 +47,10 @@ assign ft_oen  = 1'b1;
 assign ft_data = ft_rdn ? ft_dout : 'z;
 assign ft_din  = ft_data;
 
-// system regs
-// logic [CLK_CNT_W-1:0] phases [NUM_CHANNELS];
-// logic   read_error;
+/** SYSTEM REGS **/
+
+logic [CLK_CNT_W-1:0]   phases [NUM_CHANNELS];
+logic                   read_error;
 logic [CLK_CNT_W-1:0]   phases_1 [NUM_CHANNELS];
 logic [CLK_CNT_W-1:0]   phases_2 [NUM_CHANNELS];
 logic                   sys_rst = 'b1; // synchronous active high reset
@@ -59,6 +62,8 @@ logic                   pwm_en [NUM_CHANNELS] = '{NUM_CHANNELS {0}};
 logic                   phase_parse_en;
 logic [31:0]            latest_data;
 wire                    sync_pulse;
+
+/** LOGIC **/
 
 // initial system reset
 always_ff @(posedge sys_clk) begin

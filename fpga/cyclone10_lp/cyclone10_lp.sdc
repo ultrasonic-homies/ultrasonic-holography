@@ -3,7 +3,7 @@ set_time_format -unit ns -decimal_places 3
 #**************************************************************
 # Create Clock
 #**************************************************************
-create_clock -period "50.0 MHz" [get_ports {sys_clk}]
+create_clock -period "24.576 MHz" [get_ports {sys_clk}]
 
 #**************************************************************
 # Create Generated Clock

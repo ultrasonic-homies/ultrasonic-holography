@@ -41,6 +41,8 @@ impl FPGA {
         Ok(())
     }
 
+    // the write_all command writes the byte in the lowest memory address first.
+    // Hence, 0x55 is written first 
     pub fn cmd(&self, code: u16, data: u32) -> Vec<u8> {
         ((0xAA << 56) | ((code as u64) << 40) | ((data as u64) << 8) | 0x55)
             .to_le_bytes()
@@ -157,6 +159,41 @@ impl FPGA {
     pub fn set_phase(&mut self, address: u8, phase: u8, enable:bool) -> Result<(), TimeoutError> {
         let data: u32 = (enable as u32) << 16 | (address as u32) << 8 | phase as u32;
         self.ftdev.write_all(&self.cmd(0x0001, data))?;
+        Ok(())
+    }
+
+    pub fn set_phase_multi(&mut self, num_writes: u32) -> Result<(), TimeoutError> {
+        let num_channels: u32 = 4;
+        let max_phase: u32 = 256;
+        let mut buf = Vec::<u8>::new();
+        for i in 0..num_writes {
+            let data: u32 = 1 << 16 | (i % num_channels as u32) << 8 | (i % max_phase as u32);
+            buf.extend(self.cmd(0x0001, data));
+        }
+        // Time the write
+        let num_bytes = buf.len();
+        let start_time = std::time::Instant::now();
+        self.ftdev.write_all(&buf)?;
+        let exec_time = start_time.elapsed().as_secs_f64();
+        println!("Wrote {} phases ({} bytes) in {}s", num_writes, num_bytes, exec_time);
+        Ok(())
+    }
+
+    pub fn set_phase_multi_v2(&mut self, num_writes: u32) -> Result<(), TimeoutError> {
+        let num_channels: u32 = 4;
+        let max_phase: u32 = 256;
+        let mut buf = Vec::<u8>::new();
+        let num_bytes: u32 = num_writes * 2;
+        self.ftdev.write_all(&self.cmd(0x0002, num_bytes))?;
+        for i in 0..num_writes {
+            let data: Vec::<u8> = vec![(i % max_phase).try_into().unwrap(), (i % num_channels).try_into().unwrap()];
+            buf.extend(data);
+        }
+        // Time the write
+        let start_time = std::time::Instant::now();
+        self.ftdev.write_all(&buf)?;
+        let exec_time = start_time.elapsed().as_secs_f64();
+        println!("Wrote {} phases ({} bytes) in {}s", num_writes, num_bytes, exec_time);
         Ok(())
     }
 }
