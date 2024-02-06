@@ -4,8 +4,8 @@ use std::f32::consts::PI;
 use rayon::prelude::*;
 use scilib::math::bessel;
 
-use crate::util::Point;
-use crate::util::Vec2D;
+use crate::hat::Point;
+use crate::hat::Vec2D;
 
 const WAVE_LENGTH: f32 = 343.0 / 40000.0;
 const OMEGA: f32 = 2.0 * PI * WAVE_LENGTH;

@@ -2,12 +2,13 @@
 mod hat;
 mod hat_mt;
 mod hat_rayon;
-mod hat_runner;
-mod util;
+mod sonic_surface;
 
 use num::complex::Complex;
 use std::f32::consts::PI;
 use std::time::Instant;
+
+use hat::{Hat, HatRunner, Point};
 
 fn main() {
     #[cfg(feature = "benchmark")]
@@ -35,12 +36,12 @@ fn main() {
         .map(|t| radius * (2.0 * PI * t).sin() + initial_height)
         .collect();
 
-    let cps: Vec<Vec<util::Point>> = xs
+    let cps: Vec<Vec<Point>> = xs
         .iter()
         .zip(ys.iter())
         .zip(zs.iter())
         .map(|((x, y), z)| {
-            vec![util::Point {
+            vec![Point {
                 x: *x,
                 y: *y,
                 z: *z,
@@ -48,11 +49,12 @@ fn main() {
         })
         .collect();
 
-    let mut phases: Vec<Vec<Complex<f32>>> = vec![];
+    let mut phases: Vec<Vec<f32>> = vec![];
+    let hat = Hat::new(16.0, 0.1);
 
     let now = Instant::now();
     for control_points in cps {
-        phases.push(hat::run_hat(&control_points, 16.0, 0.1));
+        phases.push(hat.run_hat(&control_points));
     }
     let time = now.elapsed();
 }
@@ -76,12 +78,12 @@ fn benchmark() {
         .map(|t| 0.02 * (2.0 * PI * t).sin() + 0.05)
         .collect();
 
-    let cps: Vec<Vec<util::Point>> = xs
+    let cps: Vec<Vec<Point>> = xs
         .iter()
         .zip(ys.iter())
         .zip(zs.iter())
         .map(|((x, y), z)| {
-            vec![util::Point {
+            vec![Point {
                 x: *x,
                 y: *y,
                 z: *z,
@@ -91,11 +93,12 @@ fn benchmark() {
 
     // benchmark single-threaded HAT
     println!("Running single-threaded HAT benchmark...");
-    let mut phases: Vec<Vec<Complex<f32>>> = vec![];
+    let mut phases: Vec<Vec<f32>> = vec![];
+    let hat = Hat::new(16.0, 0.1);
 
     let now = Instant::now();
     for control_points in &cps {
-        phases.push(hat::run_hat(control_points, 16.0, 0.1));
+        phases.push(hat.run_hat(control_points));
     }
     let time = now.elapsed();
 
@@ -130,10 +133,14 @@ fn benchmark() {
 
     // benchmark HatRunner
     println!("Running HatRunner benchmark...");
+    let mut ss_phases: Vec<Vec<u8>> = vec![];
 
-    let runner = hat_runner::HatRunner {};
+    let runner = HatRunner::new(16.0, 0.1);
     let now = Instant::now();
-    let mut phases = runner.run(&cps, 16.0, 0.1);
+    let mut phases = runner.run(&cps);
+    for ps in phases {
+        ss_phases.push(sonic_surface::convert_to_sonic_surface_phases(&ps));
+    }
     let time = now.elapsed();
 
     println!("Benchmark took {} seconds.", time.as_secs_f32());

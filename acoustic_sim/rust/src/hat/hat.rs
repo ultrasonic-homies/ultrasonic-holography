@@ -3,8 +3,8 @@ use std::f32::consts::PI;
 
 use scilib::math::bessel;
 
-use crate::util::Point;
-use crate::util::Vec2D;
+use super::Point;
+use super::Vec2D;
 
 const WAVE_LENGTH: f32 = 343.0 / 40000.0;
 const OMEGA: f32 = 2.0 * PI * WAVE_LENGTH;
@@ -13,23 +13,42 @@ const K: f32 = 2.0 * PI / WAVE_LENGTH;
 const P_0: f32 = 1.293; // density of air
 const EMITTER_RADIUS: f32 = 0.005; // radius of the emitter: 5 mm
 
-// TODO: add support for different transducer arrangements
-pub fn run_hat(control_points: &Vec<Point>, phase_res: f32, z: f32) -> Vec<Complex<f32>> {
-    let mut transducers: Vec<Point> = vec![];
-    let sep = 0.01;
-    let size = 10;
+pub struct Hat {
+    transducers: Vec<Point>,
+    phase_res: f32,
+    z: f32,
+}
 
-    for i in 0..size {
-        for j in 0..size {
-            transducers.push(Point {
-                x: EMITTER_RADIUS + i as f32 * sep,
-                y: EMITTER_RADIUS + j as f32 * sep,
-                z: z,
-            })
+impl Hat {
+    // TODO: add support for different transducer arrangements
+    pub fn new(phase_res: f32, z: f32) -> Hat {
+        let mut transducers: Vec<Point> = vec![];
+        let sep = 0.01;
+        let size = 10;
+
+        for i in 0..size {
+            for j in 0..size {
+                transducers.push(Point {
+                    x: EMITTER_RADIUS + i as f32 * sep,
+                    y: EMITTER_RADIUS + j as f32 * sep,
+                    z: z,
+                })
+            }
         }
+
+        return Hat {
+            transducers,
+            phase_res,
+            z,
+        };
     }
 
-    return calc_transducer_phases(&transducers, control_points, phase_res);
+    pub fn run_hat(&self, control_points: &Vec<Point>) -> Vec<f32> {
+        return calc_transducer_phases(&self.transducers, control_points, self.phase_res)
+            .iter()
+            .map(|p| p.arg() + PI)
+            .collect();
+    }
 }
 
 // far field piston-source model: from https://jontallen.ece.illinois.edu/uploads/473.F18/Lectures/Chapter_7b.pdf
@@ -138,7 +157,7 @@ fn calc_transducer_phases(
 
         // quantize
         for p in &mut t_pressures {
-            let (_r, mut theta) = p.to_polar();
+            let mut theta = p.arg() + PI;
             theta = (theta / (2.0 * PI) * phase_res).round() * 2.0 * PI / phase_res;
             *p = Complex::from_polar(1.0, theta);
         }
