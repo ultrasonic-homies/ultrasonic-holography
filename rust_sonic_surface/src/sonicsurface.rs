@@ -1,3 +1,4 @@
+// just like main.rs idk if this is necessary anymore
 #![deny(clippy::all)]
 #![forbid(unsafe_code)]
 

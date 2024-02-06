@@ -1,3 +1,4 @@
+// prototype, sending positions to blender using redis, working
 use std::{thread, time};
 use std::f64::consts::PI;
 use redis::Commands;
