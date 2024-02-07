@@ -166,16 +166,18 @@ impl FPGA {
         let num_channels: u32 = 4;
         let max_phase: u32 = 256;
         let mut buf = Vec::<u8>::new();
+        // Write repeating pattern to buf
         for i in 0..num_writes {
             let data: u32 = 1 << 16 | (i % num_channels as u32) << 8 | (i % max_phase as u32);
             buf.extend(self.cmd(0x0001, data));
         }
-        // Time the write
         let num_bytes = buf.len();
+        // Time the write
         let start_time = std::time::Instant::now();
+        // Write buf to FPGA
         self.ftdev.write_all(&buf)?;
         let exec_time = start_time.elapsed().as_secs_f64();
-        println!("Wrote {} phases ({} bytes) in {}s", num_writes, num_bytes, exec_time);
+        println!("set_phase_multi: Wrote {} phases ({} bytes) in {}s to {}", num_writes, num_bytes, exec_time, self.ftdi_serial);
         Ok(())
     }
 
@@ -184,6 +186,7 @@ impl FPGA {
         let max_phase: u32 = 256;
         let mut buf = Vec::<u8>::new();
         let num_bytes: u32 = num_writes * 2;
+        // Set fpga into burst mode, fpga will expect buffer size = num_bytes
         self.ftdev.write_all(&self.cmd(0x0002, num_bytes))?;
         for i in 0..num_writes {
             let data: Vec::<u8> = vec![(i % max_phase).try_into().unwrap(), (i % num_channels).try_into().unwrap()];
@@ -193,7 +196,37 @@ impl FPGA {
         let start_time = std::time::Instant::now();
         self.ftdev.write_all(&buf)?;
         let exec_time = start_time.elapsed().as_secs_f64();
-        println!("Wrote {} phases ({} bytes) in {}s", num_writes, num_bytes, exec_time);
+        println!("set_phase_multi_v2: Wrote {} phases ({} bytes) in {}s to {}", num_writes, num_bytes, exec_time, self.ftdi_serial);
+        Ok(())
+    }
+
+    pub fn set_phase_frame_buf(&mut self, num_writes: u32) -> Result<(), TimeoutError> {
+        let num_channels_real: u32 = 4;
+        let num_channels_sim: u32 = 128;
+        let max_phase: u32 = 256;
+        let num_bytes_per_channel: u32 = 2;
+
+        let num_bytes: u32 = num_writes * num_bytes_per_channel;
+        let num_frames: u32 = num_writes / num_channels_sim;
+        let frame_bytes: u32 = num_channels_sim * num_bytes_per_channel;
+
+        // Crete repeating pattern in buf
+        let mut buf = Vec::<u8>::new();
+        for i in 0..num_channels_sim {
+            let data: Vec::<u8> = vec![(i % max_phase).try_into().unwrap(), (i % num_channels_real).try_into().unwrap()];
+            buf.extend(data);
+        }
+
+        // Time the write
+        let start_time = std::time::Instant::now();
+        for i in 0..num_frames {
+            // Set fpga into burst mode, fpga will expect frame size
+            self.ftdev.write_all(&self.cmd(0x0002, frame_bytes))?;
+            // Write buf to FPGA
+            self.ftdev.write_all(&buf)?;
+        }
+        let exec_time = start_time.elapsed().as_secs_f64();
+        println!("set_phase_frame_buf: Wrote {} phases ({} bytes) in {}s to {}", num_writes, num_bytes, exec_time, self.ftdi_serial);
         Ok(())
     }
 }

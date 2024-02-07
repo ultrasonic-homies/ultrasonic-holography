@@ -8,32 +8,42 @@ fn main() {
         Ok(mut de1_soc) => {
             match FPGA::new("FT7TEQ7VB", "async") {
                 Ok(mut de0_cv) => {
-                    let start_time = std::time::Instant::now();
-                    for j in 0..64 {
-                        for i in 0..=255 {
-                            let a: u8 = 0;
-                        // thread::sleep(Duration::from_millis(10));
-                            // println!("Setting address {} with phase {}", a, i);
-                            de0_cv.set_phase(a, 0x01*i, true).unwrap();
-                            de1_soc.set_phase(a, 0x01*i, true).unwrap();
-                        }
-                    }
-                    let exec_time = start_time.elapsed().as_secs_f64();
-                    println!("32768 phases addressed in {} s", exec_time);
+                    let num_writes: u32 = 32768;
+                    // Test 1: Sequential
+                    let start_time_seq = std::time::Instant::now();
+                    de0_cv.set_phase_frame_buf(num_writes).unwrap();
+                    de1_soc.set_phase_frame_buf(num_writes).unwrap();
+                    let exec_time_seq = start_time_seq.elapsed().as_secs_f64();
+                    println!("Sequential: 65536 phases addressed in {} s", exec_time_seq);
+                    // Test 2: Parallel
+                    let start_time_par = std::time::Instant::now();
+                    let handle = thread::spawn(move || {
+                        de0_cv.set_phase_frame_buf(num_writes).unwrap();
+                    });
+                    de1_soc.set_phase_frame_buf(num_writes).unwrap();
+                    let exec_time_par = start_time_par.elapsed().as_secs_f64();
+                    handle.join().unwrap();
+                    println!("Parallel: 65536 phases addressed in {} s", exec_time_par);
+                    // Command line input
                     let mut board_id: u8 = 1;
                     let mut input = String::new();
                     let mut address: u8;
                     let mut phase: u8;
                     let mut enable: bool;
+                    let mut quit: bool = false;
                     loop {
                         loop {
                             input.clear();
-                            println!("Select a board: 1, 2");
+                            println!("Select a board: 1, 2, or 0 to quit");
                             io::stdout().flush().unwrap();
                             io::stdin().read_line(&mut input).unwrap();
                             match input.trim().parse::<u8>() {
                                 Ok(parsed_u8) => {
-                                    if parsed_u8 == 1 || parsed_u8 == 2 {
+                                    if parsed_u8 == 0 {
+                                        quit = true;
+                                        break;
+                                    }
+                                    else if parsed_u8 == 1 || parsed_u8 == 2 {
                                         board_id = parsed_u8;
                                         break;
                                     }
@@ -45,6 +55,9 @@ fn main() {
                                     println!("Input invalid, only u8 accepted. ({})", err);
                                 }
                             }
+                        }
+                        if quit {
+                            break;
                         }
                         loop {
                             input.clear();
@@ -99,7 +112,7 @@ fn main() {
                             de1_soc.set_phase(address, phase, enable).unwrap();
                         }
                         else {
-                            de0_cv.set_phase(address, phase, enable).unwrap();
+                            // de0_cv.set_phase(address, phase, enable).unwrap();
                         }
                         println!("Setting board {} address {} with phase {}, enabled={}", board_id, address, phase, enable);
                     }
