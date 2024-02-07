@@ -38,7 +38,7 @@ impl Vec2D<()> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Point {
     pub x: f32,
     pub y: f32,
@@ -46,6 +46,10 @@ pub struct Point {
 }
 
 impl Point {
+    pub fn new(x: f32, y: f32, z: f32) -> Point {
+        Point { x, y, z }
+    }
+
     pub fn add(&self, other: &Point) -> Point {
         Point {
             x: self.x + other.x,
@@ -64,5 +68,10 @@ impl Point {
 
     pub fn norm(&self) -> f32 {
         (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
+    }
+
+    pub fn print(&self) -> String {
+        let a: [f32; 3] = [self.x, self.y, self.z];
+        format!("{:?}", a)
     }
 }

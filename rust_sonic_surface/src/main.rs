@@ -11,19 +11,23 @@ use reqwest::Client;
 use serde_derive::{Deserialize, Serialize};
 use serialport::available_ports;
 use serialport::SerialPort;
-use std::f64::consts::PI;
+use std::f32::consts::PI;
 use std::io::prelude::*;
 use std::io::Error;
 use std::io::{self, Write};
+use std::sync::mpsc::TryRecvError;
 use std::sync::mpsc::{Receiver, Sender};
 use std::time::Duration;
+use std::time::Instant;
 use std::{thread, time, vec};
 use tokio::runtime::Runtime;
 
-use hat::HatRunner;
+use hat::{HatRunner, Point};
 use sonic_surface::convert_to_sonic_surface_phases;
 
 const N_EMMITERS: usize = 256;
+// IMPORTANT: measure height of board and update this constant before running
+const Z_HEIGHT: f32 = 0.24; // m
 
 fn list_serial_ports() -> Result<Vec<String>, serialport::Error> {
     println!("Available Serial Ports:");
@@ -64,14 +68,14 @@ fn choose_serial_port(port_names: &[String]) -> Option<String> {
 
 #[derive(Debug)]
 struct PositionPhases {
-    position: [f64; 3],
-    phases: [f64; N_EMMITERS],
+    positions: Vec<Point>,
+    phases: Vec<f32>,
 }
 
 impl PositionPhases {
     // Constructor method to create a new instance of PositionPhases
-    fn new(position: [f64; 3], phases: [f64; N_EMMITERS]) -> PositionPhases {
-        PositionPhases { position, phases }
+    fn new(positions: Vec<Point>, phases: Vec<f32>) -> PositionPhases {
+        PositionPhases { positions, phases }
     }
 }
 
@@ -98,7 +102,7 @@ impl ControlGUI {
             rx,
             value: 1,
             count: 0,
-            position_phases: PositionPhases::new([0.0, 0.0, 0.0], [0.0; N_EMMITERS]),
+            position_phases: PositionPhases::new(vec![Point::new(0.0, 0.0, 0.0)], vec![0.0; 256]),
             serial_conn: serial_conn,
             redis_conn: redis_con,
             looping: false,
@@ -174,7 +178,10 @@ impl eframe::App for ControlGUI {
             self.position_phases = current_pos_phase;
             let _: () = self
                 .redis_conn
-                .publish("positions", format!("{:?}", self.position_phases.position))
+                .publish(
+                    "positions",
+                    format!("{:?}", self.position_phases.positions[0].print()),
+                )
                 .unwrap();
         }
 
@@ -183,8 +190,8 @@ impl eframe::App for ControlGUI {
             ui.label("Howdy");
             // ui.add(egui::Slider::new(&mut self.value, 1..=120).text("value"));
             ui.label(format!(
-                "Current position: {:?}",
-                self.position_phases.position
+                "Current position: {}",
+                self.position_phases.positions[0].print()
             ));
             // checkbox for looping
             ui.checkbox(&mut self.looping, "Looping");
@@ -196,6 +203,7 @@ impl eframe::App for ControlGUI {
             }
             if ui.button("Starting circling").clicked() {
                 send_req(
+                    self.serial_conn.try_clone().unwrap(), // TODO: cloning the serial connection is a bad idea
                     "circle".to_owned(),
                     self.tx.clone(),
                     ctx.clone(),
@@ -206,10 +214,56 @@ impl eframe::App for ControlGUI {
     }
 }
 
-fn send_req(mode: String, tx: Sender<PositionPhases>, ctx: egui::Context, looping: bool) {
+fn send_req(
+    mut serial_conn: Box<dyn SerialPort>, // need to take ownership of the serial connection for the thread
+    mode: String,
+    tx: Sender<PositionPhases>,
+    ctx: egui::Context,
+    looping: bool,
+) {
     tokio::spawn(async move {
         if mode == "circle" {
+            // generate control points for circling
+            let radius = 0.02;
+            let initial_x = 0.05;
+            let initial_y = 0.05;
+            let initial_z = 0.14;
+
+            let freq: f32 = 1.0;
+            let t_sep: f32 = 0.01;
+            let num_t = (freq / t_sep).round() as u32;
+            let ts: Vec<f32> = (0..num_t).map(|t| t as f32 * t_sep).collect();
+            let xs: Vec<f32> = ts
+                .iter()
+                .map(|t| radius * (2.0 * PI * freq * t).sin() + initial_x)
+                .collect();
+            let ys: Vec<f32> = ts
+                .iter()
+                .map(|t| radius * (2.0 * PI * freq * t).sin() + initial_y)
+                .collect();
+            let zs: Vec<f32> = ts
+                .iter()
+                .map(|t| radius * (2.0 * PI * freq * t).sin() + initial_z)
+                .collect();
+
+            let cps: Vec<Vec<Point>> = xs
+                .iter()
+                .zip(ys.iter())
+                .zip(zs.iter())
+                .map(|((x, y), z)| {
+                    vec![Point {
+                        x: *x,
+                        y: *y,
+                        z: *z,
+                    }]
+                })
+                .collect();
+
+            let runner = HatRunner::new(32.0, Z_HEIGHT);
             println!("Starting circling");
+            loop {
+                run_control_points(&cps, t_sep, &runner, &mut serial_conn, tx.clone());
+            }
         }
         // // Send a request with an increment value.
         // let body: HttpbinJson = Client::default()
@@ -256,7 +310,8 @@ fn test_turn_on(
     serial_conn.write_all(&on_message).unwrap();
     serial_conn.flush().unwrap();
     // this on message was made for holding the position at (0.05, 0.05, 0.14) cm, I think, whatever, this is just for testing anyway
-    let pos_phase = PositionPhases::new([0.05, 0.05, 0.14], [0.0; N_EMMITERS]);
+    // let pos_phase = PositionPhases::new([0.05, 0.05, 0.14], [0.0; N_EMMITERS]);
+    let pos_phase = PositionPhases::new(vec![Point::new(0.05, 0.05, 0.14)], vec![0.0; N_EMMITERS]);
     let _ = tx.send(pos_phase);
     ctx.request_repaint();
 }
@@ -289,7 +344,59 @@ fn test_turn_off(
     serial_conn.write_all(&off_message).unwrap();
     serial_conn.flush().unwrap();
     // let's just say off is 0.05, 0.05, 0.00
-    let pos_phase = PositionPhases::new([0.05, 0.05, 0.00], [0.0; N_EMMITERS]);
+    // let pos_phase = PositionPhases::new([0.05, 0.05, 0.00], [0.0; N_EMMITERS]);
+    let pos_phase = PositionPhases::new(vec![Point::new(0.05, 0.05, 0.0)], vec![0.0; N_EMMITERS]);
     let _ = tx.send(pos_phase);
     ctx.request_repaint();
+}
+
+fn solver_runtime(
+    serial_conn: &mut Box<dyn SerialPort>,
+    rx: Receiver<(Box<Vec<Vec<Point>>>, f32)>, // (control_points, time_step)
+    tx: Sender<PositionPhases>,
+    z: f32,
+) {
+    let mut control_points: Box<Vec<Vec<Point>>> = Box::new(vec![]);
+    let mut time_step: f32 = 0.0;
+    let runner = HatRunner::new(32.0, z);
+
+    loop {
+        // update control_points if new ones are sent
+        match rx.try_recv() {
+            Ok((cps, t)) => {
+                control_points = cps;
+                time_step = t;
+            }
+            // exit out if the channel is disconnected
+            Err(TryRecvError::Disconnected) => return,
+            Err(TryRecvError::Empty) => (),
+        };
+
+        run_control_points(&control_points, time_step, &runner, serial_conn, tx.clone());
+    }
+}
+
+fn run_control_points(
+    control_points: &Vec<Vec<Point>>,
+    time_step: f32,
+    runner: &HatRunner,
+    serial_conn: &mut Box<dyn SerialPort>,
+    tx: Sender<PositionPhases>,
+) {
+    // solve for phases in batch
+    let phases = runner.run(control_points);
+
+    // send phases to the SonicSurface
+    for (ps, cps) in phases.iter().zip(control_points) {
+        let start = Instant::now();
+        let ss_phases = convert_to_sonic_surface_phases(&ps);
+
+        serial_conn.write_all(&ss_phases).unwrap();
+        serial_conn.flush().unwrap();
+
+        tx.send(PositionPhases::new(cps.to_vec(), ps.to_vec()));
+
+        let elapsed = Instant::now() - start;
+        thread::sleep(Duration::from_secs_f32(time_step) - elapsed);
+    }
 }
