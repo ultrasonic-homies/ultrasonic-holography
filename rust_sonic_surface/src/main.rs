@@ -9,6 +9,7 @@ use ndarray_linalg::norm;
 use redis::Commands;
 use reqwest::Client;
 use serde_derive::{Deserialize, Serialize};
+use rmp_serde::encode::{to_vec, write};
 use serialport::available_ports;
 use serialport::SerialPort;
 use std::f32::consts::PI;
@@ -67,27 +68,27 @@ fn choose_serial_port(port_names: &[String]) -> Option<String> {
 }
 
 #[derive(Debug)]
-struct PositionPhases {
+struct PositionsPhases {
     positions: Vec<Point>,
     phases: Vec<f32>,
 }
 
-impl PositionPhases {
-    // Constructor method to create a new instance of PositionPhases
-    fn new(positions: Vec<Point>, phases: Vec<f32>) -> PositionPhases {
-        PositionPhases { positions, phases }
+impl PositionsPhases {
+    // control point positions (desired location of balls) and phases of transducers, for one time step
+    fn new(positions: Vec<Point>, phases: Vec<f32>) -> PositionsPhases {
+        PositionsPhases { positions, phases }
     }
 }
 
 struct ControlGUI {
     // Sender/Receiver for async notifications.
-    tx: Sender<PositionPhases>,
-    rx: Receiver<PositionPhases>,
+    tx: Sender<PositionsPhases>,
+    rx: Receiver<PositionsPhases>,
 
     // Silly app state.
     value: u32,
     count: u32,
-    position_phases: PositionPhases,
+    position_phases: PositionsPhases,
     serial_conn: Box<dyn SerialPort>,
     redis_conn: redis::Connection,
     looping: bool,
@@ -102,7 +103,7 @@ impl ControlGUI {
             rx,
             value: 1,
             count: 0,
-            position_phases: PositionPhases::new(vec![Point::new(0.0, 0.0, 0.0)], vec![0.0; 256]),
+            position_phases: PositionsPhases::new(vec![Point::new(0.0, 0.0, 0.0)], vec![0.0; 256]),
             serial_conn: serial_conn,
             redis_conn: redis_con,
             looping: false,
@@ -180,7 +181,7 @@ impl eframe::App for ControlGUI {
                 .redis_conn
                 .publish(
                     "positions",
-                    format!("{:?}", self.position_phases.positions[0].print()),
+                    format!("{:?}", rmp_serde::to_vec(&self.position_phases.positions).unwrap()),
                 )
                 .unwrap();
         }
@@ -217,7 +218,7 @@ impl eframe::App for ControlGUI {
 fn send_req(
     mut serial_conn: Box<dyn SerialPort>, // need to take ownership of the serial connection for the thread
     mode: String,
-    tx: Sender<PositionPhases>,
+    tx: Sender<PositionsPhases>,
     ctx: egui::Context,
     looping: bool,
 ) {
@@ -265,26 +266,13 @@ fn send_req(
                 run_control_points(&cps, t_sep, &runner, &mut serial_conn, tx.clone());
             }
         }
-        // // Send a request with an increment value.
-        // let body: HttpbinJson = Client::default()
-        //     .post("https://httpbin.org/anything")
-        //     .json(&Body { incr })
-        //     .send()
-        //     .await
-        //     .expect("Unable to send request")
-        //     .json()
-        //     .await
-        //     .expect("Unable to parse response");
-
-        // // After parsing the response, notify the GUI thread of the increment value.
-        // let _ = tx.send(body.json.incr);
         ctx.request_repaint();
     });
 }
 
 fn test_turn_on(
     serial_conn: &mut Box<dyn SerialPort>,
-    tx: Sender<PositionPhases>,
+    tx: Sender<PositionsPhases>,
     ctx: egui::Context,
 ) {
     let on_message: Vec<u8> = vec![
@@ -310,15 +298,15 @@ fn test_turn_on(
     serial_conn.write_all(&on_message).unwrap();
     serial_conn.flush().unwrap();
     // this on message was made for holding the position at (0.05, 0.05, 0.14) cm, I think, whatever, this is just for testing anyway
-    // let pos_phase = PositionPhases::new([0.05, 0.05, 0.14], [0.0; N_EMMITERS]);
-    let pos_phase = PositionPhases::new(vec![Point::new(0.05, 0.05, 0.14)], vec![0.0; N_EMMITERS]);
+    // let pos_phase = PositionsPhases::new([0.05, 0.05, 0.14], [0.0; N_EMMITERS]);
+    let pos_phase = PositionsPhases::new(vec![Point::new(0.05, 0.05, 0.14), Point::new(-0.05, -0.05, 0.14)], vec![0.0; N_EMMITERS]);
     let _ = tx.send(pos_phase);
     ctx.request_repaint();
 }
 
 fn test_turn_off(
     serial_conn: &mut Box<dyn SerialPort>,
-    tx: Sender<PositionPhases>,
+    tx: Sender<PositionsPhases>,
     ctx: egui::Context,
 ) {
     let off_message: Vec<u8> = vec![
@@ -344,8 +332,8 @@ fn test_turn_off(
     serial_conn.write_all(&off_message).unwrap();
     serial_conn.flush().unwrap();
     // let's just say off is 0.05, 0.05, 0.00
-    // let pos_phase = PositionPhases::new([0.05, 0.05, 0.00], [0.0; N_EMMITERS]);
-    let pos_phase = PositionPhases::new(vec![Point::new(0.05, 0.05, 0.0)], vec![0.0; N_EMMITERS]);
+    // let pos_phase = PositionsPhases::new([0.05, 0.05, 0.00], [0.0; N_EMMITERS]);
+    let pos_phase = PositionsPhases::new(vec![Point::new(0.05, 0.05, 0.0), Point::new(-0.05, -0.05, 0.0)], vec![0.0; N_EMMITERS]);
     let _ = tx.send(pos_phase);
     ctx.request_repaint();
 }
@@ -353,7 +341,7 @@ fn test_turn_off(
 fn solver_runtime(
     serial_conn: &mut Box<dyn SerialPort>,
     rx: Receiver<(Box<Vec<Vec<Point>>>, f32)>, // (control_points, time_step)
-    tx: Sender<PositionPhases>,
+    tx: Sender<PositionsPhases>,
     z: f32,
 ) {
     let mut control_points: Box<Vec<Vec<Point>>> = Box::new(vec![]);
@@ -381,7 +369,7 @@ fn run_control_points(
     time_step: f32,
     runner: &HatRunner,
     serial_conn: &mut Box<dyn SerialPort>,
-    tx: Sender<PositionPhases>,
+    tx: Sender<PositionsPhases>,
 ) {
     // solve for phases in batch
     let phases = runner.run(control_points);
@@ -394,7 +382,7 @@ fn run_control_points(
         serial_conn.write_all(&ss_phases).unwrap();
         serial_conn.flush().unwrap();
 
-        tx.send(PositionPhases::new(cps.to_vec(), ps.to_vec()));
+        tx.send(PositionsPhases::new(cps.to_vec(), ps.to_vec()));
 
         let elapsed = Instant::now() - start;
         thread::sleep(Duration::from_secs_f32(time_step) - elapsed);
