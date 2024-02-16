@@ -7,3 +7,4 @@ simulation/*
 *.qsf
 *.qws
 *.txt
+*.csv
