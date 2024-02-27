@@ -62,8 +62,8 @@ fn main() {
 #[cfg(feature = "benchmark")]
 fn benchmark() {
     // setup test case
-    let t_sep = 0.01;
-    let num_t = 100;
+    let t_sep = 0.001;
+    let num_t = 1000;
     let ts: Vec<f32> = (0..num_t).map(|t| t as f32 * t_sep).collect();
     let xs: Vec<f32> = ts
         .iter()
