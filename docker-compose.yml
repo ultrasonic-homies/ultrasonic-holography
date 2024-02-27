@@ -1,0 +1,13 @@
+version: '3'
+
+# this file is just for running redis, the rust GUI doesn't make sense to use in docker because it's a GUI and we would need an X server to mirror the gui
+
+services:
+  redis:
+    image: redis/redis-stack:latest
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+
+
+

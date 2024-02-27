@@ -1,12 +1,13 @@
-// prototype, sending positions to blender using redis, working
+// // prototype, sending positions to blender using redis, working
 use std::{thread, time};
 use std::f64::consts::PI;
 use redis::Commands;
+use rmp_serde::encode::{to_vec, write};
 
 
 fn main() {
     let client = redis::Client::open("redis://127.0.0.1/").expect("Failed to connect to Redis");
-    let mut con = client.get_connection().expect("Failed to establish connection");
+    let mut con = client.get_connection().expect("Failed to establish redis connection");
 
     let time_inc = 0.01;  // secs
     let start_x = 0.05;   // 5cm
@@ -22,12 +23,14 @@ fn main() {
         let z = start_z;
 
         // Print out the positions vector
-        println!("{:?}", (x, y, z));
         let position = (x, y, z);
-        let _: () = con.publish("positions", format!("{:?}", position)).unwrap();
+        let position_2 = (-x, -y, z);
+        let pos_vector = vec![position, position_2];
+        let a = to_vec( &pos_vector).expect("Failed to encode");
+        let _: () = con.publish("positions", format!("{:?}", a)).unwrap();
 
 
         // Sleep for 1 millisecond
-        thread::sleep(time::Duration::from_millis(1));
+        thread::sleep(time::Duration::from_millis(10));
     }
 }

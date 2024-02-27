@@ -1,3 +1,6 @@
+use serde_derive::{Serialize, Deserialize}; 
+
+
 #[derive(Debug)]
 pub struct Vec2D<T> {
     pub vec: Vec<T>,
@@ -38,7 +41,7 @@ impl Vec2D<()> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Point {
     pub x: f32,
     pub y: f32,
