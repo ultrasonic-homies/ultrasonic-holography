@@ -17,10 +17,10 @@ bpy.ops.object.delete()
 # Define the dimensions of the array
 num_rows = 10
 num_columns = 10
-spacing = 10/1000  # Adjust this to control the spacing between cylinders
+spacing = 10 / 1000  # Adjust this to control the spacing between cylinders
 
 # Create a cylinder template
-bpy.ops.mesh.primitive_cylinder_add(vertices=32, radius=5/1000, depth=7/1000, location=(0, 0, 0))
+bpy.ops.mesh.primitive_cylinder_add(vertices=32, radius=5 / 1000, depth=7 / 1000, location=(0, 0, 0))
 cylinder_template = bpy.context.object
 
 # Create the array of cylinders
@@ -35,9 +35,9 @@ for row in range(num_rows):
 # Select and link the template to the scene
 bpy.context.collection.objects.unlink(cylinder_template)
 bpy.data.objects.remove(cylinder_template)
-#bpy.ops.mesh.primitive_uv_sphere_add(radius=0.01, location=(0, 0, 1))
-#ball = bpy.context.object
-#ball.name = 'sphere'
+# bpy.ops.mesh.primitive_uv_sphere_add(radius=0.01, location=(0, 0, 1))
+# ball = bpy.context.object
+# ball.name = 'sphere'
 
 
 # This function can safely be called in another thread.
@@ -48,28 +48,30 @@ r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 # Create a pubsub instance and subscribe to the 'positions' channel
 pubsub = r.pubsub()
 pubsub.subscribe('positions')
-#context = zmq.Context()
-#socket = context.socket(zmq.SUB)
-#socket.connect("tcp://localhost:5498")
+
+
+# context = zmq.Context()
+# socket = context.socket(zmq.SUB)
+# socket.connect("tcp://localhost:5498")
 
 # Subscribe to all messages
-#socket.setsockopt_string(zmq.SUBSCRIBE, '')
-    
+# socket.setsockopt_string(zmq.SUBSCRIBE, '')
+
 def read_to_queue():
     for message in pubsub.listen():
         if message['type'] == 'message':
             positions_list = json.loads(message['data'])
-            positions_list = ast.literal_eval(positions_list)
+            if type(positions_list) == str:  # idk why rust sends a str but python sends a list
+                positions_list = ast.literal_eval(positions_list)
             location_queue.put(positions_list)
 
 
 def use_locations_from_queue():
     while not location_queue.empty():
         locations = location_queue.get()
-        print(locations)
         for index, location in enumerate(locations):
             name = "sphere_" + str(index)
-            if obj:= bpy.context.scene.objects.get(name):
+            if obj := bpy.context.scene.objects.get(name):
                 obj.location = location
             else:
                 bpy.ops.mesh.primitive_uv_sphere_add(radius=0.005, location=location)
