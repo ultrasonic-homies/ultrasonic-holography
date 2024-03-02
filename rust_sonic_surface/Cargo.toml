@@ -19,3 +19,7 @@ zmq = "0.10.0"
 num = "0.4.1"
 scilib = "1.0.0"
 rmp-serde = "1.1.2"
+
+[[bin]]
+name = "circle_test"
+path = "src/circle_test.rs"
