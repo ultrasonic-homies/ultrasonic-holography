@@ -1,0 +1,4 @@
+PySerial
+redis
+msgpack
+mediapipe

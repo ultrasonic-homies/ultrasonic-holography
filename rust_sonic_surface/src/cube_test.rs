@@ -2,7 +2,7 @@
 use std::{thread, time};
 use std::f64::consts::PI;
 use redis::Commands;
-use rmp_serde::encode::{to_vec, write};
+use serde_json; // Import serde_json crate
 
 
 #[derive(Debug)]
@@ -100,9 +100,9 @@ fn main() {
 
         let pos_vector = cube.rotate(angle_z, -angle_z,  0.0);
         println!("{:?}", pos_vector);
-        let a = to_vec( &pos_vector).expect("Failed to encode");
+        let json_string: String = serde_json::to_string(&pos_vector).expect("Failed to serialize to JSON");
         println!("{:?}", angle_z);
-        let _: () = con.publish("positions", format!("{:?}", a)).unwrap();
+        let _: () = con.publish("positions", format!("{:?}", json_string)).unwrap();
 
 
         // Sleep for 1 millisecond

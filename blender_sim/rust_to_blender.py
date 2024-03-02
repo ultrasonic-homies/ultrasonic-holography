@@ -1,6 +1,3 @@
-# receive locations of points from rust over redis, and display them in blender
-# note: this script isn't run using python, it's run in the scripting window of blender. I just put it here for
-# version control, since blender doesn't have history.
 import bpy
 import numpy as np
 import redis
@@ -8,10 +5,10 @@ import random
 import queue
 import time
 import threading
+import json
 import ast
-import msgpack
 
-
+print("Starting script")
 # Clear existing mesh objects
 bpy.ops.object.select_all(action='DESELECT')
 bpy.ops.object.select_by_type(type='MESH')
@@ -38,41 +35,51 @@ for row in range(num_rows):
 # Select and link the template to the scene
 bpy.context.collection.objects.unlink(cylinder_template)
 bpy.data.objects.remove(cylinder_template)
+#bpy.ops.mesh.primitive_uv_sphere_add(radius=0.01, location=(0, 0, 1))
+#ball = bpy.context.object
+#ball.name = 'sphere'
+
 
 # This function can safely be called in another thread.
 # The function will be executed when the timer runs the next time.
 location_queue = queue.Queue()
 
-r = redis.StrictRedis(host='localhost', port=6379, db=0)
+r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 # Create a pubsub instance and subscribe to the 'positions' channel
 pubsub = r.pubsub()
 pubsub.subscribe('positions')
+#context = zmq.Context()
+#socket = context.socket(zmq.SUB)
+#socket.connect("tcp://localhost:5498")
+
+# Subscribe to all messages
+#socket.setsockopt_string(zmq.SUBSCRIBE, '')
+    
 def read_to_queue():
     for message in pubsub.listen():
         if message['type'] == 'message':
-            bytes_list_str = message['data'].decode('utf-8')
-            bytes_list = ast.literal_eval(bytes_list_str)
-            position_bytes = bytearray(bytes_list)
-            positions_list = msgpack.loads(position_bytes)
+            positions_list = json.loads(message['data'])
+            positions_list = ast.literal_eval(positions_list)
             location_queue.put(positions_list)
 
 
 def use_locations_from_queue():
     while not location_queue.empty():
         locations = location_queue.get()
-        print(f"{locations}")
+        print(locations)
         for index, location in enumerate(locations):
             name = "sphere_" + str(index)
             if obj:= bpy.context.scene.objects.get(name):
                 obj.location = location
             else:
-                bpy.ops.mesh.primitive_uv_sphere_add(radius=0.01, location=location)
+                bpy.ops.mesh.primitive_uv_sphere_add(radius=0.005, location=location)
                 ball = bpy.context.object
                 ball.name = 'sphere_' + str(index)
+        bpy.ops.object.select_all(action='DESELECT')
         bpy.context.view_layer.update()
     return 0.01
 
 
 bpy.app.timers.register(use_locations_from_queue)
-my_thread = threading.Thread(target=read_to_queue)
+my_thread = threading.Thread(target=read_to_queue, daemon=True)
 my_thread.start()

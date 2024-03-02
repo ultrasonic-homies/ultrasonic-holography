@@ -3,8 +3,7 @@ use std::io::Write;
 use std::{io, thread, time};
 use std::f64::consts::PI;
 use redis::Commands;
-use rmp_serde::encode::{to_vec, write};
-
+use serde_json; // Import serde_json crate
 
 fn main() {
     let client = redis::Client::open("redis://127.0.0.1/").expect("Failed to connect to Redis");
@@ -24,9 +23,9 @@ fn main() {
 
     loop {
         let start_position = (start_x, start_y, start_z);
-        let start_position_vec = vec![start_position];
-        let msg_packed = to_vec(&start_position_vec).expect("Failed to encode");
-        let _: () = redis_con.publish("positions", format!("{:?}", msg_packed)).unwrap();
+        let position_vec = vec![start_position];
+        let json_string: String = serde_json::to_string(&position_vec).expect("Failed to serialize to JSON");
+        let _: () = redis_con.publish("positions", format!("{:?}", json_string)).unwrap();
 
         print!("Press enter after centering and trapping the particle: ");
         io::stdout().flush().unwrap();
@@ -36,8 +35,6 @@ fn main() {
             break;
         }
 
-        let circle_start = (start_x + radius, start_y, start_z);
-
         // move from start position to the start of a circle in 10 steps
         for i in 0..10 {
             let x = start_x + (radius - start_x) * (i as f64) / 10.0;
@@ -46,8 +43,8 @@ fn main() {
             let position = (x, y, z);
             // make vector with one position
             let position_vec = vec![position];
-            let msg_packed = to_vec(&position_vec).expect("Failed to encode");
-            let _: () = redis_con.publish("positions", format!("{:?}", msg_packed)).unwrap();
+            let json_string: String = serde_json::to_string(&position_vec).expect("Failed to serialize to JSON");
+            let _: () = redis_con.publish("positions", format!("{:?}", json_string)).unwrap();
             thread::sleep(time::Duration::from_millis(100));
         }
 
@@ -65,13 +62,14 @@ fn main() {
                     // output a circle of positions at frequency, e.g. 0.5 hz should 2 seconds per circle
                     for i in 0..360 {
                         let angle = (i as f64) * PI / 180.0;
-                        let x = circle_start.0 + radius * (angle).cos();
-                        let y = circle_start.1 + radius * (angle).sin();
-                        let z = circle_start.2;
+                        let x = start_x + radius * (angle).cos();
+                        let y = start_y + radius * (angle).sin();
+                        let z = start_z;
                         let position = (x, y, z);
                         let position_vec = vec![position];
-                        let msg_packed = to_vec(&position_vec).expect("Failed to encode");
-                        let _: () = redis_con.publish("positions", format!("{:?}", msg_packed)).unwrap();
+                        // let msg_packed = to_vec(&position_vec).expect("Failed to encode");
+                        let json_string: String = serde_json::to_string(&position_vec).expect("Failed to serialize to JSON");
+                        let _: () = redis_con.publish("positions", format!("{:?}", json_string)).unwrap();
                         thread::sleep(time::Duration::from_millis((1000.0 * period / 360.0) as u64));
                     }
                 }
