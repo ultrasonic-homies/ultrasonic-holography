@@ -4,23 +4,33 @@ use libftd2xx::{Ft2232h, FtdiCommon, BitMode, FtStatus, DeviceTypeError, Timeout
 use std::thread;
 use std::time::Duration;
 
-pub const KIB: u32 = 1024;
-pub const MIB: u32 = KIB * 1024;
-pub const PHASE_OPER: u8 = 0x01;
+
+#[repr(u64)]
+enum CommandEnum {
+    PhaseData = 0x0001,
+    BurstPhase = 0x0002,
+    TestLED = 0x1ED0,
+    ReadTest = 0xBEEF,
+    WriteTest = 0xCAFE
+}
+
+const KIB: u32 = 1024;
+const MIB: u32 = KIB * 1024;
+const COMMAND_PREFIX: u64 = 0xAA;
+const COMMAND_SUFFIX: u64 = 0x55;
+const PHASE_CONV_FACTOR: f32 = 128.0 / (2.0 * 3.14159);
 
 pub struct FPGA {
     ftdi_serial: &'static str,
-    fifo245_mode: &'static str,
     ftdev: Ft2232h,
 }
 
 impl FPGA {
-    pub fn new(ftdi_serial: &'static str, fifo245_mode: &'static str) -> Result<Self, DeviceTypeError> {
+    pub fn new(ftdi_serial: &'static str) -> Result<Self, DeviceTypeError> {
         let ftdev = Ft2232h::with_serial_number(ftdi_serial)?;
 
         let fpga = FPGA {
             ftdi_serial,
-            fifo245_mode,
             ftdev,
         };
         Ok(fpga)
@@ -28,7 +38,6 @@ impl FPGA {
 
     pub fn open(&mut self) -> Result<(), FtStatus> {
         self.ftdev.reset()?;
-        // self.ftdev.set_bit_mode(0xff, if self.fifo245_mode == "sync" { BitMode::SyncFifo } else { BitMode::Reset })?;
         self.ftdev.set_bit_mode(0xff, BitMode::SyncFifo)?;
         self.ftdev.set_timeouts(Duration::from_millis(255), Duration::from_millis(255))?;
         self.ftdev.set_usb_parameters(64 * KIB)?;
@@ -41,29 +50,61 @@ impl FPGA {
         Ok(())
     }
 
-    // the write_all command writes the byte in the lowest memory address first.
-    // Hence, 0x55 is written first 
-    pub fn cmd(&self, code: u16, data: u32) -> Vec<u8> {
-        ((0xAA << 56) | ((code as u64) << 40) | ((data as u64) << 8) | 0x55)
+    pub fn get_serial(&mut self) -> &'static str {
+        return self.ftdi_serial;
+    }
+
+    // the write_all command writes the byte at the lowest index of the vector first
+    // but, the fpga interprets the command bytes in big endian
+    // so we need to shuffle the suffix byte to the lowest index
+    fn cmd(&self, command: CommandEnum, data: u32) -> Vec<u8> {
+        ((COMMAND_PREFIX << 56) | ((command as u64) << 40) | ((data as u64) << 8) | COMMAND_SUFFIX)
             .to_le_bytes()
             .to_vec()
     }
 
     pub fn test_led(&mut self) -> Result<(), TimeoutError> {
-        self.ftdev.write_all(&self.cmd(0x1ED0, 1))?;
+        self.ftdev.write_all(&self.cmd(CommandEnum::TestLED, 1))?;
         thread::sleep(Duration::from_secs(2));
-        self.ftdev.write_all(&self.cmd(0x1ED0, 0))?;
+        self.ftdev.write_all(&self.cmd(CommandEnum::TestLED, 0))?;
         thread::sleep(Duration::from_secs(2));
         Ok(())
     }
 
+    pub fn set_phase(&mut self, address: u8, phase: u8, enable:bool) -> Result<(), TimeoutError> {
+        let data: u32 = (enable as u32) << 16 | (address as u32) << 8 | phase as u32;
+        self.ftdev.write_all(&self.cmd(CommandEnum::PhaseData, data))?;
+        Ok(())
+    }
+
+    pub fn set_frame(&mut self, phases: Vec<f32>, addresses: Vec<u8>) -> Result<(), TimeoutError> {
+        // determine size of phase and address data in bytes
+        let payload_bytes: u32 = (phases.len().min(addresses.len()) * 2) as u32;
+
+        // first prepend command
+        // then zip together addresses and phases into a buffer
+        let buf = self.cmd(CommandEnum::BurstPhase, payload_bytes).into_iter()
+            .chain(phases.into_iter()
+                .map(|phi| (phi * PHASE_CONV_FACTOR).round() as u8)
+                .zip(addresses.into_iter())
+                .flat_map(|(phi, adr)| vec![adr, phi]))
+            .collect::<Vec<u8>>();
+
+        // write the buffer to the fpga
+        self.ftdev.write_all(&buf)?;
+        Ok(())
+    }
+
+    /** test_read
+     * testing use only
+     */
     pub fn test_read(&mut self, total_bytes: Option<u32>) -> Result<(), TimeoutError> {
         // Prepare data
         let total_bytes = total_bytes.unwrap_or(1 * MIB);
         let golden_data: Vec<u8> = (0..total_bytes).map(|i| (i % 256) as u8).collect();
 
         // Start read test
-        self.ftdev.write_all(&self.cmd(0xBEEF, total_bytes - 1))?;
+        self.ftdev.write_all(&self.cmd(CommandEnum::ReadTest, total_bytes - 1))?;
         thread::sleep(Duration::from_secs(2));
 
         // Receive data
@@ -108,13 +149,16 @@ impl FPGA {
         Ok(())
     }
 
+    /** test_write
+     * testing use only
+     */
     pub fn test_write(&mut self, total_bytes: Option<u32>) -> Result<(), TimeoutError> {
         // Prepare data
         let total_bytes = total_bytes.unwrap_or(1 * MIB);
         let data: Vec<u8> = (0..total_bytes).map(|i| (i % 256) as u8).collect();
 
         // Start write test
-        self.ftdev.write_all(&self.cmd(0xCAFE, total_bytes - 1))?;
+        self.ftdev.write_all(&self.cmd(CommandEnum::WriteTest, total_bytes - 1))?;
         thread::sleep(Duration::from_secs(2));
 
         // Transmit data
@@ -156,12 +200,9 @@ impl FPGA {
         Ok(())
     }
 
-    pub fn set_phase(&mut self, address: u8, phase: u8, enable:bool) -> Result<(), TimeoutError> {
-        let data: u32 = (enable as u32) << 16 | (address as u32) << 8 | phase as u32;
-        self.ftdev.write_all(&self.cmd(0x0001, data))?;
-        Ok(())
-    }
-
+    /** set_phase_multi
+     * Testing only
+     */
     pub fn set_phase_multi(&mut self, num_writes: u32) -> Result<(), TimeoutError> {
         let num_channels: u32 = 4;
         let max_phase: u32 = 256;
@@ -169,7 +210,7 @@ impl FPGA {
         // Write repeating pattern to buf
         for i in 0..num_writes {
             let data: u32 = 1 << 16 | (i % num_channels as u32) << 8 | (i % max_phase as u32);
-            buf.extend(self.cmd(0x0001, data));
+            buf.extend(self.cmd(CommandEnum::PhaseData, data));
         }
         let num_bytes = buf.len();
         // Time the write
@@ -181,13 +222,16 @@ impl FPGA {
         Ok(())
     }
 
+    /** set_phase_multi_v2
+     * Testing only
+     */
     pub fn set_phase_multi_v2(&mut self, num_writes: u32) -> Result<(), TimeoutError> {
         let num_channels: u32 = 4;
         let max_phase: u32 = 256;
         let mut buf = Vec::<u8>::new();
         let num_bytes: u32 = num_writes * 2;
         // Set fpga into burst mode, fpga will expect buffer size = num_bytes
-        self.ftdev.write_all(&self.cmd(0x0002, num_bytes))?;
+        self.ftdev.write_all(&self.cmd(CommandEnum::BurstPhase, num_bytes))?;
         for i in 0..num_writes {
             let data: Vec::<u8> = vec![(i % max_phase).try_into().unwrap(), (i % num_channels).try_into().unwrap()];
             buf.extend(data);
@@ -200,6 +244,9 @@ impl FPGA {
         Ok(())
     }
 
+    /** set_phase_frame_buf
+     * Testing only
+     */
     pub fn set_phase_frame_buf(&mut self, num_writes: u32) -> Result<(), TimeoutError> {
         let num_channels_real: u32 = 4;
         let num_channels_sim: u32 = 128;
@@ -219,9 +266,9 @@ impl FPGA {
 
         // Time the write
         let start_time = std::time::Instant::now();
-        for i in 0..num_frames {
+        for _ in 0..num_frames {
             // Set fpga into burst mode, fpga will expect frame size
-            self.ftdev.write_all(&self.cmd(0x0002, frame_bytes))?;
+            self.ftdev.write_all(&self.cmd(CommandEnum::BurstPhase, frame_bytes))?;
             // Write buf to FPGA
             self.ftdev.write_all(&buf)?;
         }
