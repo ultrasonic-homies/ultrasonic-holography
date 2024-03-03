@@ -77,20 +77,19 @@ impl FPGA {
         Ok(())
     }
 
-    pub fn set_frame(&mut self, phases: &Vec<f32>, addresses: &Vec<u8>) -> Result<(), TimeoutError> {
+    pub fn set_frame(&mut self, phases: &[f32], addresses: &[u8]) -> Result<(), TimeoutError> {
         // determine size of phase and address data in bytes
         let payload_bytes: u32 = (phases.len().min(addresses.len()) * 2) as u32;
 
         // first prepend command
         // then zip together transducer addresses and phases into a buffer
         let buf = (self.cmd(CommandEnum::BurstPhase, payload_bytes)).into_iter()
-            .chain(addresses.into_iter()
-                .map(|&adr| adr)
-                .zip(phases.into_iter()
-                    .map(|&phi| phi)
-                    .map(|phi| (phi * PHASE_CONV_FACTOR).round() as u8)
-                )
-                .flat_map(|(adr, phi)| vec![adr, phi]))
+            .chain(phases.into_iter()
+                .map(|&phi| phi)
+                .map(|phi| (phi * PHASE_CONV_FACTOR).round() as u8)
+                .zip(addresses.into_iter()
+                    .map(|&adr| adr))
+                .flat_map(|(phi, adr)| vec![phi, adr]))
             .collect::<Vec<u8>>();
 
         // write the buffer to the fpga

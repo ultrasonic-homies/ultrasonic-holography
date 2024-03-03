@@ -1,5 +1,5 @@
 [package]
-name = "two_boards"
+name = "board_interface"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,5 +8,5 @@ edition = "2021"
 board = { path = "../board" }
 
 [[bin]]
-name = "two_boards"
+name = "board_interface"
 path = "main.rs"

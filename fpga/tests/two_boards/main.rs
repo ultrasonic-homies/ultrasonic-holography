@@ -1,12 +1,11 @@
-use test_lib::FPGA;
-use std::time::Duration;
+use board::fpga::FPGA;
 use std::thread;
 use std::io::{self, Write};
 
 fn main() {
-    match FPGA::new("FT7TEQ7VA", "async") {
+    match FPGA::new("FT7TEQ7VA") {
         Ok(mut de1_soc) => {
-            match FPGA::new("FT7TEQ7VB", "async") {
+            match FPGA::new("FT7TEQ7VB") {
                 Ok(mut de0_cv) => {
                     let num_writes: u32 = 32768;
                     // Test 1: Sequential

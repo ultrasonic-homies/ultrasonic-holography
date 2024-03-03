@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 # Include the name of your library crate as a dependency
-test_lib = { path = "../test_lib" }
+board = { path = "../board" }
 
 [[bin]]
 name = "de1_soc_top"
