@@ -26,6 +26,9 @@ pub struct FPGA {
 }
 
 impl FPGA {
+    /** new
+     * Creates a new FPGA object that wraps and handles the FT device object
+     */
     pub fn new(ftdi_serial: &'static str) -> Result<Self, DeviceTypeError> {
         let ftdev = Ft2232h::with_serial_number(ftdi_serial)?;
 
@@ -36,33 +39,56 @@ impl FPGA {
         Ok(fpga)
     }
 
+    /** open
+     * Resets and configures connection to FT device
+     */
     pub fn open(&mut self) -> Result<(), FtStatus> {
         self.ftdev.reset()?;
-        self.ftdev.set_bit_mode(0xff, BitMode::SyncFifo)?;
+        // If using Sync mode, uncomment below. Sync mode is only single channel
+        // self.ftdev.set_bit_mode(0x40, BitMode::SyncFifo)?;
+        // Sets timeouts to flush receive buffer. Default 16ms, ranges from 2ms to 255ms
         self.ftdev.set_timeouts(Duration::from_millis(255), Duration::from_millis(255))?;
+        // Sets USB buffer size, range 64B to 64kB
         self.ftdev.set_usb_parameters(64 * KIB)?;
+        // Set flow control to RTS_CTS to prevent data loss and optimize performance
         self.ftdev.set_flow_control_rts_cts()?;
         Ok(())
     }
 
+    /** close
+     *  Closes connection to FT2232H
+     */
     pub fn close(&mut self) -> Result<(), FtStatus> {
         self.ftdev.close()?;
         Ok(())
     }
 
+    /** get_serial
+     * Fetches the device serial ID
+     * First 8 chars are the device ID
+     * Ends in "A" if using channel 0
+     * Ends in "B" if using channel 1
+     * @returns &str: Pointer to device ID string
+     */
     pub fn get_serial(&mut self) -> &'static str {
         return self.ftdi_serial;
     }
 
-    // the write_all command writes the byte at the lowest index of the vector first
-    // but, the fpga interprets the command bytes in big endian
-    // so we need to shuffle the suffix byte to the lowest index
+    /** cmd
+     * @return the command in a vector of bytes of length 8 to send to the FPGA
+     */
     fn cmd(&self, command: CommandEnum, data: u32) -> Vec<u8> {
         ((COMMAND_PREFIX << 56) | ((command as u64) << 40) | ((data as u64) << 8) | COMMAND_SUFFIX)
-            .to_le_bytes()
+        // the write_all command writes the byte at the lowest index of the vector first
+        // but, the fpga interprets the command bytes in big endian
+        // so we need to shuffle the suffix byte to the lowest index, etc.
+        .to_le_bytes()
             .to_vec()
     }
 
+    /** test_led
+     * Toggles the `receive_err` net in FPGA over 4 seconds
+     */
     pub fn test_led(&mut self) -> Result<(), TimeoutError> {
         self.ftdev.write_all(&self.cmd(CommandEnum::TestLED, 1))?;
         thread::sleep(Duration::from_secs(2));
@@ -71,13 +97,25 @@ impl FPGA {
         Ok(())
     }
 
+    /** set_phase
+     * Sets the phase of an individual transducer, and whether it is on or off
+     * @param address: u8, transducer address to modify
+     * @param phase: u8, phase between [0, 127] which map to [0, 2pi]
+     * @param enable: bool, sets whether the transducer is pulsing or not
+     */
     pub fn set_phase(&mut self, address: u8, phase: u8, enable:bool) -> Result<(), TimeoutError> {
         let data: u32 = (enable as u32) << 16 | (address as u32) << 8 | phase as u32;
         self.ftdev.write_all(&self.cmd(CommandEnum::PhaseData, data))?;
         Ok(())
     }
 
-    pub fn set_frame(&mut self, phases: &[f32], addresses: &[u8]) -> Result<(), TimeoutError> {
+    /** set_multiple
+     * Sets multiple phases and enables transducers at the specified transducer addresses
+     * @param phases: the phases between [0, 2pi]
+     * @param addresses: the transducer address that corresponds with each phase at the same index.
+     * If either vector is longer, only indices up to the shorter length is handled.
+     */
+    pub fn set_multi(&mut self, phases: &[f32], addresses: &[u8]) -> Result<(), TimeoutError> {
         // determine size of phase and address data in bytes
         let payload_bytes: u32 = (phases.len().min(addresses.len()) * 2) as u32;
 
