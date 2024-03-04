@@ -1,7 +1,7 @@
-use test_lib::{FPGA, MIB};
+use rev1::fpga::{FPGA, MIB};
 
 fn main() {
-    match FPGA::new("FT7TEQ7VA", "async") {
+    match FPGA::new("FT7TEQ7VA") {
         Ok(mut de1_soc) => {
             match de1_soc.test_led() {
                 Ok(()) => {

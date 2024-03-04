@@ -1,8 +1,8 @@
 [workspace]
 members = [
-    "test_lib",
     "de1_soc_ftd2xx",
     "de1_soc_top",
     "two_boards",
+    "board_interface",
 ]
 resolver = "2"

@@ -15,7 +15,7 @@ enum CommandEnum {
 }
 
 const KIB: u32 = 1024;
-const MIB: u32 = KIB * 1024;
+pub const MIB: u32 = KIB * 1024;
 const COMMAND_PREFIX: u64 = 0xAA;
 const COMMAND_SUFFIX: u64 = 0x55;
 const PHASE_CONV_FACTOR: f32 = 128.0 / (2.0 * 3.14159);

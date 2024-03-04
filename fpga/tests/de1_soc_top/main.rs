@@ -1,10 +1,8 @@
-use test_lib::FPGA;
-use std::time::Duration;
-use std::thread;
+use rev1::fpga::FPGA;
 use std::io::{self, Write};
 
 fn main() {
-    match FPGA::new("FT7TEQ7VA", "async") {
+    match FPGA::new("FT7TEQ7VA") {
         Ok(mut de1_soc) => {
             // Speed Test
             let enable: bool = true;

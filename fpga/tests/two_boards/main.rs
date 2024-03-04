@@ -1,4 +1,4 @@
-use board::fpga::FPGA;
+use rev1::fpga::FPGA;
 use std::thread;
 use std::io::{self, Write};
 

@@ -3,6 +3,13 @@
 version = 3
 
 [[package]]
+name = "board_interface"
+version = "0.1.0"
+dependencies = [
+ "rev1",
+]
+
+[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -12,14 +19,14 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 name = "de1_soc_ftd2xx"
 version = "0.1.0"
 dependencies = [
- "test_lib",
+ "rev1",
 ]
 
 [[package]]
 name = "de1_soc_top"
 version = "0.1.0"
 dependencies = [
- "test_lib",
+ "rev1",
 ]
 
 [[package]]
@@ -66,21 +73,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c"
 
 [[package]]
-name = "static_assertions"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
-
-[[package]]
-name = "test_lib"
+name = "rev1"
 version = "0.1.0"
 dependencies = [
  "libftd2xx",
 ]
 
 [[package]]
+name = "static_assertions"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+
+[[package]]
 name = "two_boards"
 version = "0.1.0"
 dependencies = [
- "test_lib",
+ "rev1",
 ]
