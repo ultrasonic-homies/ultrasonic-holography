@@ -2,8 +2,6 @@ import math
 import os
 import sys
 import time
-import json
-
 
 import cv2
 import mediapipe as mp
@@ -19,23 +17,24 @@ import numpy as np
 MARGIN = 10  # pixels
 FONT_SIZE = 1
 FONT_THICKNESS = 1
-HANDEDNESS_TEXT_COLOR = (88, 205, 54) # vibrant green
+HANDEDNESS_TEXT_COLOR = (88, 205, 54)  # vibrant green
 
 BaseOptions = mp.tasks.BaseOptions
-GestureRecognizer = mp.tasks.vision.GestureRecognizer
-GestureRecognizerOptions = mp.tasks.vision.GestureRecognizerOptions
-GestureRecognizerResult = mp.tasks.vision.GestureRecognizerResult
+HandLandmarker = mp.tasks.vision.HandLandmarker
+HandLandmarkerOptions = mp.tasks.vision.HandLandmarkerOptions
+HandLandmarkerResult = mp.tasks.vision.HandLandmarkerResult
 VisionRunningMode = mp.tasks.vision.RunningMode
 mp_drawing = mp.solutions.drawing_utils
 global_img, global_results = None, None
 global_y_scale = None
 pinching = False
+current_position = None
 redis_inst = redis.StrictRedis(host='localhost', port=6379, db=0)
 
-model_path = "gesture_recognizer.task"
+model_path = "hand_landmarker.task"
 if not os.path.exists(model_path):
-    print("Go download pose_landmarker_full from "
-          "https://developers.google.com/mediapipe/solutions/vision/gesture_recognizer#models")
+    print("Go download hand_landmarker_full from "
+          "https://developers.google.com/mediapipe/solutions/vision/hand_landmarker/#models")
     sys.exit(1)
 
 
@@ -56,44 +55,43 @@ def get_board_position_from_hand_positions(x_normalised, y_normalised, pinky_to_
 
 
 def draw_landmarks_on_image(rgb_image, detection_result):
-  hand_landmarks_list = detection_result.hand_landmarks
-  handedness_list = detection_result.handedness
-  annotated_image = np.copy(rgb_image)
+    hand_landmarks_list = detection_result.hand_landmarks
+    handedness_list = detection_result.handedness
+    annotated_image = np.copy(rgb_image)
 
-  # Loop through the detected hands to visualize.
-  for idx in range(len(hand_landmarks_list)):
-    hand_landmarks = hand_landmarks_list[idx]
-    handedness = handedness_list[idx]
+    # Loop through the detected hands to visualize.
+    for idx in range(len(hand_landmarks_list)):
+        hand_landmarks = hand_landmarks_list[idx]
+        handedness = handedness_list[idx]
 
-    # Draw the hand landmarks.
-    hand_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
-    hand_landmarks_proto.landmark.extend([
-      landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in hand_landmarks
-    ])
-    solutions.drawing_utils.draw_landmarks(
-      annotated_image,
-      hand_landmarks_proto,
-      solutions.hands.HAND_CONNECTIONS,
-      solutions.drawing_styles.get_default_hand_landmarks_style(),
-      solutions.drawing_styles.get_default_hand_connections_style())
+        # Draw the hand landmarks.
+        hand_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
+        hand_landmarks_proto.landmark.extend([
+          landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in hand_landmarks
+        ])
+        solutions.drawing_utils.draw_landmarks(
+          annotated_image,
+          hand_landmarks_proto,
+          solutions.hands.HAND_CONNECTIONS,
+          solutions.drawing_styles.get_default_hand_landmarks_style(),
+          solutions.drawing_styles.get_default_hand_connections_style())
 
-    # Get the top left corner of the detected hand's bounding box.
-    height, width, _ = annotated_image.shape
-    x_coordinates = [landmark.x for landmark in hand_landmarks]
-    y_coordinates = [landmark.y for landmark in hand_landmarks]
-    text_x = int(min(x_coordinates) * width)
-    text_y = int(min(y_coordinates) * height) - MARGIN
+        # Get the top left corner of the detected hand's bounding box.
+        height, width, _ = annotated_image.shape
+        x_coordinates = [landmark.x for landmark in hand_landmarks]
+        y_coordinates = [landmark.y for landmark in hand_landmarks]
+        text_x = int(min(x_coordinates) * width)
+        text_y = int(min(y_coordinates) * height) - MARGIN
 
-    # Draw handedness (left or right hand) on the image.
-    cv2.putText(annotated_image, f"{handedness[0].category_name}",
-                (text_x, text_y), cv2.FONT_HERSHEY_DUPLEX,
-                FONT_SIZE, HANDEDNESS_TEXT_COLOR, FONT_THICKNESS, cv2.LINE_AA)
-
-  return annotated_image
+        # Draw handedness (left or right hand) on the image.
+        cv2.putText(annotated_image, f"{handedness[0].category_name}",
+                    (text_x, text_y), cv2.FONT_HERSHEY_DUPLEX,
+                    FONT_SIZE, HANDEDNESS_TEXT_COLOR, FONT_THICKNESS, cv2.LINE_AA)
+    return annotated_image
 
 
 # Create a pose landmarker instance with the live stream mode:
-def print_result(result: GestureRecognizerResult, output_image: mp.Image, timestamp_ms: int):
+def mp_callback(result: HandLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
     global global_img, pinching
     # print('hand landmarker result: {}'.format(result))
     # convert image to cv2 format
@@ -103,10 +101,13 @@ def print_result(result: GestureRecognizerResult, output_image: mp.Image, timest
     # add landmarks
     img = draw_landmarks_on_image(img, result)
 
+
     if len(result.hand_landmarks) == 0:
         img = cv2.flip(img, 1)
         global_img = img
         return
+    handedness = result.handedness
+    print(handedness[0][0].display_name)
     h, w, _ = image.shape
 
     # info:
@@ -144,25 +145,25 @@ def print_result(result: GestureRecognizerResult, output_image: mp.Image, timest
         pinching = True
         cv2.circle(img, (cx, cy), int(pinch_distance), (255, 255, 128), 2)
         x_pos, y_pos, z_pos = get_board_position_from_hand_positions(cx/w, cy/h, pinky_to_index_distance)
+        # send to blender over redis
         position = [x_pos, y_pos, z_pos]
         positions = [position]  # in our system we send lists of positions for multiple trap compatibility
         msg_packed = repr(positions).encode('utf-8')
         redis_inst.publish('positions', msg_packed)
         # add coordinates to frame
         cv2.putText(img, f"({x_pos:.2f}, {y_pos:.2f}, {z_pos:.2f})", (10, 30), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 128), 3)
-        # send to blender over redis
-    # flip across y axis
+    # flip across y axis so x axis isn't mirrored in a video
     img = cv2.flip(img, 1)
     global_img = img
 
 
-options = GestureRecognizerOptions(
+options = HandLandmarkerOptions(
     base_options=BaseOptions(model_asset_path=model_path),
     running_mode=VisionRunningMode.LIVE_STREAM,
-    result_callback=print_result,
-    num_hands=2)
+    result_callback=mp_callback,
+    num_hands=1)
 
-with vision.GestureRecognizer.create_from_options(options) as landmarker:
+with HandLandmarker.create_from_options(options) as landmarker:
     cap = cv2.VideoCapture(0)
     while cap.isOpened():
         ret, frame = cap.read()
@@ -174,11 +175,10 @@ with vision.GestureRecognizer.create_from_options(options) as landmarker:
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_rgb)
         # get current timestamp in ms
         timestamp_ms = int(time.time_ns() / 1000000)
-        landmarker.recognize_async(mp_image, timestamp_ms=timestamp_ms)
+        landmarker.detect_async(mp_image, timestamp_ms=timestamp_ms)
         if global_img is not None:
             cv2.imshow('MediaPipe Pose', global_img)
             cv2.waitKey(1)
-
 
     cap.release()
     cv2.destroyAllWindows()
