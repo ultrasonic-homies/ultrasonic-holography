@@ -1,6 +1,14 @@
 extern crate libftd2xx;
 
-use libftd2xx::{Ft2232h, FtdiCommon, BitMode, FtStatus, DeviceTypeError, TimeoutError};
+#[cfg(not(feature="mock_ftdi"))]
+use libftd2xx::{Ft2232h, FtdiCommon, FtStatus, DeviceTypeError, TimeoutError, BitMode};
+
+#[cfg(feature = "mock_ftdi")]
+use {
+    crate::mock_ftdi::Ft2232h,
+    libftd2xx::{DeviceTypeError, TimeoutError, FtStatus, BitMode},
+};
+
 use std::thread;
 use std::time::Duration;
 
@@ -32,10 +40,11 @@ impl FPGA {
     pub fn new(ftdi_serial: &'static str) -> Result<Self, DeviceTypeError> {
         let ftdev = Ft2232h::with_serial_number(ftdi_serial)?;
 
-        let fpga = FPGA {
+        let mut fpga = FPGA {
             ftdi_serial,
             ftdev,
         };
+        fpga.open()?;
         Ok(fpga)
     }
 
@@ -315,5 +324,53 @@ impl FPGA {
         let exec_time = start_time.elapsed().as_secs_f64();
         println!("set_phase_frame_buf: Wrote {} phases ({} bytes) in {}s to {}", num_writes, num_bytes, exec_time, self.ftdi_serial);
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_multi() {
+        let test_multi_phases: Vec<Vec<f32>> = vec![
+            vec![1.0, 2.0],
+            vec![0.0, 6.3],
+            vec![3.0, 3.1, 3.2],
+            (0..128).into_iter().map(|i| 0.01 * (i as f32)).collect::<Vec<f32>>(),
+            vec![],
+        ];
+        let test_multi_addresses: Vec<Vec<u8>> = vec![
+            vec![0, 1],
+            vec![2, 3, 4],
+            vec![4, 8],
+            (0..128).into_iter().collect::<Vec<u8>>(),
+            vec![],
+        ];
+        match FPGA::new("TEST") {
+            Ok(mut fpga) => {
+                for i in 0..test_multi_phases.len() {
+                    fpga.set_multi(
+                        &test_multi_phases[i],
+                        &test_multi_addresses[i]
+                    ).unwrap();
+                    let data_length = 2 * test_multi_phases[i].len().min(test_multi_addresses[i].len());
+                    let command_buf: Vec<u8> = vec![
+                        COMMAND_SUFFIX as u8,
+                        (data_length & 0xFF) as u8,
+                        (data_length >> 8 & 0xFF) as u8,
+                        (data_length >> 16 & 0xFF) as u8,
+                        (data_length >> 24 & 0xFF) as u8,
+                        CommandEnum::BurstPhase as u8,
+                        0x00,
+                        COMMAND_PREFIX as u8
+                    ];
+                    assert_eq!(command_buf, fpga.ftdev.get_last_write()[0..8]);
+                }
+            }
+            Err(_) => {
+                assert!(false);
+            }
+        }
     }
 }
