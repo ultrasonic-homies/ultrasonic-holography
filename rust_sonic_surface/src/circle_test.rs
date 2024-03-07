@@ -12,12 +12,12 @@ fn main() {
     let time_inc = 0.01;  // secs
     let start_x = 0.05;   // 5cm
     let start_y = 0.05;   // 5cm
-    let start_z = 0.13;   // 13cm
+    let start_z = 0.09;   // 10cm
     let mut freq = 0.5;
     let mut period = 1.0 / freq;
     let radius = 0.02;
     let mut input = String::new();
-    let mut n_circles: i32 = 5;
+    let mut n_circles: i32 = 2;
 
 
 
@@ -34,10 +34,10 @@ fn main() {
         if input.trim() != "" {
             break;
         }
-
+        let steps = 20;
         // move from start position to the start of a circle in 10 steps
-        for i in 0..10 {
-            let x = start_x + (radius - start_x) * (i as f64) / 10.0;
+        for i in 0..steps {
+            let x = start_x + (radius) * (i as f64) / steps as f64;
             let y = start_y;
             let z = start_z;
             let position = (x, y, z);
@@ -70,7 +70,7 @@ fn main() {
                         // let msg_packed = to_vec(&position_vec).expect("Failed to encode");
                         let json_string: String = serde_json::to_string(&position_vec).expect("Failed to serialize to JSON");
                         let _: () = redis_con.publish("positions", json_string).unwrap();
-                        thread::sleep(time::Duration::from_millis((1000.0 * period / 360.0) as u64));
+                        thread::sleep(time::Duration::from_millis((1000.0 * period / 360.0 / (2.0 * PI)) as u64));
                     }
                 }
             }

@@ -59,30 +59,27 @@ class SonicSurface:
         dataToSend = np.empty(phases.size, np.uint8)
         order = self.EMITTERS_ORDER if permuteToFPGAOrder else np.arange(phases.size)
         dataToSend[order] = phases
+        # print("Sending:")
+        print(list(dataToSend))
         self.serialConn.write(bytes([254]))  # start phases
         self.serialConn.write(bytes(dataToSend.astype(np.uint8)))
         self.serialConn.write(bytes([253]))  # commit
-
-def particle_SHM(ts, midpoint=[0.05, 0.05, 0.14], amp=0.025, axis=0, freq=1):
-    r = np.full([len(ts), 3], midpoint)
-    r[:, axis] += amp * np.sin(2 * np.pi * freq * ts)
-    return r
 
 
 if __name__ == "__main__":
     surface = SonicSurface()
     # connect to serial port for the SonicSurface
-    # surface.listSerial()
-    # port_num = input("Pick serial port: ")
-    # surface.connect(int(port_num))
+    surface.listSerial()
+    port_num = input("Pick serial port: ")
+    surface.connect(int(port_num))
 
 
     # constants
     time_inc = 0.01 # secs
     start_x = 0.05 # m
     start_y = 0.05 # m
-    start_z = 0.05 # m
-    height = 0.1 # m
+    start_z = 0.13 # m
+    height = 0.13 # m
     freq = 1 
     radius = 0.02 # m
 
@@ -91,26 +88,31 @@ if __name__ == "__main__":
     spacings = int(period/time_inc)
     ts = np.linspace(0, 1/freq, spacings)
     positions = []
+    # rise from 13 cm to 5 cm slowly
+    rise_steps = 50
+    for i in range(rise_steps):
+        positions.append((start_x, start_y, start_z + (0.05 - start_z) * i / rise_steps))
     for t in ts:
         x = start_x + radius * np.sin(2 * np.pi * freq * t)
         # x = start_x
         y = start_y + radius * np.sin(2 * np.pi * freq * t)
         # y = start_y
-        z = start_z + radius * np.sin(2 * np.pi * freq * t)
-        # z = start_z
+        # z = start_z + radius * np.sin(2 * np.pi * freq * t)
+        z = start_z
         positions.append((x, y, z))
     
     # surface.switchOnOrOff(False)
     # input("Hit Enter to start calculation")
     
     # benchmarking
-    start = time.time();
+    start = time.time()
     phase_list = []
     for position in positions:
         # need phases to be from 0 to 2pi
         phases = np.angle(hat.run_hat([position], phase_res=32, z=height)) + np.pi
         phase_list.append(phases)
-    duration = time.time() - start;
+
+    duration = time.time() - start
     print(f"Took {duration} seconds to compute frames")
     print(f"frames per second: {spacings / duration}")
 
@@ -118,11 +120,9 @@ if __name__ == "__main__":
     phase_one = phase_list[0]
     np.set_printoptions(linewidth=200)  # Set the width according to your preference
 
-    print(phase_one)
+    # print(phase_one)
     phases_padded = np.pad(phase_one, [(6, 0), (0, 6)], constant_values=np.NaN)
-    print(phases_padded)
     surface.sendPhases(phases_padded.flatten())
-    exit(0)
 
     input("Hit Enter to start")
 
