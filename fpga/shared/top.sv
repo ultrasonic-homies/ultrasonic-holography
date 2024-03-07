@@ -50,6 +50,7 @@ assign ft_din  = ft_data;
 /** SYSTEM REGS **/
 
 logic [CLK_CNT_W-1:0]   phases [NUM_CHANNELS];
+logic [CLK_CNT_W-1:0]   phase_calibration [NUM_CHANNELS] = '{NUM_CHANNELS {'0}};
 logic                   read_error;
 logic [CLK_CNT_W-1:0]   phases_1 [NUM_CHANNELS];
 logic [CLK_CNT_W-1:0]   phases_2 [NUM_CHANNELS];
@@ -60,6 +61,7 @@ logic [1:0]             pwm_reset_cnt = '0;
 logic [CLK_CNT_W-1:0]   pwm_cnt;
 logic                   pwm_en [NUM_CHANNELS] = '{NUM_CHANNELS {0}};
 logic                   phase_parse_en;
+logic                   phase_calib_en;
 logic [31:0]            latest_data;
 wire                    sync_pulse;
 
@@ -87,8 +89,19 @@ end
 
 // phase synchronizer from sys_clk into pwm_clk domain
 always_ff @(posedge pwm_clk) begin
-    phases_1 <= phases;
+    for (int i = 0; i < NUM_CHANNELS; i++) begin
+        phases_1[i] <= phases[i] + phase_calibration[i];
+    end
     phases_2 <= phases_1;
+end
+
+// save current phase profile as calibration
+always_ff @(posedge sys_clk) begin
+    if (phase_calib_en) begin
+        phase_calibration <= phases;
+    end else begin
+        phase_calibration <= phase_calibration;
+    end
 end
 
 /** SUBMODULES **/
@@ -125,6 +138,7 @@ receiver #(
     // internal outputs
     .read_error,
     .phase_parse_en,
+    .phase_calib_en,
     .latest_data,
     // proto245 interface
     // RX: Host -> FPGA
