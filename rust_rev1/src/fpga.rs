@@ -26,7 +26,7 @@ const KIB: u32 = 1024;
 pub const MIB: u32 = KIB * 1024;
 const COMMAND_PREFIX: u64 = 0xAA;
 const COMMAND_SUFFIX: u64 = 0x55;
-const PHASE_CONV_FACTOR: f32 = 128.0 / (2.0 * 3.14159);
+const PHASE_CONV_FACTOR: f32 = 256.0 / (2.0 * 3.14159);
 
 pub struct FPGA {
     ftdi_serial: &'static str,
@@ -335,7 +335,7 @@ mod tests {
     fn test_multi() {
         let test_multi_phases: Vec<Vec<f32>> = vec![
             vec![1.0, 2.0],
-            vec![0.0, 6.3],
+            vec![0.0, 6.5],
             vec![3.0, 3.1, 3.2],
             (0..128).into_iter().map(|i| 0.01 * (i as f32)).collect::<Vec<f32>>(),
             vec![],
@@ -346,7 +346,15 @@ mod tests {
             vec![4, 8],
             (0..128).into_iter().collect::<Vec<u8>>(),
             vec![],
-        ];
+            ];
+        let test_multi_expected: Vec<Vec<u8>> = vec![
+                vec![41, 0, 81, 1],
+                vec![0, 2, 255, 3],
+                vec![122, 4, 126, 8],
+                (0..128).into_iter().map(|i| ((0.01 * (i as f32) / (2.0 * 3.14159) * 256.0).round() as u8, i as u8))
+                .flat_map(|(a, b)| vec![a, b]).collect(),
+                vec![],
+            ];
         match FPGA::new("TEST") {
             Ok(mut fpga) => {
                 for i in 0..test_multi_phases.len() {
@@ -366,6 +374,7 @@ mod tests {
                         COMMAND_PREFIX as u8
                     ];
                     assert_eq!(command_buf, fpga.ftdev.get_last_write()[0..8]);
+                    assert_eq!(test_multi_expected[i], fpga.ftdev.get_last_write()[8..])
                 }
             }
             Err(_) => {
