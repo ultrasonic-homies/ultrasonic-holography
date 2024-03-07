@@ -8,6 +8,7 @@ module receiver #(parameter
     // Internal Outputs
     output logic                read_error,
     output logic                phase_parse_en,
+    output logic                phase_calib_en,
     output logic [31:0]         latest_data,
     // proto245 Interface
     // RX: Host -> FPGA
@@ -39,6 +40,7 @@ assign txfifo_data = 8'b0;
 logic rxfifo_rd_next;
 logic read_error_next;
 logic phase_parse_en_next;
+logic phase_calib_en_next;
 logic [31:0] latest_data_next;
 logic [31:0] word_count, word_count_next;
 logic [63:0] cmd_shifter, cmd_shifter_next;
@@ -56,6 +58,7 @@ always_comb begin
     latest_data_next = latest_data;
     word_count_next = word_count;
     phase_parse_en_next = 'b0;
+    phase_calib_en_next = 'b0;
     read_error_next = read_error;
 
     case (fsm_state)
@@ -94,6 +97,11 @@ always_comb begin
                         read_error_next     = cmd_data[0];
                         fsm_next = WAIT_E;
                     end
+                    16'h0003: begin // Set Phase Calibration
+                        cmd_shifter_next    = 'b0;
+                        phase_calib_en_next = 'b1;
+                        fsm_next = WAIT_E;
+                    end
                     default: begin
                         read_error_next = 1;
                     end
@@ -123,6 +131,7 @@ always_comb begin
             end
         end
 
+
         default: begin
             // do nothing
         end
@@ -138,6 +147,7 @@ always_ff @(posedge clk) begin
         word_count      <= '0;
         read_error      <= 1'b0;
         phase_parse_en  <= 1'b0;
+        phase_calib_en  <= 1'b0;
 
     end
     else begin
@@ -148,6 +158,7 @@ always_ff @(posedge clk) begin
         word_count      <= word_count_next;
         read_error      <= read_error_next;
         phase_parse_en  <= phase_parse_en_next;
+        phase_calib_en  <= phase_calib_en_next;
     end
 end
 

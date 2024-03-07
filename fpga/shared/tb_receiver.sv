@@ -11,6 +11,7 @@ logic rst;
 // Internal Outputs
 wire read_error;
 wire phase_parse_en;
+wire phase_calib_en;
 wire [31:0] latest_data;
 
 // proto245 Interface
@@ -58,6 +59,23 @@ initial begin
     rxfifo_data = 'h00;
     #6;
     rxfifo_data = 'h01; // code
+    #6;
+    rxfifo_data = 'h00; // suffix
+    #6;
+    rxfifo_data = 'hAA; // prefix
+    #6;
+    // Write the command for phase data calibration
+    rxfifo_data = 'h55; // suffix
+    #6;
+    rxfifo_data = 'h23; // data
+    #6;
+    rxfifo_data = 'h00;
+    #6;
+    rxfifo_data = 'h00;
+    #6;
+    rxfifo_data = 'h00;
+    #6;
+    rxfifo_data = 'h03; // code
     #6;
     rxfifo_data = 'h00; // suffix
     #6;
