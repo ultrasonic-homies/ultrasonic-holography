@@ -12,7 +12,7 @@ fn main() {
     let time_inc = 0.01;  // secs
     let start_x = 0.05;   // 5cm
     let start_y = 0.05;   // 5cm
-    let start_z = 0.14;   // 14cm
+    let start_z = 0.13;   // 13cm
     let mut freq = 0.5;
     let mut period = 1.0 / freq;
     let radius = 0.02;
@@ -25,7 +25,7 @@ fn main() {
         let start_position = (start_x, start_y, start_z);
         let position_vec = vec![start_position];
         let json_string: String = serde_json::to_string(&position_vec).expect("Failed to serialize to JSON");
-        let _: () = redis_con.publish("positions", format!("{:?}", json_string)).unwrap();
+        let _: () = redis_con.publish("positions", json_string).unwrap();
 
         print!("Press enter after centering and trapping the particle: ");
         io::stdout().flush().unwrap();
@@ -44,7 +44,7 @@ fn main() {
             // make vector with one position
             let position_vec = vec![position];
             let json_string: String = serde_json::to_string(&position_vec).expect("Failed to serialize to JSON");
-            let _: () = redis_con.publish("positions", format!("{:?}", json_string)).unwrap();
+            let _: () = redis_con.publish("positions", json_string).unwrap();
             thread::sleep(time::Duration::from_millis(100));
         }
 
@@ -69,7 +69,7 @@ fn main() {
                         let position_vec = vec![position];
                         // let msg_packed = to_vec(&position_vec).expect("Failed to encode");
                         let json_string: String = serde_json::to_string(&position_vec).expect("Failed to serialize to JSON");
-                        let _: () = redis_con.publish("positions", format!("{:?}", json_string)).unwrap();
+                        let _: () = redis_con.publish("positions", json_string).unwrap();
                         thread::sleep(time::Duration::from_millis((1000.0 * period / 360.0) as u64));
                     }
                 }

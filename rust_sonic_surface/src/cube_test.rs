@@ -102,7 +102,7 @@ fn main() {
         println!("{:?}", pos_vector);
         let json_string: String = serde_json::to_string(&pos_vector).expect("Failed to serialize to JSON");
         println!("{:?}", angle_z);
-        let _: () = con.publish("positions", format!("{:?}", json_string)).unwrap();
+        let _: () = con.publish("positions", json_string).unwrap();
 
 
         // Sleep for 1 millisecond
