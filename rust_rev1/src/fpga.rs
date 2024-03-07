@@ -109,7 +109,7 @@ impl FPGA {
     /** set_phase
      * Sets the phase of an individual transducer, and whether it is on or off
      * @param address: u8, transducer address to modify
-     * @param phase: u8, phase between [0, 127] which map to [0, 2pi]
+     * @param phase: u8, phase between [0, 255] which map to [0, 2pi]
      * @param enable: bool, sets whether the transducer is pulsing or not
      */
     pub fn set_phase(&mut self, address: u8, phase: u8, enable:bool) -> Result<(), TimeoutError> {
@@ -120,7 +120,7 @@ impl FPGA {
 
     /** set_multiple
      * Sets multiple phases and enables transducers at the specified transducer addresses
-     * @param phases: the phases between [0, 2pi]
+     * @param phases: the radian value of the phase, between [0, 2pi]
      * @param addresses: the transducer address that corresponds with each phase at the same index.
      * If either vector is longer, only indices up to the shorter length is handled.
      */
@@ -335,7 +335,7 @@ mod tests {
     fn test_multi() {
         let test_multi_phases: Vec<Vec<f32>> = vec![
             vec![1.0, 2.0],
-            vec![0.0, 6.5],
+            vec![-0.5, 6.5],
             vec![3.0, 3.1, 3.2],
             (0..128).into_iter().map(|i| 0.01 * (i as f32)).collect::<Vec<f32>>(),
             vec![],
