@@ -24,7 +24,7 @@ use std::{thread, time, vec};
 use tokio::runtime::Runtime;
 
 use hat::{HatRunner, Point};
-use sonic_surface::convert_to_sonic_surface_phases;
+use sonic_surface::convert_to_sonic_surface_output;
 
 const N_EMMITERS: usize = 256;
 // IMPORTANT: measure height of board and update this constant before running
@@ -377,7 +377,7 @@ fn run_control_points(
     // send phases to the SonicSurface
     for (ps, cps) in phases.iter().zip(control_points) {
         let start = Instant::now();
-        let ss_phases = convert_to_sonic_surface_phases(&ps);
+        let ss_phases = convert_to_sonic_surface_output(&ps);
 
         serial_conn.write_all(&ss_phases).unwrap();
         serial_conn.flush().unwrap();

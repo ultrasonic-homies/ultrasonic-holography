@@ -2,6 +2,7 @@
 #![forbid(unsafe_code)]
 mod hat;
 mod sonic_surface;
+mod serial_port_helper;
 
 use eframe::egui;
 use ndarray::{s, Array1, Array2};
@@ -10,11 +11,8 @@ use redis::Commands;
 use reqwest::Client;
 use serde_derive::{Deserialize, Serialize};
 use rmp_serde::encode::{to_vec, write};
-use serialport::available_ports;
-use serialport::SerialPort;
 use std::f32::consts::PI;
-use std::io::prelude::*;
-use std::io::Error;
+use serialport::SerialPort;
 use std::io::{self, Write};
 use std::sync::mpsc::TryRecvError;
 use std::sync::mpsc::{Receiver, Sender};
@@ -22,50 +20,16 @@ use std::time::Duration;
 use std::time::Instant;
 use std::{thread, time, vec};
 use tokio::runtime::Runtime;
+use serial_port_helper::{choose_serial_port, list_serial_ports};
 
 use hat::{HatRunner, Point};
-use sonic_surface::convert_to_sonic_surface_phases;
+use sonic_surface::convert_to_sonic_surface_output;
 
 const N_EMMITERS: usize = 256;
 // IMPORTANT: measure height of board and update this constant before running
 const Z_HEIGHT: f32 = 0.24; // m
 
-fn list_serial_ports() -> Result<Vec<String>, serialport::Error> {
-    println!("Available Serial Ports:");
 
-    let mut port_names = Vec::new();
-
-    let Ok(ports) = available_ports() else {
-        eprintln!("Error listing serial ports");
-        return Err(serialport::Error::new(
-            serialport::ErrorKind::Unknown,
-            "Error listing serial ports",
-        ));
-    };
-
-    for (index, port) in ports.iter().enumerate() {
-        println!("{}: {}", index + 1, port.port_name);
-        port_names.push(port.port_name.clone());
-    }
-
-    Ok(port_names)
-}
-
-fn choose_serial_port(port_names: &[String]) -> Option<String> {
-    print!("Choose a serial port by entering its number: ");
-    io::stdout().flush().unwrap();
-
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).unwrap();
-
-    let Ok(index) = input.trim().parse::<usize>() else {
-        println!("Invalid choice. Please enter a valid number.");
-        return None;
-    };
-
-    let name = port_names.get(index.checked_sub(1)?)?;
-    Some(name.clone())
-}
 
 #[derive(Debug)]
 struct PositionsPhases {
@@ -377,7 +341,7 @@ fn run_control_points(
     // send phases to the SonicSurface
     for (ps, cps) in phases.iter().zip(control_points) {
         let start = Instant::now();
-        let ss_phases = convert_to_sonic_surface_phases(&ps);
+        let ss_phases = convert_to_sonic_surface_output(&ps);
 
         serial_conn.write_all(&ss_phases).unwrap();
         serial_conn.flush().unwrap();

@@ -18,24 +18,30 @@ const EMITTERS_ORDER: [usize; 256] = [
     190, 189, 252, 251, 254, 253,
 ];
 
-pub fn convert_to_sonic_surface_phases(phases: &Vec<f32>) -> Vec<u8> {
+pub fn convert_to_sonic_surface_output(phases: &Vec<f32>) -> Vec<u8> {
     let mut ss_phases: Vec<f32> = vec![0.0; 256];
 
     for i in 0..ss_phases.len() {
+
         ss_phases[i] = sonic_surface_index(phases, i);
     }
+    let ser_output: Vec<u8> = ss_phases
+    .iter()
+    .map(|p| {
+        if p.is_nan() {
+            // a value of PHASE_DIVS indicates an off transducer
+            PHASE_DIVS as u8
+        } else {
+            (p / (2.0 * PI) * PHASE_DIVS as f32) as u8
+        }
+    })
+    .collect();
 
-    return ss_phases
-        .iter()
-        .map(|p| {
-            if p.is_nan() {
-                // a value of PHASE_DIVS indicates an off transducer
-                PHASE_DIVS as u8
-            } else {
-                (p / (2.0 * PI) * PHASE_DIVS as f32) as u8
-            }
-        })
-        .collect();
+    // add 0xC0 to start and 0xFD to the end
+    let mut return_vec = vec![0xC0];
+    return_vec.extend(ser_output);
+    return_vec.push(0xFD);
+    return return_vec
 }
 
 // note that phases should be 10x10 row-major order

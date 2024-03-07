@@ -10,7 +10,7 @@ eframe = "0.19"
 reqwest = { version = "0.11", features = ["json"] }
 serde = "1"
 serde_derive = "1"
-tokio = { version = "1", features = ["net", "rt-multi-thread"] }
+tokio = { version = "1", features = ["full"] }
 ndarray = "0.15"
 ndarray-linalg = "0.15"
 redis = "0.24.0"
@@ -21,6 +21,11 @@ scilib = "1.0.0"
 rmp-serde = "1.1.2"
 rev1 = { path = "../rust_rev1/" }
 serde_json = "1.0.114"
+redis-async = "0.17.0"
+futures = "0.3.30"
+futures-util = "0.3.30"
+futures-channel = "0.3.30"
+futures-sink = "0.3.30"
 
 [[bin]]
 name = "circle_test"
@@ -29,3 +34,15 @@ path = "src/circle_test.rs"
 [[bin]]
 name = "cube_test"
 path = "src/cube_test.rs"
+
+[[bin]]
+name = "line_test"
+path = "src/line_test.rs"
+
+[[bin]]
+name = "redis_positions_to_serial"
+path = "src/redis_positions_to_serial.rs"
+
+[[bin]]
+name = "onoff"
+path = "src/onoff.rs"
