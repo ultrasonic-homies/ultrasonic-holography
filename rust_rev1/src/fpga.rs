@@ -19,7 +19,8 @@ enum CommandEnum {
     BurstPhase = 0x0002,
     TestLED = 0x1ED0,
     ReadTest = 0xBEEF,
-    WriteTest = 0xCAFE
+    WriteTest = 0xCAFE,
+    CalibratePhase = 0x0003,
 }
 
 const KIB: u32 = 1024;
@@ -86,13 +87,12 @@ impl FPGA {
     /** cmd
      * @return the command in a vector of bytes of length 8 to send to the FPGA
      */
-    fn cmd(&self, command: CommandEnum, data: u32) -> Vec<u8> {
+    fn cmd(&self, command: CommandEnum, data: u32) -> [u8;8] {
         ((COMMAND_PREFIX << 56) | ((command as u64) << 40) | ((data as u64) << 8) | COMMAND_SUFFIX)
         // the write_all command writes the byte at the lowest index of the vector first
         // but, the fpga interprets the command bytes in big endian
         // so we need to shuffle the suffix byte to the lowest index, etc.
         .to_le_bytes()
-            .to_vec()
     }
 
     /** test_led
@@ -141,6 +141,11 @@ impl FPGA {
 
         // write the buffer to the fpga
         self.ftdev.write_all(&buf)?;
+        Ok(())
+    }
+
+    pub fn set_phase_calibration(&mut self) -> Result<(), TimeoutError> {
+        self.ftdev.write_all(&self.cmd(CommandEnum::CalibratePhase, 0x0000))?;
         Ok(())
     }
 
@@ -376,6 +381,29 @@ mod tests {
                     assert_eq!(command_buf, fpga.ftdev.get_last_write()[0..8]);
                     assert_eq!(test_multi_expected[i], fpga.ftdev.get_last_write()[8..])
                 }
+            }
+            Err(_) => {
+                assert!(false);
+            }
+        }
+    }
+
+    #[test]
+    fn test_phase_calibration() {
+        match FPGA::new("TEST") {
+            Ok(mut fpga) => {
+                fpga.set_phase_calibration().unwrap();
+                let command_buf: Vec<u8> = vec![
+                    COMMAND_SUFFIX as u8,
+                    0x00,
+                    0x00,
+                    0x00,
+                    0x00,
+                    CommandEnum::CalibratePhase as u8,
+                    0x00,
+                    COMMAND_PREFIX as u8
+                ];
+                assert_eq!(command_buf, fpga.ftdev.get_last_write());
             }
             Err(_) => {
                 assert!(false);
