@@ -58,7 +58,7 @@ fn main() {
             period = 1.0 / freq;
             if input.trim() == "" {
                 println!("Starting to circle");
-                for circle_index in 0..n_circles {
+                for _ in 0..n_circles {
                     // output a circle of positions at frequency, e.g. 0.5 hz should 2 seconds per circle
                     for i in 0..360 {
                         let angle = (i as f64) * PI / 180.0;
@@ -70,7 +70,7 @@ fn main() {
                         // let msg_packed = to_vec(&position_vec).expect("Failed to encode");
                         let json_string: String = serde_json::to_string(&position_vec).expect("Failed to serialize to JSON");
                         let _: () = redis_con.publish("positions", json_string).unwrap();
-                        thread::sleep(time::Duration::from_millis((1000.0 * period / 360.0 / (2.0 * PI)) as u64));
+                        thread::sleep(time::Duration::from_millis((1000.0 * period / 360.0 ) as u64));
                     }
                 }
             }

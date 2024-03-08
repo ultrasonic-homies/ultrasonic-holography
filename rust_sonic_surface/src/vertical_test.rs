@@ -1,3 +1,4 @@
+// always repeat yourself
 use std::io::Write;
 // // prototype, sending positions to blender using redis, working
 use std::{io, thread, time};
@@ -12,12 +13,12 @@ fn main() {
     let time_inc = 0.01;  // secs
     let start_x = 0.05;   // 5cm
     let start_y = 0.05;   // 5cm
-    let start_z = 0.09;   // 14cm
-    let mut freq = 0.5;
+    let start_z = 0.07;   // 14cm
+    let mut freq = 0.2;
     let mut period = 1.0 / freq;
-    let mut amplitude= 0.05;
+    let mut amplitude= 0.03;
     let mut input = String::new();
-    let mut n_oscillations: i32 = 2;
+    let mut n_oscillations: i32 = 1;
 
 
 
@@ -29,7 +30,7 @@ fn main() {
         let _: () = redis_con.publish("positions", json_string).unwrap();
 
 
-        println!("Enter to start linear oscillation, Amplitude (i/k): {:?}, freq (w/s): {:?} hz", amplitude, freq);
+        println!("Enter to start vertical oscillation, Amplitude (i/k): {:?}, freq (w/s): {:?} hz", amplitude, freq);
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
         period = 1.0 / freq;
@@ -39,9 +40,9 @@ fn main() {
                 // output a circle of positions at frequency, e.g. 0.5 hz should 2 seconds per circle
                 for i in 0..360 {
                     let angle = (i as f64) * PI / 180.0;
-                    let x = start_x + amplitude * angle.sin();
+                    let x = start_x;
                     let y = start_y;
-                    let z = start_z;
+                    let z = start_z + amplitude/2.0 - angle.cos() * amplitude/2.0;
                     let position = (x, y, z);
                     let position_vec = vec![position];
                     // let msg_packed = to_vec(&position_vec).expect("Failed to encode");

@@ -50,7 +50,7 @@ def get_board_position_from_hand_positions(x_normalised, y_normalised, pinky_to_
     # if pinky_to_index_distance is same as global_y_scale we should be at half of board_y_max.
     # Closer(larger ptdi)is larger y,further (smaller ptdi) is smaller y
     y_pos = (pinky_to_index_distance / global_y_scale) * (board_y_max / 2)
-    z_pos = (1-y_normalised) * board_z_max
+    z_pos = y_normalised * board_z_max
     return x_pos, y_pos, z_pos
 
 

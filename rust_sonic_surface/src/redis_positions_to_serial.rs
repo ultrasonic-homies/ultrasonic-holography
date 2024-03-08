@@ -16,15 +16,6 @@ fn print_type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
 }
 
-fn send_position(control_points: Vec<Point>, serial_conn: &mut dyn serialport::SerialPort, hat: &Hat) {
-    let phases: Vec<f32> = hat.run_hat(&control_points);
-    let ss_output = convert_to_sonic_surface_output(&phases);
-    // println!("Sending message: {:?}", ss_output);
-    serial_conn.write_all(&ss_output).unwrap();
-    serial_conn.flush().unwrap();
-}
-
-
 #[tokio::main]
 async fn main() {
     // create serial connection
@@ -56,10 +47,7 @@ async fn main() {
         .await
         .expect("Cannot subscribe to topic");;
     // Create a broadcast channel to receive messages
-    let hat = Hat::new(32.0, 0.1);
-    // start off at some start position
-    let start_pos: Vec<Point> = vec![Point::new(0.05, 0.05, 0.13)];
-    println!("Start position: {:?}", start_pos);
+    let hat = Hat::new(32.0, 0.095);
     while let Some(message) = msgs.next().await {
         match message {
             Ok(message) => {
@@ -67,7 +55,11 @@ async fn main() {
                 // println!("Received message: {:?}", msg);
                 // create hat points from the list of points like [[1,2,3]]
                 let control_points: Vec<Point> = serde_json::from_str(&msg).expect("Failed to parse JSON");
-                send_position(control_points, serial_conn, &hat)
+                let phases: Vec<f32> = hat.run_hat(&control_points);
+                let ss_output = convert_to_sonic_surface_output(&phases);
+                // println!("Sending message: {:?}", ss_output);
+                serial_conn.write_all(&ss_output).unwrap();
+                serial_conn.flush().unwrap();
             }
             Err(e) => {
                 eprintln!("ERROR: {}", e);
