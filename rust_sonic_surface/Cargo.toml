@@ -46,3 +46,7 @@ path = "src/redis_positions_to_serial.rs"
 [[bin]]
 name = "onoff"
 path = "src/onoff.rs"
+
+[[bin]]
+name = "vertical_test"
+path = "src/vertical_test.rs"

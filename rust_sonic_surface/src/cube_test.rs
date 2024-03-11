@@ -1,8 +1,8 @@
 // // prototype, sending positions to blender using redis, working
-use std::{thread, time};
+use std::{thread, time, io};
 use std::f64::consts::PI;
 use redis::Commands;
-use serde_json; // Import serde_json crate
+use serde_json;
 
 
 #[derive(Debug)]
@@ -83,12 +83,21 @@ fn main() {
     let time_inc = 0.01;  // secs
     let start_x = 0.05;   // 5cm
     let start_y = 0.05;   // 5cm
-    let start_z = 0.14;   // 14cm
+    let start_z = 0.05;   // 14cm
     let freq = 0.5;
     let period = 1.0 / freq;
     let cube = Cube::new((start_x, start_y, start_z), 0.025);
     println!("Original vertices: {:?}", cube.vertices());
 
+    let json_string: String = serde_json::to_string(&cube.vertices()).expect("Failed to serialize to JSON");
+    let _: () = con.publish("positions", json_string).unwrap();
+
+    println!("Place the particle at the vertices: {:?} and press enter", cube.vertices());
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).unwrap();
+    if input.trim() != "" {
+        return;
+    }
 
     for i in 0.. {
         // let t = (i as f64 * time_inc) % period;
@@ -99,9 +108,9 @@ fn main() {
         let angle_z = (i % 360) as f64 * PI / 180.0;
 
         let pos_vector = cube.rotate(angle_z, -angle_z,  0.0);
-        println!("{:?}", pos_vector);
+        // println!("{:?}", pos_vector);
         let json_string: String = serde_json::to_string(&pos_vector).expect("Failed to serialize to JSON");
-        println!("{:?}", angle_z);
+        // println!("{:?}", angle_z);
         let _: () = con.publish("positions", json_string).unwrap();
 
 

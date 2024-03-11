@@ -47,18 +47,19 @@ async fn main() {
         .await
         .expect("Cannot subscribe to topic");;
     // Create a broadcast channel to receive messages
-    let hat = Hat::new(32.0, 0.13);
+    let hat = Hat::new(32.0, 0.095);
     while let Some(message) = msgs.next().await {
         match message {
             Ok(message) => {
                 let msg = String::from_resp(message).unwrap();
-                
+                // println!("Received message: {:?}", msg);
                 // create hat points from the list of points like [[1,2,3]]
                 let control_points: Vec<Point> = serde_json::from_str(&msg).expect("Failed to parse JSON");
                 let phases: Vec<f32> = hat.run_hat(&control_points);
-                let ss_phases = convert_to_sonic_surface_output(&phases);
-                serial_conn.write_all(&ss_phases).unwrap();
-                serial_conn.flush().unwrap();     
+                let ss_output = convert_to_sonic_surface_output(&phases);
+                // println!("Sending message: {:?}", ss_output);
+                serial_conn.write_all(&ss_output).unwrap();
+                serial_conn.flush().unwrap();
             }
             Err(e) => {
                 eprintln!("ERROR: {}", e);

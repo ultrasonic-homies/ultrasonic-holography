@@ -97,7 +97,7 @@ pub fn convert_to_sonic_surface_output(phases: &Vec<f32>) -> Vec<u8> {
         .collect();
 
     // add 0xC0 to start and 0xFD to the end
-    let mut return_vec = vec![0xC0];
+    let mut return_vec = vec![0xFE];
     return_vec.extend(ser_output);
     return_vec.push(0xFD);
     return return_vec;
