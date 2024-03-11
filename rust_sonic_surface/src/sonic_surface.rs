@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 use eframe::egui::mutex::RwLock;
 
 use crate::hat::Point;
-use std::sync::mpsc::{channel, Receiver, Sender};
+use std::sync::mpsc::{channel, Receiver, Sender, TryRecvError};
 use std::time::Duration;
 
 const PHASE_DIVS: u32 = 32;
@@ -34,23 +34,47 @@ pub enum SendMessage {
 }
 
 pub struct SonicSurface {
-    tx: Sender<SendMessage>,
-    rx: Receiver<SendMessage>,
+    tx: Option<Sender<SendMessage>>,
+    // rx: Receiver<SendMessage>,
     position: RwLock<Vec<Point>>,
 }
 
 impl SonicSurface {
     pub fn new() -> SonicSurface {
-        let (tx, rx) = channel::<SendMessage>();
         SonicSurface {
-            tx,
-            rx,
+            tx: None,
             position: RwLock::new(vec![]),
         }
     }
 
     pub fn get_tx(&self) -> Sender<SendMessage> {
-        return self.tx.clone();
+        return self.tx.as_ref().unwrap().clone();
+    }
+
+    pub fn start_thread(&mut self) {
+        let (tx, rx) = channel::<SendMessage>();
+        self.tx = Some(tx);
+
+        std::thread::spawn(move || {
+            let points: Vec<Vec<Point>> = vec![];
+            let t_sep: Duration = Duration::ZERO;
+            loop {
+                let recv = rx.try_recv();
+                match recv {
+                    Err(TryRecvError::Disconnected) => return,
+                    Err(TryRecvError::Empty) => (),
+                    Ok(..) => (),
+                }
+
+                if let Ok(msg) = recv {
+                    match msg {
+                        SendMessage::Off => (),  // turn off the board
+                        SendMessage::Stop => (), // stop at current position
+                        SendMessage::Move { points, t_sep } => (),
+                    }
+                }
+            }
+        });
     }
 }
 
