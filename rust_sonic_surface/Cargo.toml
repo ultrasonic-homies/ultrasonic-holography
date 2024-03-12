@@ -29,15 +29,15 @@ futures-sink = "0.3.30"
 
 [[bin]]
 name = "circle_test"
-path = "src/circle_test.rs"
+path = "src/scripts/circle_test.rs"
 
 [[bin]]
 name = "cube_test"
-path = "src/cube_test.rs"
+path = "src/scripts/cube_test.rs"
 
 [[bin]]
 name = "line_test"
-path = "src/line_test.rs"
+path = "src/scripts/line_test.rs"
 
 [[bin]]
 name = "redis_positions_to_serial"
@@ -45,8 +45,8 @@ path = "src/redis_positions_to_serial.rs"
 
 [[bin]]
 name = "onoff"
-path = "src/onoff.rs"
+path = "src/scripts/onoff.rs"
 
 [[bin]]
 name = "vertical_test"
-path = "src/vertical_test.rs"
+path = "src/scripts/vertical_test.rs"

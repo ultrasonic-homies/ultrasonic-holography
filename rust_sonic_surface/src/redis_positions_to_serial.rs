@@ -1,16 +1,16 @@
 mod hat;
-mod sonic_surface;
 mod serial_port_helper;
+mod sonic_surface;
 
-use redis_async::{client, resp::FromResp};
-use tokio::sync::broadcast;
 use futures::StreamExt;
+use redis_async::{client, resp::FromResp};
 use std::any::type_name;
+use tokio::sync::broadcast;
 // import Point from hat util
-use hat::Point;
 use hat::Hat;
+use hat::Point;
+use serial_port_helper::{choose_serial_port, list_serial_ports};
 use sonic_surface::convert_to_sonic_surface_output;
-use serial_port_helper::{list_serial_ports, choose_serial_port};
 
 fn print_type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
@@ -37,7 +37,7 @@ async fn main() {
         eprintln!("Failed to open \"{}\". Error: {}", selected_port, e);
         ::std::process::exit(1);
     });
-    
+
     // Connect to Redis
     let pubsub_con = client::pubsub_connect("127.0.0.1", 6379)
         .await
@@ -45,7 +45,7 @@ async fn main() {
     let mut msgs = pubsub_con
         .subscribe("positions")
         .await
-        .expect("Cannot subscribe to topic");;
+        .expect("Cannot subscribe to topic");
     // Create a broadcast channel to receive messages
     let hat = Hat::new(32.0, 0.095);
     while let Some(message) = msgs.next().await {
@@ -54,7 +54,8 @@ async fn main() {
                 let msg = String::from_resp(message).unwrap();
                 // println!("Received message: {:?}", msg);
                 // create hat points from the list of points like [[1,2,3]]
-                let control_points: Vec<Point> = serde_json::from_str(&msg).expect("Failed to parse JSON");
+                let control_points: Vec<Point> =
+                    serde_json::from_str(&msg).expect("Failed to parse JSON");
                 let phases: Vec<f32> = hat.run_hat(&control_points);
                 let ss_output = convert_to_sonic_surface_output(&phases);
                 // println!("Sending message: {:?}", ss_output);
@@ -67,5 +68,4 @@ async fn main() {
             }
         }
     }
-
 }

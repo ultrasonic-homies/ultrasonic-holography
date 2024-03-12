@@ -1,18 +1,20 @@
 #![deny(clippy::all)]
 #![forbid(unsafe_code)]
 mod hat;
-mod sonic_surface;
+mod movement;
 mod serial_port_helper;
+mod sonic_surface;
 
 use eframe::egui;
 use ndarray::{s, Array1, Array2};
 use ndarray_linalg::norm;
 use redis::Commands;
 use reqwest::Client;
-use serde_derive::{Deserialize, Serialize};
 use rmp_serde::encode::{to_vec, write};
-use std::f32::consts::PI;
+use serde_derive::{Deserialize, Serialize};
+use serial_port_helper::{choose_serial_port, list_serial_ports};
 use serialport::SerialPort;
+use std::f32::consts::PI;
 use std::io::{self, Write};
 use std::sync::mpsc::TryRecvError;
 use std::sync::mpsc::{Receiver, Sender};
@@ -20,7 +22,6 @@ use std::time::Duration;
 use std::time::Instant;
 use std::{thread, time, vec};
 use tokio::runtime::Runtime;
-use serial_port_helper::{choose_serial_port, list_serial_ports};
 
 use hat::{HatRunner, Point};
 use sonic_surface::convert_to_sonic_surface_output;
@@ -28,8 +29,6 @@ use sonic_surface::convert_to_sonic_surface_output;
 const N_EMMITERS: usize = 256;
 // IMPORTANT: measure height of board and update this constant before running
 const Z_HEIGHT: f32 = 0.24; // m
-
-
 
 #[derive(Debug)]
 struct PositionsPhases {
@@ -145,7 +144,10 @@ impl eframe::App for ControlGUI {
                 .redis_conn
                 .publish(
                     "positions",
-                    format!("{:?}", rmp_serde::to_vec(&self.position_phases.positions).unwrap()),
+                    format!(
+                        "{:?}",
+                        rmp_serde::to_vec(&self.position_phases.positions).unwrap()
+                    ),
                 )
                 .unwrap();
         }
@@ -263,7 +265,10 @@ fn test_turn_on(
     serial_conn.flush().unwrap();
     // this on message was made for holding the position at (0.05, 0.05, 0.14) cm, I think, whatever, this is just for testing anyway
     // let pos_phase = PositionsPhases::new([0.05, 0.05, 0.14], [0.0; N_EMMITERS]);
-    let pos_phase = PositionsPhases::new(vec![Point::new(0.05, 0.05, 0.14), Point::new(-0.05, -0.05, 0.14)], vec![0.0; N_EMMITERS]);
+    let pos_phase = PositionsPhases::new(
+        vec![Point::new(0.05, 0.05, 0.14), Point::new(-0.05, -0.05, 0.14)],
+        vec![0.0; N_EMMITERS],
+    );
     let _ = tx.send(pos_phase);
     ctx.request_repaint();
 }
@@ -297,7 +302,10 @@ fn test_turn_off(
     serial_conn.flush().unwrap();
     // let's just say off is 0.05, 0.05, 0.00
     // let pos_phase = PositionsPhases::new([0.05, 0.05, 0.00], [0.0; N_EMMITERS]);
-    let pos_phase = PositionsPhases::new(vec![Point::new(0.05, 0.05, 0.0), Point::new(-0.05, -0.05, 0.0)], vec![0.0; N_EMMITERS]);
+    let pos_phase = PositionsPhases::new(
+        vec![Point::new(0.05, 0.05, 0.0), Point::new(-0.05, -0.05, 0.0)],
+        vec![0.0; N_EMMITERS],
+    );
     let _ = tx.send(pos_phase);
     ctx.request_repaint();
 }

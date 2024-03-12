@@ -76,7 +76,7 @@ fn gen_propagators(transducers: &Vec<Point>, control_points: &Vec<Point>) -> Vec
 
     for i in 0..control_points.len() {
         for j in 0..transducers.len() {
-            let vec_r = control_points[i].sub(&transducers[j]);
+            let vec_r = control_points[i] - transducers[j];
             let r = vec_r.norm();
             let theta = (vec_r.z / r).acos();
             propagators.set(i, j, p(r, theta, 0.0));
