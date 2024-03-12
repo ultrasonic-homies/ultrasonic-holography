@@ -12,7 +12,7 @@ fn main() {
     let time_inc = 0.01;  // secs
     let start_x = 0.05;   // 5cm
     let start_y = 0.05;   // 5cm
-    let start_z = 0.09;   // 14cm
+    let start_z = 0.005;   // 14cm
     let mut freq = 0.5;
     let mut period = 1.0 / freq;
     let mut amplitude= 0.05;
@@ -37,7 +37,7 @@ fn main() {
             println!("Starting to oscillate");
             for loop_index in 0..n_oscillations {
                 // output a circle of positions at frequency, e.g. 0.5 hz should 2 seconds per circle
-                for i in 0..360 {
+                for i in (0..360).step_by(2) {
                     let angle = (i as f64) * PI / 180.0;
                     let x = start_x + amplitude * angle.sin();
                     let y = start_y;
