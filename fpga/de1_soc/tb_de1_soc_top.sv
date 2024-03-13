@@ -42,7 +42,9 @@ initial begin
     #10;
     KEY[3] = 1;
     #10;
-
+    dut.top.pwm_en = '{1, 1, 1, 1};
+    dut.top.phase_calibration.phase_calibration = '{0, 0, 0, 0};
+    #50000;
 end
 
 initial begin

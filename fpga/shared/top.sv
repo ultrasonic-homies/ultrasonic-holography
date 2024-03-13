@@ -16,17 +16,17 @@ module top #(
     output              ft_wrn,
     input               ft_clk,  // sync mode only
     output              ft_oen,  // sync mode only
-    output              ft_siwu // sync mode only
+    output              ft_siwu, // sync mode only
     // // for debug only! TODO remove in production
-    // output logic [7:0]  phases [NUM_CHANNELS],
-    // output              read_error
+    output logic [7:0]  phases [NUM_CHANNELS],
+    output              read_error
 );
 
 /* HEADER FILE */
 
 // `include "de0_cv.svh"
-// `include "de1_soc.svh"
-`include "cyclone10_lp.svh"
+`include "de1_soc.svh"
+// `include "cyclone10_lp.svh"
 
 /** PROTO245 REGS **/
 
@@ -49,11 +49,9 @@ assign ft_din  = ft_data;
 
 /** SYSTEM REGS **/
 
-logic [CLK_CNT_W-1:0]   phases [NUM_CHANNELS];
-logic [CLK_CNT_W-1:0]   phase_calibration [NUM_CHANNELS] = '{NUM_CHANNELS {'0}};
-logic                   read_error;
-logic [CLK_CNT_W-1:0]   phases_1 [NUM_CHANNELS];
-logic [CLK_CNT_W-1:0]   phases_2 [NUM_CHANNELS];
+logic [CLK_CNT_W-1:0]   phases_in [NUM_CHANNELS];
+// logic                   read_error;
+// wire [CLK_CNT_W-1:0]    phases_out [NUM_CHANNELS];
 logic                   sys_rst = 'b1; // synchronous active high reset
 logic [1:0]             sys_reset_cnt = '0;
 logic                   pwm_rst = 'b1; // synchronous active high reset
@@ -87,23 +85,6 @@ always_ff @(posedge pwm_clk) begin
     end
 end
 
-// phase synchronizer from sys_clk into pwm_clk domain
-always_ff @(posedge pwm_clk) begin
-    for (int i = 0; i < NUM_CHANNELS; i++) begin
-        phases_1[i] <= phases[i] + phase_calibration[i];
-    end
-    phases_2 <= phases_1;
-end
-
-// save current phase profile as calibration
-always_ff @(posedge sys_clk) begin
-    if (phase_calib_en) begin
-        phase_calibration <= phases;
-    end else begin
-        phase_calibration <= phase_calibration;
-    end
-end
-
 /** SUBMODULES **/
 
 genvar i;
@@ -114,7 +95,7 @@ generate
             .rst(pwm_rst),
             .en(pwm_en[i]),
             .cnt(pwm_cnt),
-            .phase(phases_2[i]),
+            .phase(phases_out[i]),
             .out(trans[i])
         );
         phase_parser #(.CHANNEL(i)) phase_parser (
@@ -122,7 +103,7 @@ generate
             .rst(sys_rst),
             .phase_parse_en(phase_parse_en),
             .phase_data(latest_data),
-            .phase(phases[i]),
+            .phase(phases_in[i]),
             .pwm_en(pwm_en[i])
         );
     end
@@ -210,6 +191,16 @@ sync_sender #(
     .sync_pulse,
     .cnt(pwm_cnt),
     .sync_out
+);
+
+phase_calibration #(
+    .NUM_CHANNELS   (NUM_CHANNELS)
+) phase_calibration (
+    .clk(pwm_clk),
+    .rst(pwm_rst),
+    .phase_calib_en,
+    .phases_in,
+    .phases_out
 );
 
 endmodule: top
