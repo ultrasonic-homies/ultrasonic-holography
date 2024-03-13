@@ -7,22 +7,22 @@ fn main() {
         Ok(mut de1_soc) => {
             match FPGA::new("FT7TEQ7VB") {
                 Ok(mut de0_cv) => {
-                    let num_writes: u32 = 32768;
-                    // Test 1: Sequential
-                    let start_time_seq = std::time::Instant::now();
-                    de0_cv.set_phase_frame_buf(num_writes).unwrap();
-                    de1_soc.set_phase_frame_buf(num_writes).unwrap();
-                    let exec_time_seq = start_time_seq.elapsed().as_secs_f64();
-                    println!("Sequential: 65536 phases addressed in {} s", exec_time_seq);
-                    // Test 2: Parallel
-                    let start_time_par = std::time::Instant::now();
-                    let handle = thread::spawn(move || {
-                        de0_cv.set_phase_frame_buf(num_writes).unwrap();
-                    });
-                    de1_soc.set_phase_frame_buf(num_writes).unwrap();
-                    let exec_time_par = start_time_par.elapsed().as_secs_f64();
-                    handle.join().unwrap();
-                    println!("Parallel: 65536 phases addressed in {} s", exec_time_par);
+                    // let num_writes: u32 = 32768;
+                    // // Test 1: Sequential
+                    // let start_time_seq = std::time::Instant::now();
+                    // de0_cv.set_phase_frame_buf(num_writes).unwrap();
+                    // de1_soc.set_phase_frame_buf(num_writes).unwrap();
+                    // let exec_time_seq = start_time_seq.elapsed().as_secs_f64();
+                    // println!("Sequential: 65536 phases addressed in {} s", exec_time_seq);
+                    // // Test 2: Parallel
+                    // let start_time_par = std::time::Instant::now();
+                    // let handle = thread::spawn(move || {
+                    //     de0_cv.set_phase_frame_buf(num_writes).unwrap();
+                    // });
+                    // de1_soc.set_phase_frame_buf(num_writes).unwrap();
+                    // let exec_time_par = start_time_par.elapsed().as_secs_f64();
+                    // handle.join().unwrap();
+                    // println!("Parallel: 65536 phases addressed in {} s", exec_time_par);
                     // Command line input
                     let mut board_id: u8 = 1;
                     let mut input = String::new();
@@ -33,7 +33,7 @@ fn main() {
                     loop {
                         loop {
                             input.clear();
-                            println!("Select a board: 1, 2, or 0 to quit");
+                            println!("Select a board: 1, 2, or 3 to calibrate, or 0 to quit");
                             io::stdout().flush().unwrap();
                             io::stdin().read_line(&mut input).unwrap();
                             match input.trim().parse::<u8>() {
@@ -41,6 +41,10 @@ fn main() {
                                     if parsed_u8 == 0 {
                                         quit = true;
                                         break;
+                                    }
+                                    else if parsed_u8 == 3 {
+                                        de1_soc.set_phase_calibration().unwrap();
+                                        de0_cv.set_phase_calibration().unwrap();
                                     }
                                     else if parsed_u8 == 1 || parsed_u8 == 2 {
                                         board_id = parsed_u8;
@@ -111,10 +115,12 @@ fn main() {
                             de1_soc.set_phase(address, phase, enable).unwrap();
                         }
                         else {
-                            // de0_cv.set_phase(address, phase, enable).unwrap();
+                            de0_cv.set_phase(address, phase, enable).unwrap();
                         }
                         println!("Setting board {} address {} with phase {}, enabled={}", board_id, address, phase, enable);
                     }
+                    de1_soc.close().unwrap();
+                    de0_cv.close().unwrap();
                 }
                 Err(device_type_error) => {
                     println!("Initialization failed for de0_cv with error: {}", device_type_error)

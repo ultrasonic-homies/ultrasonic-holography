@@ -16,7 +16,6 @@ FPGA_PINOUT = {
     "R\\C\\X\\F\\": "ft_rxfn",
     "OEN": "ft_oen",
     "SIWU": "ft_siwu",
-    "CLK_OUT": "sync_out",
     "RST": "ext_rst",
     **{f"IO_A_{i+1}": f"trans[{2*i}]" for i in range(DRIVERS_PER_FPGA)},
     **{f"IO_B_{i+1}": f"trans[{2*i+1}]" for i in range(DRIVERS_PER_FPGA)}
