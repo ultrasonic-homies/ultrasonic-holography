@@ -28,19 +28,19 @@ module de1_soc_top #(
 );
 
 logic sys_clk, ext_rst;
-logic [7:0] phases [0:NUM_CHANNELS-1];
+logic [7:0] phases_out [0:NUM_CHANNELS-1];
 logic read_error;
 
 assign sys_clk = CLOCK_50;
 assign ext_rst = ~KEY[3];
-assign LEDR[7:0] = phases[0];
+assign LEDR[7:0] = phases_out[0];
 assign LEDR[8] = read_error;
-hex_to_7seg hex0_7seg(.in_byte(phases[1][3:0]), .display(HEX0));
-hex_to_7seg hex1_7seg(.in_byte(phases[1][7:4]), .display(HEX1));
-hex_to_7seg hex2_7seg(.in_byte(phases[2][3:0]), .display(HEX2));
-hex_to_7seg hex3_7seg(.in_byte(phases[2][7:4]), .display(HEX3));
-hex_to_7seg hex4_7seg(.in_byte(phases[3][3:0]), .display(HEX4));
-hex_to_7seg hex5_7seg(.in_byte(phases[3][7:4]), .display(HEX5));
+hex_to_7seg hex0_7seg(.in_byte(phases_out[1][3:0]), .display(HEX0));
+hex_to_7seg hex1_7seg(.in_byte(phases_out[1][7:4]), .display(HEX1));
+hex_to_7seg hex2_7seg(.in_byte(phases_out[2][3:0]), .display(HEX2));
+hex_to_7seg hex3_7seg(.in_byte(phases_out[2][7:4]), .display(HEX3));
+hex_to_7seg hex4_7seg(.in_byte(phases_out[3][3:0]), .display(HEX4));
+hex_to_7seg hex5_7seg(.in_byte(phases_out[3][7:4]), .display(HEX5));
 
 // system clock heartbeat
 logic [24:0] sys_heartbeat_cnt;

@@ -18,7 +18,7 @@ module top #(
     output              ft_oen,  // sync mode only
     output              ft_siwu, // sync mode only
     // // for debug only! TODO remove in production
-    output logic [7:0]  phases [NUM_CHANNELS],
+    output logic [7:0]  phases_out [NUM_CHANNELS],
     output              read_error
 );
 
@@ -50,6 +50,9 @@ assign ft_din  = ft_data;
 /** SYSTEM REGS **/
 
 logic [CLK_CNT_W-1:0]   phases_in [NUM_CHANNELS];
+logic [CLK_CNT_W-1:0]   phase_calibration [NUM_CHANNELS];
+logic [CLK_CNT_W-1:0]   phases_intermediate [NUM_CHANNELS];
+
 // logic                   read_error;
 // wire [CLK_CNT_W-1:0]    phases_out [NUM_CHANNELS];
 logic                   sys_rst = 'b1; // synchronous active high reset
@@ -85,6 +88,13 @@ always_ff @(posedge pwm_clk) begin
     end
 end
 
+// phase calibration
+always_ff @(posedge pwm_clk) begin
+    for (int i = 0; i < NUM_CHANNELS; i++) begin
+        {phases_out[i], phases_intermediate[i]} <= {phases_intermediate[i], phases_in[i] + phase_calibration[i]};
+    end
+end
+
 /** SUBMODULES **/
 
 genvar i;
@@ -102,8 +112,10 @@ generate
             .clk(sys_clk),
             .rst(sys_rst),
             .phase_parse_en(phase_parse_en),
+            .phase_calib_en(phase_calib_en),
             .phase_data(latest_data),
             .phase(phases_in[i]),
+            .phase_calibration(phase_calibration[i]),
             .pwm_en(pwm_en[i])
         );
     end
@@ -191,16 +203,6 @@ sync_sender #(
     .sync_pulse,
     .cnt(pwm_cnt),
     .sync_out
-);
-
-phase_calibration #(
-    .NUM_CHANNELS   (NUM_CHANNELS)
-) phase_calibration (
-    .clk(pwm_clk),
-    .rst(pwm_rst),
-    .phase_calib_en,
-    .phases_in,
-    .phases_out
 );
 
 endmodule: top
