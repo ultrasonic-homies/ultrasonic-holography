@@ -43,8 +43,15 @@ initial begin
     KEY[3] = 1;
     #10;
     dut.top.pwm_en = '{1, 1, 1, 1};
-    dut.top.phase_calibration.phase_calibration = '{0, 0, 0, 0};
-    #50000;
+    dut.top.channels[0].phase_parser.phase = 0;
+    dut.top.channels[1].phase_parser.phase = 1;
+    dut.top.channels[2].phase_parser.phase = 2;
+    dut.top.channels[3].phase_parser.phase = 3;
+    #200;
+    dut.top.phase_calib_en = 1;
+    #1;
+    dut.top.phase_calib_en = 0;
+
 end
 
 initial begin
