@@ -5,3 +5,4 @@ __pycache__/
 acoustic_sim/rust/target/
 **.png
 **.DS_Store
+**pkl
