@@ -1,3 +1,4 @@
+"""Modified hand.py: when the user pinches, their hand's position shows up on blender. When they release the pinch, that discreet position is sent to the board for the board to interpolate."""
 import math
 import os
 import sys
@@ -11,6 +12,7 @@ from mediapipe.tasks.python import vision
 import redis
 from mediapipe.python.solutions.hands import HandLandmark
 import numpy as np
+from pathlib import Path
 # For drawing landmarks on an image, we will use the following function:
 
 
@@ -31,7 +33,7 @@ pinching = False
 current_position = None
 redis_inst = redis.StrictRedis(host='localhost', port=6379, db=0)
 
-model_path = "hand_landmarker.task"
+model_path = Path(__file__).resolve().parent / "hand_landmarker.task"
 if not os.path.exists(model_path):
     print("Go download hand_landmarker_full from "
           "https://developers.google.com/mediapipe/solutions/vision/hand_landmarker/#models")
@@ -50,7 +52,7 @@ def get_board_position_from_hand_positions(x_normalised, y_normalised, pinky_to_
     # if pinky_to_index_distance is same as global_y_scale we should be at half of board_y_max.
     # Closer(larger ptdi)is larger y,further (smaller ptdi) is smaller y
     y_pos = (pinky_to_index_distance / global_y_scale) * (board_y_max / 2)
-    z_pos = y_normalised * board_z_max
+    z_pos = (1-y_normalised) * board_z_max
     return x_pos, y_pos, z_pos
 
 
@@ -135,11 +137,19 @@ def mp_callback(result: HandLandmarkerResult, output_image: mp.Image, timestamp_
 
     pinky_to_index_distance = math.hypot(x_index_tip - x_pinky_tip, y_index_tip - y_pinky_tip)
     if pinch_distance > index_one_knuckle_distance * 2:
+        if pinching:  # transitioning from not pinching to pinching
+            # send to board over different redis topic
+            x_pos, y_pos, z_pos = get_board_position_from_hand_positions(cx/w, cy/h, pinky_to_index_distance)
+            # send to blender over redis
+            position = [x_pos, y_pos, z_pos]
+            positions = [position]  # in our system we send lists of positions for multiple trap compatibility
+            msg_packed = repr(positions).encode('utf-8')
+            redis_inst.publish('board_positions', msg_packed)
         pinching = False
         cv2.line(img, (x_thumb_tip, y_thumb_tip), (x_index_tip, y_index_tip), (255, 0, 128), 3)
         cv2.putText(img, str(int(pinch_distance)), (cx + 30, cy), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 128), 3)
     else:
-        if not pinching:
+        if not pinching: # transitioning from pinching to not pinching
             global global_y_scale
             global_y_scale = pinky_to_index_distance
         pinching = True
@@ -164,9 +174,14 @@ options = HandLandmarkerOptions(
     num_hands=1)
 
 with HandLandmarker.create_from_options(options) as landmarker:
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
+    position = [0, 0, 0.005]
+    positions = [position]  # in our system we send lists of positions for multiple trap compatibility
+    msg_packed = repr(positions).encode('utf-8')
+    redis_inst.publish('positions', msg_packed)
     while cap.isOpened():
         ret, frame = cap.read()
+        time.sleep(0.01)
         if not ret:
             print("Unable to capture video")
             break
