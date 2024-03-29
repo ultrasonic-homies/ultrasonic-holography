@@ -12,6 +12,8 @@ use hat::Hat;
 use hat::Point;
 use serial_port_helper::{choose_serial_port, list_serial_ports};
 use sonic_surface::convert_to_sonic_surface_output;
+use rev1::board::Board;
+
 
 fn print_type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
@@ -19,25 +21,18 @@ fn print_type_of<T>(_: &T) {
 
 #[tokio::main]
 async fn main() {
-    // create serial connection
-    let Ok(port_names) = list_serial_ports() else {
-        eprintln!("Error: Unable to list serial ports.");
-        return;
-    };
-    let Some(selected_port) = choose_serial_port(&port_names) else {
-        eprintln!("Invalid selected port, exiting.");
-        return;
-    };
-    println!("You selected serial port: {}", selected_port);
+    let mut board = Board::new().unwrap();
+    // match Board::new() {
+    //     Ok(mut board) => {
+    //         let phases: Vec<f32> = vec![0.00, 0.79, 1.57, 2.36, 3.14, 3.97, 4.71, 5.49];
+    //         board.set_frame(&phases);
+    //     }
+    //     Err(error) => {
+    //         println!("{}", error);
+    //     }
+    // }
 
-    let baud_rate = 230_400;
 
-    let builder = serialport::new(selected_port.clone(), baud_rate);
-    println!("{:?}", &builder);
-    let mut serial_conn = builder.open().unwrap_or_else(|e| {
-        eprintln!("Failed to open \"{}\". Error: {}", selected_port, e);
-        ::std::process::exit(1);
-    });
 
     // Connect to Redis
     let pubsub_con = client::pubsub_connect("127.0.0.1", 6379)
@@ -64,9 +59,7 @@ async fn main() {
                 let ss_output = convert_to_sonic_surface_output(&phases);
                 // println!("Sending message: {:?}", ss_output);
                 let processing_dur = start_time.elapsed().unwrap();
-
-                serial_conn.write_all(&ss_output).unwrap();
-                serial_conn.flush().unwrap();
+                board.set_frame(&phases);
                 let total_dur = start_time.elapsed().unwrap();
                 // println!("processing time: {:?} s, total time {:?} s", processing_dur.as_secs_f32(), total_dur.as_secs_f32());
             }
