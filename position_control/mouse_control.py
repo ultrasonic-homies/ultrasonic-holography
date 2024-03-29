@@ -1,3 +1,4 @@
+# control the position of the particle using the mouse
 import sys
 import redis
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel
@@ -27,7 +28,7 @@ class MyWidget(QWidget):
         self.label.resize(800, 50)
         self.update_label()
         self.redis = redis.StrictRedis(host='localhost', port=6379, db=0)
-        self.redis.publish("positions", repr([[self.board_x, self.board_y, self.board_z]]).encode('utf-8'))  # initial position
+        self.redis.publish("positions", repr([[self.board_x/100, self.board_y/100, self.board_z/100]]).encode('utf-8'))  # initial position
         self.last_sent = get_time()
         self.wait_before_sending = 0.01 # serial port limits us us 100 hz?
 
