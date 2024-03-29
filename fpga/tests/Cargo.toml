@@ -4,5 +4,6 @@ members = [
     "de1_soc_top",
     "two_boards",
     "board_interface",
+    "list_devices",
 ]
 resolver = "2"
