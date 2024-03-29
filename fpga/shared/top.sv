@@ -16,17 +16,17 @@ module top #(
     output              ft_wrn,
     input               ft_clk,  // sync mode only
     output              ft_oen,  // sync mode only
-    output              ft_siwu, // sync mode only
+    output              ft_siwu // sync mode only
     // // for debug only! TODO remove in production
-    output logic [7:0]  phases_out [NUM_CHANNELS],
-    output              read_error
+    // output logic [7:0]  phases_out [NUM_CHANNELS],
+    // output              read_error
 );
 
 /* HEADER FILE */
 
 // `include "de0_cv.svh"
-`include "de1_soc.svh"
-// `include "cyclone10_lp.svh"
+// `include "de1_soc.svh"
+`include "cyclone10_lp.svh"
 
 /** PROTO245 REGS **/
 
@@ -53,8 +53,8 @@ logic [CLK_CNT_W-1:0]   phases_in [NUM_CHANNELS];
 logic [CLK_CNT_W-1:0]   phase_calibration [NUM_CHANNELS];
 logic [CLK_CNT_W-1:0]   phases_intermediate [NUM_CHANNELS];
 
-// logic                   read_error;
-// wire [CLK_CNT_W-1:0]    phases_out [NUM_CHANNELS];
+logic                   read_error;
+wire [CLK_CNT_W-1:0]    phases_out [NUM_CHANNELS];
 logic                   sys_rst = 'b1; // synchronous active high reset
 logic [1:0]             sys_reset_cnt = '0;
 logic                   pwm_rst = 'b1; // synchronous active high reset

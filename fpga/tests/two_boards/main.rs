@@ -3,9 +3,9 @@ use std::thread;
 use std::io::{self, Write};
 
 fn main() {
-    match FPGA::new("FT7TEQ7VA") {
+    match FPGA::new("REV1CHB") {
         Ok(mut de1_soc) => {
-            match FPGA::new("FT7TEQ7VB") {
+            match FPGA::new("REV1CHA") {
                 Ok(mut de0_cv) => {
                     // let num_writes: u32 = 32768;
                     // // Test 1: Sequential

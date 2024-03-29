@@ -1,8 +1,12 @@
 use crate::fpga::FPGA;
 use std::error::Error;
 
-const FPGA_0_SERIAL: &str = "FT7TEQ7VA";
-const FPGA_1_SERIAL: &str = "FT7TEQ7VB";
+// Dev Boards
+// const FPGA_0_SERIAL: &str = "FT7TEQ7VA";
+// const FPGA_1_SERIAL: &str = "FT7TEQ7VB";
+// Rev 1 *PRIMARY = CHANNEL B*
+const FPGA_0_SERIAL: &str = "REV1CHB";
+const FPGA_1_SERIAL: &str = "REV1CHA";
 
 pub struct Board {
     fpga0: FPGA,
@@ -26,8 +30,12 @@ impl Board {
                     Ok(fpga1) => {
 
                         // Map the index of the solver phase vector to transducer address
-                        let order0: Vec<u8> = (0..4).into_iter().collect::<Vec<u8>>();
-                        let order1: Vec<u8> = (0..4).into_iter().collect::<Vec<u8>>();
+                        // Dev Boards
+                        // let order0: Vec<u8> = (0..4).into_iter().collect::<Vec<u8>>();
+                        // let order1: Vec<u8> = (0..4).into_iter().collect::<Vec<u8>>();
+                        // Rev 1
+                        let order0: Vec<u8> = (0..128).into_iter().collect::<Vec<u8>>();
+                        let order1: Vec<u8> = (0..128).into_iter().collect::<Vec<u8>>();
                         let board = Board {
                             fpga0,
                             fpga1,

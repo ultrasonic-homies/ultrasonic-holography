@@ -343,6 +343,7 @@ mod tests {
             vec![-0.5, 6.5],
             vec![3.0, 3.1, 3.2],
             (0..128).into_iter().map(|i| 0.01 * (i as f32)).collect::<Vec<f32>>(),
+            (0..256).into_iter().map(|x| (2.0 * 3.14159 / 256.0 * (((x + 81) % 256) as f32)) as f32).collect::<Vec<f32>>(),
             vec![],
         ];
         let test_multi_addresses: Vec<Vec<u8>> = vec![
@@ -350,6 +351,7 @@ mod tests {
             vec![2, 3, 4],
             vec![4, 8],
             (0..128).into_iter().collect::<Vec<u8>>(),
+            (0..=255).into_iter().collect::<Vec<u8>>(),
             vec![],
             ];
         let test_multi_expected: Vec<Vec<u8>> = vec![
@@ -357,6 +359,8 @@ mod tests {
                 vec![0, 2, 255, 3],
                 vec![122, 4, 126, 8],
                 (0..128).into_iter().map(|i| ((0.01 * (i as f32) / (2.0 * 3.14159) * 256.0).round() as u8, i as u8))
+                .flat_map(|(a, b)| vec![a, b]).collect(),
+                (0..256).into_iter().map(|x| ((((2.0 * 3.14159 / 256.0 * (((x + 81) % 256) as f32)) as f32) / (2.0 * 3.14159) * 256.0).round() as u8, x as u8))
                 .flat_map(|(a, b)| vec![a, b]).collect(),
                 vec![],
             ];
