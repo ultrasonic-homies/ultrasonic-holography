@@ -14,9 +14,9 @@ const P_0: f32 = 1.293; // density of air
 const EMITTER_RADIUS: f32 = 0.005; // radius of the emitter: 5 mm
 
 pub struct Hat {
-    transducers: Vec<Point>,
-    phase_res: f32,
-    z: f32,
+    pub transducers: Vec<Point>,
+    pub phase_res: f32,
+    pub z: f32,
 }
 
 impl Hat {
@@ -59,7 +59,7 @@ impl Hat {
 }
 
 // far field piston-source model: from https://jontallen.ece.illinois.edu/uploads/473.F18/Lectures/Chapter_7b.pdf
-fn p(r: f32, theta: f32, t: f32) -> Complex<f32> {
+pub fn p(r: f32, theta: f32, t: f32) -> Complex<f32> {
     let sin_theta = f32::sin(theta);
 
     let amp: Complex<f32> = Complex::new(0.0, 1.0) * OMEGA * P_0 * EMITTER_RADIUS.powi(2)
