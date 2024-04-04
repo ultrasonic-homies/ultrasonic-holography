@@ -12,7 +12,7 @@ fn main() {
     let time_inc = 0.01;  // secs
     let start_x = 0.05;   // 5cm
     let start_y = 0.05;   // 5cm
-    let start_z = 0.05;   // 10cm
+    let start_z = 0.01;   // 10cm
     let mut freq = 0.5;
     let mut period = 1.0 / freq;
     let radius = 0.02;
@@ -52,7 +52,8 @@ fn main() {
         // and i and k to increase or decrease number of circles 
 
         loop {
-            println!("Enter to start circling, n_circles (i/k): {:?}, freq (w/s): {:?} hz", n_circles, freq);
+            println!("------------------------------------");
+            println!("Enter to start circling, n_circles (i/k): {:?}, freq (w/s): {:.1} hz", n_circles, freq);
             let mut input = String::new();
             io::stdin().read_line(&mut input).unwrap();
             period = 1.0 / freq;
@@ -70,7 +71,7 @@ fn main() {
                         // let msg_packed = to_vec(&position_vec).expect("Failed to encode");
                         let json_string: String = serde_json::to_string(&position_vec).expect("Failed to serialize to JSON");
                         let _: () = redis_con.publish("positions", json_string).unwrap();
-                        // thread::sleep(time::Duration::from_millis((1000.0 * period / 360.0 ) as u64));
+                        thread::sleep(time::Duration::from_millis((1000.0 * period / 360.0 ) as u64));
                     }
                 }
             }
