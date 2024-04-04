@@ -15,6 +15,7 @@ import numpy as np
 from pathlib import Path
 # For drawing landmarks on an image, we will use the following function:
 
+sonic_surface = False
 
 MARGIN = 10  # pixels
 FONT_SIZE = 1
@@ -42,17 +43,21 @@ if not os.path.exists(model_path):
 def get_board_position_from_hand_positions(x_normalised, y_normalised, pinky_to_index_distance):
     # x position on picture maps to x position on board, y on picture maps to z on board, pinky to index distance
     # scale maps to y on board
-    board_x_max = 0.1
-    board_y_max = 0.1
-    board_z_max = 0.1
+    if sonic_surface:
+        board_x_max = 0.1
+        board_y_max = 0.1
+    else:   
+        board_x_max = 0.0105 * 16
+        board_y_max = 0.0105 * 16
+    board_z_max = 0.10
     # flip x normalized and y normalized because camera is flipped and y starts at 0 at top
     x_pos = (1-x_normalised) * board_x_max
     global global_y_scale
     # if pinky_to_index_distance is same as global_y_scale we should be at half of board_y_max.
     # Closer(larger ptdi)is larger y,further (smaller ptdi) is smaller y
-    y_pos = (pinky_to_index_distance / global_y_scale) * (board_y_max / 2)
-    # z_pos = (1-y_normalised) * board_z_max
-    z_pos = 0.005
+    y_pos = (1-y_normalised) * board_y_max
+    z_pos = (pinky_to_index_distance / global_y_scale) * 0.003
+    # z_pos = 0.005
     return x_pos, y_pos, z_pos
 
 
@@ -128,9 +133,8 @@ def mp_callback(result: HandLandmarkerResult, output_image: mp.Image, timestamp_
     x_index_tip, y_index_tip = int(index_tip_x_norm * w), int(index_tip_y_norm * h)
     x_index_knuckle, y_index_knuckle = int(index_knuckle_x_norm * w), int(index_knuckle_y_norm * h)
     x_pinky_tip, y_pinky_tip = int(pinky_tip_x_norm * w), int(pinky_tip_y_norm * h)
-    cx, cy = (x_thumb_tip + x_index_tip) // 2, (y_thumb_tip + y_index_tip) // 2
+    cx, cy = x_thumb_tip, y_thumb_tip
     cv2.circle(img, (x_thumb_tip, y_thumb_tip), 10, (255, 0, 128), cv2.FILLED)
-    cv2.circle(img, (x_index_tip, y_index_tip), 10, (255, 0, 128), cv2.FILLED)
     # use index tip to knuckle as a reference
     index_one_knuckle_distance = math.hypot(x_index_knuckle - x_index_tip, y_index_knuckle - y_index_tip)
     pinch_distance = math.hypot(x_index_tip - x_thumb_tip, y_index_tip - y_thumb_tip)
@@ -140,6 +144,8 @@ def mp_callback(result: HandLandmarkerResult, output_image: mp.Image, timestamp_
         pinching = False
         cv2.line(img, (x_thumb_tip, y_thumb_tip), (x_index_tip, y_index_tip), (255, 0, 128), 3)
         cv2.putText(img, str(int(pinch_distance)), (cx + 30, cy), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 128), 3)
+        img = cv2.flip(img, 1)
+
     else:
         if not pinching:
             global global_y_scale
@@ -152,10 +158,13 @@ def mp_callback(result: HandLandmarkerResult, output_image: mp.Image, timestamp_
         positions = [position]  # in our system we send lists of positions for multiple trap compatibility
         msg_packed = repr(positions).encode('utf-8')
         redis_inst.publish('positions', msg_packed)
-        # add coordinates to frame
+        img = cv2.flip(img, 1)
+
         cv2.putText(img, f"({x_pos:.2f}, {y_pos:.2f}, {z_pos:.2f})", (10, 30), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 128), 3)
+
+        # add coordinates to frame
     # flip across y axis so x axis isn't mirrored in a video
-    img = cv2.flip(img, 1)
+
     global_img = img
 
 
@@ -166,7 +175,7 @@ options = HandLandmarkerOptions(
     num_hands=1)
 
 with HandLandmarker.create_from_options(options) as landmarker:
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     position = [0, 0, 0.005]
     positions = [position]  # in our system we send lists of positions for multiple trap compatibility
     msg_packed = repr(positions).encode('utf-8')
