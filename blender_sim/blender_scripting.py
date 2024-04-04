@@ -17,9 +17,9 @@ bpy.ops.object.select_by_type(type='MESH')
 bpy.ops.object.delete()
 
 # Define the dimensions of the array
-num_rows = 10
-num_columns = 10
-spacing = 10/1000  # Adjust this to control the spacing between cylinders
+sonic_surface = False
+n_transducers = 10 if sonic_surface else 16
+spacing = 10/1000 if sonic_surface else 10.5/1000 # Adjust this to control the spacing between cylinders
 
 # Create a cylinder template
 
@@ -27,8 +27,8 @@ bpy.ops.mesh.primitive_cylinder_add(vertices=32, radius=5/1000, depth=7/1000, lo
 cylinder_template = bpy.context.object
 
 # Create the array of cylinders
-for row in range(num_rows):
-    for col in range(num_columns):
+for row in range(n_transducers):
+    for col in range(n_transducers):
         # Create a new cylinder by duplicating the template
         new_cylinder = cylinder_template.copy()
         bpy.context.collection.objects.link(new_cylinder)
@@ -61,7 +61,10 @@ max_locations = 0
 def read_to_queue():
     for message in pubsub.listen():
         if message['type'] == 'message':
-            positions_list = json.loads(message['data'])
+            try:
+                positions_list = json.loads(message['data'])
+            except Exception as e:
+                continue
             location_queue.put(positions_list)
 
 
@@ -78,7 +81,7 @@ def use_locations_from_queue():
                 obj.location = location
                 obj.hide_set(False)
             else:
-                bpy.ops.mesh.primitive_uv_sphere_add(radius=0.001, location=location)
+                bpy.ops.mesh.primitive_uv_sphere_add(radius=0.005, location=location)
                 ball = bpy.context.object
                 ball.name = 'sphere_' + str(index)
         for index in range(num_locations, max_locations):
