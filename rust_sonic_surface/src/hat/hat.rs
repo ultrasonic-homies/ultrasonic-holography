@@ -21,13 +21,20 @@ pub struct Hat {
 
 impl Hat {
     // TODO: add support for different transducer arrangements
-    pub fn new(phase_res: f32, z: f32) -> Hat {
+    pub fn new(phase_res: f32, z: f32, sonic_surface: bool) -> Hat {
         let mut transducers: Vec<Point> = vec![];
-        let sep = 0.01;
-        let size = 10;
+        let n_transducers: usize;
+        let sep: f32;
+        if sonic_surface {
+            n_transducers = 10;
+            sep = 0.01;
+        } else {
+            n_transducers = 16;
+            sep = 0.0105;
+        }
 
-        for i in 0..size {
-            for j in 0..size {
+        for i in 0..n_transducers {
+            for j in 0..n_transducers {
                 transducers.push(Point {
                     x: EMITTER_RADIUS + i as f32 * sep,
                     y: EMITTER_RADIUS + j as f32 * sep,

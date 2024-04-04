@@ -13,7 +13,7 @@ pub struct HatRunner {
 impl HatRunner {
     pub fn new(phase_res: f32, z: f32) -> HatRunner {
         return HatRunner {
-            hat: Hat::new(phase_res, z),
+            hat: Hat::new(phase_res, z, false),
         };
     }
 

@@ -3,10 +3,10 @@ use crate::hat::Point;
 const MAX_ACCEL: f32 = 1.0; // m/s^2
 const MAX_VEL: f32 = 1.0; // m/s
 
-struct Particle {
-    point: Point,
-    t_sep: f32,
-    vel: Point, // using Point as a velocity vector
+pub struct Particle {
+    pub point: Point,
+    pub t_sep: f32,
+    pub vel: Point, // using Point as a velocity vector
 }
 
 impl Particle {

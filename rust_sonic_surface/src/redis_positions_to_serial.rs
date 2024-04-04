@@ -48,7 +48,7 @@ async fn main() {
         .await
         .expect("Cannot subscribe to topic");
     // Create a broadcast channel to receive messages
-    let hat = Hat::new(32.0, 0.095);
+    let hat = Hat::new(32.0, 0.095, true);
     while let Some(message) = msgs.next().await {
         match message {
             Ok(message) => {

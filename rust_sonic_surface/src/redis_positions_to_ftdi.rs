@@ -22,18 +22,6 @@ fn print_type_of<T>(_: &T) {
 #[tokio::main]
 async fn main() {
     let mut board = Board::new().unwrap();
-    // match Board::new() {
-    //     Ok(mut board) => {
-    //         let phases: Vec<f32> = vec![0.00, 0.79, 1.57, 2.36, 3.14, 3.97, 4.71, 5.49];
-    //         board.set_frame(&phases);
-    //     }
-    //     Err(error) => {
-    //         println!("{}", error);
-    //     }
-    // }
-
-
-
     // Connect to Redis
     let pubsub_con = client::pubsub_connect("127.0.0.1", 6379)
         .await
@@ -43,7 +31,7 @@ async fn main() {
         .await
         .expect("Cannot subscribe to topic");
     // Create a broadcast channel to receive messages
-    let hat = Hat::new(32.0, 0.095);
+    let hat = Hat::new(256.0, 0.095, false);
     while let Some(message) = msgs.next().await {
         match message {
             Ok(message) => {
