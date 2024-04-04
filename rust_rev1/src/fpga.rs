@@ -118,6 +118,11 @@ impl FPGA {
         Ok(())
     }
 
+    pub fn disable_all(&mut self) -> Result<(), TimeoutError> {
+        self.ftdev.write_all(&self.cmd(CommandEnum::PhaseData, 0x00000000))?;
+        Ok(())
+    }
+
     /** set_multiple
      * Sets multiple phases and enables transducers at the specified transducer addresses
      * @param phases: the radian value of the phase, between [0, 2pi]
