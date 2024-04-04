@@ -98,4 +98,16 @@ impl Board {
         self.fpga1.close().unwrap();
     }
 
+
+    pub fn set_all_on(&mut self) {
+        // set all the phases to 0 to turn them on
+        let phases = vec![0.0; 256];
+        self.set_frame_soft_calibrated(&phases);
+    }
+
+    pub fn set_all_off(&mut self) {
+        // set all the phases to 0 to turn them off
+        self.fpga0.disable_all().expect(&format!("set_all_off: write timed out for {}", FPGA_0_SERIAL));
+        self.fpga1.disable_all().expect(&format!("set_all_off: write timed out for {}", FPGA_1_SERIAL));
+    }
 }

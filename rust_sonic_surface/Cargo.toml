@@ -54,3 +54,12 @@ path = "src/scripts/vertical_test.rs"
 [[bin]]
 name = "redis_positions_to_ftdi"
 path = "src/redis_positions_to_ftdi.rs"
+
+[[bin]]
+name = "tones"
+path = "src/scripts/tones.rs"
+
+
+[[bin]]
+name = "tones_ftdi"
+path = "src/scripts/tones_ftdi.rs"
