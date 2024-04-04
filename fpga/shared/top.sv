@@ -55,6 +55,7 @@ logic [CLK_CNT_W-1:0]   phases_intermediate [NUM_CHANNELS];
 
 logic                   read_error;
 wire [CLK_CNT_W-1:0]    phases_out [NUM_CHANNELS];
+logic                   global_enable;
 logic                   sys_rst = 'b1; // synchronous active high reset
 logic [1:0]             sys_reset_cnt = '0;
 logic                   pwm_rst = 'b1; // synchronous active high reset
@@ -103,7 +104,7 @@ generate
         pwm #(CLK_FREQ, OUT_FREQ) pwm (
             .clk(pwm_clk),
             .rst(pwm_rst),
-            .en(pwm_en[i]),
+            .en(pwm_en[i] & global_enable),
             .cnt(pwm_cnt),
             .phase(phases_out[i]),
             .out(trans[i])
@@ -132,6 +133,7 @@ receiver #(
     .read_error,
     .phase_parse_en,
     .phase_calib_en,
+    .global_enable,
     .latest_data,
     // proto245 interface
     // RX: Host -> FPGA

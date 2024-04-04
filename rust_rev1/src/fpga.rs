@@ -21,6 +21,7 @@ enum CommandEnum {
     ReadTest = 0xBEEF,
     WriteTest = 0xCAFE,
     CalibratePhase = 0x0003,
+    GlobalEnable = 0x0004,
 }
 
 const KIB: u32 = 1024;
@@ -170,6 +171,10 @@ impl FPGA {
     pub fn set_phase_calibration(&mut self) -> Result<(), TimeoutError> {
         self.ftdev.write_all(&self.cmd(CommandEnum::CalibratePhase, 0x0000))?;
         Ok(())
+    }
+
+    pub fn global_enable(&mut self, enable: bool) -> Result<(), TimeoutError> {
+        self.ftdev.write_all(&self.cmd(CommandEnum::GlobalEnable, enable as u32))
     }
 
     /** test_read

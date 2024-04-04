@@ -33,7 +33,7 @@ fn main() {
                     loop {
                         loop {
                             input.clear();
-                            println!("Select a board: 1, 2, or 3 to calibrate, or 0 to quit");
+                            println!("Select a board: 1, 2\n3: board 1 calibration\n4: board 2 calibration\n5: board 1 global enable\n6: board 2 global enable\n7: board 1 global disable\n8: board 2 global disable\n0: quit");
                             io::stdout().flush().unwrap();
                             io::stdin().read_line(&mut input).unwrap();
                             match input.trim().parse::<u8>() {
@@ -44,7 +44,21 @@ fn main() {
                                     }
                                     else if parsed_u8 == 3 {
                                         de1_soc.set_phase_calibration().unwrap();
+                                    }
+                                    else if parsed_u8 == 4 {
                                         de0_cv.set_phase_calibration().unwrap();
+                                    }
+                                    else if parsed_u8 == 5 {
+                                        de1_soc.global_enable(true).unwrap();
+                                    }
+                                    else if parsed_u8 == 6 {
+                                        de0_cv.global_enable(true).unwrap();
+                                    }
+                                    else if parsed_u8 == 7 {
+                                        de1_soc.global_enable(false).unwrap();
+                                    }
+                                    else if parsed_u8 == 8 {
+                                        de0_cv.global_enable(false).unwrap();
                                     }
                                     else if parsed_u8 == 1 || parsed_u8 == 2 {
                                         board_id = parsed_u8;

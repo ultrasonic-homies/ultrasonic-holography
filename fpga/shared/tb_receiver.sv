@@ -13,6 +13,7 @@ wire read_error;
 wire phase_parse_en;
 wire phase_calib_en;
 wire [31:0] latest_data;
+logic global_enable;
 
 // proto245 Interface
 logic [7:0]     rxfifo_data;
