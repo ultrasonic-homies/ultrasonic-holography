@@ -4,6 +4,5 @@ members = [
     "de1_soc_top",
     "two_boards",
     "board_interface",
-    "eeprom_erase",
 ]
 resolver = "2"
