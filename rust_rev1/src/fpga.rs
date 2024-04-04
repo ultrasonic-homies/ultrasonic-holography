@@ -27,7 +27,7 @@ const KIB: u32 = 1024;
 pub const MIB: u32 = KIB * 1024;
 const COMMAND_PREFIX: u64 = 0xAA;
 const COMMAND_SUFFIX: u64 = 0x55;
-const PHASE_CONV_FACTOR: f32 = 256.0 / (2.0 * 3.14159);
+pub const PHASE_CONV_FACTOR: f32 = 256.0 / (2.0 * 3.14159);
 
 pub struct FPGA {
     ftdi_serial: &'static str,
@@ -138,7 +138,30 @@ impl FPGA {
                     .map(|&adr| adr))
                 .flat_map(|(phi, adr)| vec![phi, adr]))
             .collect::<Vec<u8>>();
+        // write the buffer to the fpga
+        self.ftdev.write_all(&buf)?;
+        Ok(())
+    }
 
+    /** set_multi_bytes
+     * Sets multiple phases and enables transducers at the specified transducer addresses
+     * @param phases: a discretized value of the phase, between [0, 255]
+     * @param addresses: the transducer address that corresponds with each phase at the same index.
+     * If either vector is longer, only indices up to the shorter length is handled.
+     */
+    pub fn set_multi_bytes(&mut self, phases: &[u8], addresses: &[u8]) -> Result<(), TimeoutError> {
+        // determine size of phase and address data in bytes
+        let payload_bytes: u32 = (phases.len().min(addresses.len()) * 2) as u32;
+
+        // first prepend command
+        // then zip together transducer addresses and phases into a buffer
+        let buf = (self.cmd(CommandEnum::BurstPhase, payload_bytes)).into_iter()
+            .chain(phases.into_iter()
+                .map(|&phi| phi)
+                .zip(addresses.into_iter()
+                    .map(|&adr| adr))
+                .flat_map(|(phi, adr)| vec![phi, adr]))
+            .collect::<Vec<u8>>();
         // write the buffer to the fpga
         self.ftdev.write_all(&buf)?;
         Ok(())
