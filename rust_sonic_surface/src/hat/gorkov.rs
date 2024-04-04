@@ -132,7 +132,7 @@ fn calc_transducer_phases(
             break;
         }
 
-        println!("{:?}", cur_gorkov);
+        // println!("{:?}", cur_gorkov);
         last_gorkov = cur_gorkov;
     }
 
