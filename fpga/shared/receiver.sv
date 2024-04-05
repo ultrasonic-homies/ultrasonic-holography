@@ -133,6 +133,10 @@ always_comb begin
                     else begin
                         latest_data_next = {2'h1, rxfifo_data, latest_data[7:0]}; // Write phase data
                         phase_parse_en_next = 'b1;
+                        if (word_count == 1) begin
+                            rxfifo_rd_next = 1'b0;
+                            fsm_next       = WAIT_E;
+                        end
                     end
                     word_count_next = word_count - 1'b1;
                 end

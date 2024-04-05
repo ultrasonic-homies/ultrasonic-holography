@@ -2,6 +2,8 @@ use rev1::board::Board;
 use libftd2xx::{list_devices, DeviceInfo};
 use std::io::{self, Write};
 
+const NUM_TRANSDUCERS = 8
+
 fn main() {
 
     println!("Hello, world!");
@@ -12,8 +14,8 @@ fn main() {
     match Board::new() {
         Ok(mut board) => {
             loop {
-                let zero_frame: Vec<f32> = vec![0.0; 256];
-                let flip_frame: Vec<f32> = vec![1.6; 256];
+                let zero_frame: Vec<f32> = vec![0.0; NUM_TRANSDUCERS];
+                let flip_frame: Vec<f32> = vec![1.6; NUM_TRANSDUCERS];
                 let mut input = String::new();
                 let mut quit: bool = false;
                 input.clear();
