@@ -90,7 +90,29 @@ impl Board {
      * Enables all transducers and sets them to the pre-determined calibration
      */
     pub fn set_preset_calibration(&mut self) {
+        // TODO Due to a hardware glitch you need to send each command twice
         self.set_frame_bytes(&PHASE_CALIBRATION.to_vec());
+        self.set_frame_bytes(&PHASE_CALIBRATION.to_vec());
+    }
+
+    pub fn calibrate(&mut self) {
+        // TODO Due to a hardware glitch you need to send each command twice
+        self.fpga0.set_phase_calibration().expect(&format!("calibrate: write timed out for {}", FPGA_0_SERIAL));
+        self.fpga1.set_phase_calibration().expect(&format!("calibrate: write timed out for {}", FPGA_1_SERIAL));
+        self.fpga0.set_phase_calibration().expect(&format!("calibrate: write timed out for {}", FPGA_0_SERIAL));
+        self.fpga1.set_phase_calibration().expect(&format!("calibrate: write timed out for {}", FPGA_1_SERIAL));
+        self.set_frame_bytes(&vec![0; NUM_TRANSDUCERS_PER_FPGA * 2]);
+        self.set_frame_bytes(&vec![0; NUM_TRANSDUCERS_PER_FPGA * 2]);
+    }
+
+    pub fn clear_calibration(&mut self) {
+        // TODO Due to a hardware glitch you need to send each command twice
+        self.set_frame_bytes(&vec![0; NUM_TRANSDUCERS_PER_FPGA * 2]);
+        self.set_frame_bytes(&vec![0; NUM_TRANSDUCERS_PER_FPGA * 2]);
+        self.fpga0.set_phase_calibration().expect(&format!("calibrate: write timed out for {}", FPGA_0_SERIAL));
+        self.fpga1.set_phase_calibration().expect(&format!("calibrate: write timed out for {}", FPGA_1_SERIAL));
+        self.fpga0.set_phase_calibration().expect(&format!("calibrate: write timed out for {}", FPGA_0_SERIAL));
+        self.fpga1.set_phase_calibration().expect(&format!("calibrate: write timed out for {}", FPGA_1_SERIAL));
     }
 
     pub fn close(&mut self) {
