@@ -1,8 +1,10 @@
 // // prototype, sending positions to blender using redis, working
+mod hat;
 use std::{thread, time, io};
 use std::f64::consts::PI;
 use redis::Commands;
 use serde_json;
+use hat::Hat;
 
 
 #[derive(Debug)]
@@ -77,22 +79,57 @@ impl Cube {
     }
 }
 fn main() {
+    // let mut hat = Hat::new(256.0, 0.14, false, false);
+    let helper_sequence_on: bool = true;
     let client = redis::Client::open("redis://127.0.0.1/").expect("Failed to connect to Redis");
     let mut con = client.get_connection().expect("Failed to establish redis connection");
 
     let time_inc = 0.01;  // secs
-    let start_x = 0.05;   // 5cm
-    let start_y = 0.05;   // 5cm
-    let start_z = 0.05;   // 14cm
+    let cube_start_x = 0.09;   // 5cm
+    let cube_start_y = 0.09;   // 5cm
+    let cube_start_z = 0.05;   // 14cm
     let freq = 0.5;
-    let period = 1.0 / freq;
-    let cube = Cube::new((start_x, start_y, start_z), 0.025);
+    let cube = Cube::new((cube_start_x, cube_start_y, cube_start_z), 0.025);
     println!("Original vertices: {:?}", cube.vertices());
+    if helper_sequence_on {
+        let loading_x = 0.09;
+        let loading_y = 0.09;
+        let loading_z = 0.03;
+        let num_steps = 40;
+        println!("Starting helper sequence.");
+        let mut current_positions: Vec<(f64, f64, f64)> =  Vec::new();
+        for i in 0..cube.vertices().len() {
+            let (x, y, z) = cube.vertices()[i];
+            let mut current_positions_copy = current_positions.clone();
+            let loading_position = (loading_x, loading_y, loading_z);
+            current_positions_copy.push(loading_position);
+            let json_string: String = serde_json::to_string(&current_positions_copy).expect("Failed to serialize to JSON");
+            let _: () = con.publish("positions", json_string).unwrap();
 
-    let json_string: String = serde_json::to_string(&cube.vertices()).expect("Failed to serialize to JSON");
-    let _: () = con.publish("positions", json_string).unwrap();
-
-    println!("Place the particle at the vertices: {:?} and press enter", cube.vertices());
+            println!("Loading vertex {x}, {y}, {z}. Load the particle into {loading_position:?} and press enter");
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).unwrap();
+            if input.trim() != "" {
+                return;
+            }
+            // move from loading position to vertex, while maintaining the rest of the vertices
+            for j in 0..num_steps {
+                let curr_x = loading_x + (x - loading_x) * (j as f64) / num_steps as f64;
+                let curr_y = loading_y + (y - loading_y) * (j as f64) / num_steps as f64;
+                let curr_z = loading_z + (z - loading_z) * (j as f64) / num_steps as f64;
+                let mut current_positions_copy = current_positions.clone();
+                current_positions_copy.push((curr_x, curr_y, curr_z));
+                let json_string: String = serde_json::to_string(&current_positions_copy).expect("Failed to serialize to JSON");
+                let _: () = con.publish("positions", json_string).unwrap();
+                thread::sleep(time::Duration::from_millis(10));
+            }
+            // add current vertex to current_positions
+            current_positions.push((x, y, z));
+        
+        }
+        println!("Helper sequence complete.");
+    }
+    println!("Load points at the vertices to {:?} if they're not already there, press enter to start", cube.vertices());
     let mut input = String::new();
     io::stdin().read_line(&mut input).unwrap();
     if input.trim() != "" {
@@ -114,7 +151,7 @@ fn main() {
         let _: () = con.publish("positions", json_string).unwrap();
 
 
-        // Sleep for 1 millisecond
+        // Sleep for 10 milliseconds
         thread::sleep(time::Duration::from_millis(10));
     }
 }

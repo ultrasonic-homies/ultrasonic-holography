@@ -36,7 +36,7 @@ path = "src/scripts/circle_test.rs"
 
 [[bin]]
 name = "cube_test"
-path = "src/scripts/cube_test.rs"
+path = "src/cube_test.rs"
 
 [[bin]]
 name = "line_test"

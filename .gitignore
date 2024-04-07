@@ -6,3 +6,4 @@ acoustic_sim/rust/target/
 **.png
 **.DS_Store
 **.pkl
+**.avi
