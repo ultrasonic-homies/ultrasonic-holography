@@ -158,7 +158,15 @@ impl FPGA {
         // then zip together transducer addresses and phases into a buffer
         let buf = (self.cmd(CommandEnum::BurstPhase, payload_bytes)).into_iter()
             .chain(phases.into_iter()
-                .map(|&phi| phi)
+                .map(|&phi|{
+                    if phi == 0x55 {
+                        0x54
+                    } else if phi == 0xAA {
+                        0xAB
+                    } else {
+                        phi
+                    }
+                })
                 .zip(addresses.into_iter()
                     .map(|&adr| adr))
                 .flat_map(|(phi, adr)| vec![phi, adr]))

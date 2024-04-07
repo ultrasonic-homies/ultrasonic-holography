@@ -32,7 +32,7 @@ impl Hat {
             sep = 0.01;
         } else {
             n_transducers = 16;
-            sep = 0.0105;
+            sep = 0.01126;
         }
 
         for i in 0..n_transducers {
@@ -68,7 +68,7 @@ impl Hat {
             control_points.clone()
         };
 
-        println!("{:?}", cps);
+        // println!("{:?}", cps);
         return calc_transducer_phases(&self.transducers, &cps, self.phase_res)
             .iter()
             .map(|p| p.arg() + PI)

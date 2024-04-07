@@ -10,9 +10,9 @@ fn main() {
     let mut redis_con = client.get_connection().expect("Failed to establish redis connection");
 
     let time_inc = 0.01;  // secs
-    let start_x = 0.05;   // 5cm
-    let start_y = 0.05;   // 5cm
-    let start_z = 0.005;   // 14cm
+    let start_x = 0.08;   // 5cm
+    let start_y = 0.08;   // 5cm
+    let start_z = 0.01;   // 14cm
     let mut freq = 0.5;
     let mut period = 1.0 / freq;
     let mut amplitude= 0.05;

@@ -10,7 +10,7 @@ import ast
 
 
 print("Starting script")
-ducers_height = 0.1
+ducers_height = 0.14
 # Clear existing mesh objects
 bpy.ops.object.select_all(action='DESELECT')
 bpy.ops.object.select_by_type(type='MESH')
@@ -19,7 +19,7 @@ bpy.ops.object.delete()
 # Define the dimensions of the array
 sonic_surface = False
 n_transducers = 10 if sonic_surface else 16
-spacing = 10/1000 if sonic_surface else 10.5/1000 # Adjust this to control the spacing between cylinders
+spacing = 10/1000 if sonic_surface else 11.26/1000 # Adjust this to control the spacing between cylinders
 
 # Create a cylinder template
 

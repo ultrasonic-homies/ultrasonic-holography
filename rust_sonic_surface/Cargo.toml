@@ -3,6 +3,7 @@ name = "rust_sonic_surface"
 version = "0.0.0"
 authors = ["Kevin"]
 edition = "2021"
+default-run = "main"
 
 [dependencies]
 serialport = "4.2.2"
@@ -60,3 +61,28 @@ path = "src/redis_positions_to_ftdi.rs"
 [[bin]]
 name = "gen_pressure_field"
 path = "src/scripts/gen_pressure_field.rs"
+
+[[bin]]
+name = "circle_test_no_redis"
+path = "src/circle_test_no_redis.rs"
+
+[[bin]]
+name = "tones"
+path = "src/scripts/tones.rs"
+
+[[bin]]
+name = "tones_ftdi"
+path = "src/scripts/tones_ftdi.rs"
+
+[[bin]]
+name = "output_pwm"
+path = "src/scripts/output_pwm.rs"
+
+[[bin]]
+name = "line_test_no_redis"
+path = "src/line_test_no_redis.rs"
+
+
+[[bin]]
+name = "main"
+path = "src/main.rs"
