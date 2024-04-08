@@ -55,7 +55,6 @@ logic [CLK_CNT_W-1:0]   phases_intermediate [NUM_CHANNELS];
 
 logic                   read_error;
 wire [CLK_CNT_W-1:0]    phases_out [NUM_CHANNELS];
-logic                   global_enable;
 logic                   sys_rst = 'b1; // synchronous active high reset
 logic [1:0]             sys_reset_cnt = '0;
 logic                   pwm_rst = 'b1; // synchronous active high reset
