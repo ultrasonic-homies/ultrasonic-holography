@@ -5,6 +5,9 @@ import redis
 import threading
 import time
 import math
+from pathlib import Path
+
+sonic_surface = False
 
 def get_bounding_rect_area(contour):
     # calculate area using the minimum bounding rectangle instead of whatever cv2.contourArea does
@@ -75,7 +78,8 @@ def output_pwm(points, r, frequency, duty_cycle, image_width, image_height, stop
     # scale down the points, send them over redis to the positions channel. Send it at the frequency and duty cycle
     # points is a list of tuples, scale it down to 0.1 x 0.1
     # flip y because y = 0 is at the top
-    scaled_points = [(point[0] / image_width * 0.1, (image_height - point[1]) / image_height * 0.1) for point in points]
+    side_length = 0.1 if sonic_surface else 0.178
+    scaled_points = [(point[0] / image_width * side_length, (image_height - point[1]) / image_height * side_length) for point in points]
     positions = [list(point) for point in scaled_points]
     positions = [[point[0], point[1], 0.01] for point in positions]
     msg_packed = repr(positions).encode('utf-8')
@@ -114,7 +118,7 @@ if __name__ == "__main__":
     window_name = "Haptic Feedback Input, Esc to quit"
     r = redis.StrictRedis(host='localhost', port=6379, db=0)
     font_size = 500  # Increase the font size for a much bigger text
-    font_filepath = "Lato-Black.ttf"
+    font_filepath = str(Path(__file__).resolve().parent /  "Lato-Black.ttf")
     text_color = (0, 0, 0, 255)  # RGBA format, where the last value is alpha (transparency)
     padding = 50  # Padding size in pixels
 

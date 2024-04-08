@@ -35,7 +35,7 @@ for i in range(0, 6573, frame_skip):
         time_between_positions = time_it_should_take / len(points)
         for point in points:
             scaled = (point[0] / 10800, point[1] / 10800)
-            position = [scaled[0], scaled[1], 0.01] # play at 1cm
+            position = [scaled[0], 0.1-scaled[1], 0.01] # play at 1cm
             positions = [position]  # in our system we send lists of positions for multiple trap compatibility
             msg_packed = repr(positions).encode('utf-8')
             r.publish("positions", msg_packed)

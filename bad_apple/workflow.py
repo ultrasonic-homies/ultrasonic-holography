@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
 
     # draw every point of contour onto the image
-    points, image_with_contours, edges, contour_area, morphed = draw_biggest_external_contour(frame,
+    points, image_with_contours, edges, contour_area, morphed = draw_biggest_external_contour(frame.copy(),
                                                                                                min_distance=min_distance, 
                                                                                                border_color=border_color,
                                                                                                canny_low=canny_low, 
@@ -150,15 +150,12 @@ if __name__ == "__main__":
 
 
     image1_placeholder.image(image_with_contours)
-    points2, image2_with_contours, *_ = draw_biggest_external_contour(frame, 
-                                                                     min_distance=config[frame_number]['min_distance'], 
-                                                                     border_color=config[frame_number]['border_color'], 
-                                                                     canny_low=config[frame_number]['canny_low'], 
-                                                                     canny_high=config[frame_number]['canny_high'], 
-                                                                     contour_number=config[frame_number]['contour_number'], 
-                                                                     dilate_kernel_size=config[frame_number]['dilate_kernel_size'], 
-                                                                     add_border_after=config[frame_number]['add_border_after'], 
-                                                                     halve=config[frame_number]['halve'], set_global=False)
+    with open(f"points-custom/{frame_number}.pkl", "rb") as file:
+        points2 = pickle.load(file)
+    image2_with_contours = frame.copy()
+    for point in points2:
+        cv2.circle(image2_with_contours, (point[0]-60, point[1]-60), 8, (0, 255, 0), -1)
+
     image2_placeholder.image(image2_with_contours)
 
     contour_area_display.write(f'number of points shown: {len(current_points)}, points on file: {len(points2)}')

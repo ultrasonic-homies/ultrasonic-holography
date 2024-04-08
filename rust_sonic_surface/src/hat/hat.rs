@@ -1,4 +1,5 @@
 use num::complex::Complex;
+use redis::ControlFlow;
 use std::f32::consts::PI;
 
 use scilib::math::bessel;
@@ -17,11 +18,12 @@ pub struct Hat {
     pub transducers: Vec<Point>,
     pub phase_res: f32,
     pub z: f32,
+    pub twin_cps: bool,
 }
 
 impl Hat {
     // TODO: add support for different transducer arrangements
-    pub fn new(phase_res: f32, z: f32, sonic_surface: bool) -> Hat {
+    pub fn new(phase_res: f32, z: f32, sonic_surface: bool, twin_cps: bool) -> Hat {
         let mut transducers: Vec<Point> = vec![];
         let n_transducers: usize;
         let sep: f32;
@@ -30,7 +32,7 @@ impl Hat {
             sep = 0.01;
         } else {
             n_transducers = 16;
-            sep = 0.0105;
+            sep = 0.01126;
         }
 
         for i in 0..n_transducers {
@@ -47,11 +49,27 @@ impl Hat {
             transducers,
             phase_res,
             z,
+            twin_cps,
         };
     }
 
     pub fn run_hat(&self, control_points: &Vec<Point>) -> Vec<f32> {
-        return calc_transducer_phases(&self.transducers, control_points, self.phase_res)
+        let cps: Vec<Point> = if self.twin_cps {
+            control_points
+                .iter()
+                .map(|&p| p + Point::new(0.0, 0.0, WAVE_LENGTH / 2.0))
+                .chain(
+                    control_points
+                        .iter()
+                        .map(|&p| p - Point::new(0.0, 0.0, WAVE_LENGTH / 2.0)),
+                )
+                .collect()
+        } else {
+            control_points.clone()
+        };
+
+        // println!("{:?}", cps);
+        return calc_transducer_phases(&self.transducers, &cps, self.phase_res)
             .iter()
             .map(|p| p.arg() + PI)
             .collect();
@@ -93,12 +111,12 @@ fn gen_propagators(transducers: &Vec<Point>, control_points: &Vec<Point>) -> Vec
     return propagators;
 }
 
-fn calc_transducer_phases(
+pub fn calc_transducer_phases(
     transducers: &Vec<Point>,
     control_points: &Vec<Point>,
     phase_res: f32,
 ) -> Vec<Complex<f32>> {
-    let propagators = gen_propagators(transducers, control_points);
+    let propagators = gen_propagators(transducers, &control_points);
     let reflected_transducers: Vec<Point> = transducers
         .iter()
         .map(|p| Point {
@@ -107,7 +125,7 @@ fn calc_transducer_phases(
             z: -p.z,
         })
         .collect();
-    let reflected_propagators = gen_propagators(&reflected_transducers, control_points);
+    let reflected_propagators = gen_propagators(&reflected_transducers, &control_points);
     let mut c_pressures = vec![Complex::<f32>::new(0.0, 0.0); control_points.len()];
     let mut t_pressures = vec![Complex::<f32>::new(1.0, 0.0); transducers.len()];
 

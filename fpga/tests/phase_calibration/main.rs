@@ -13,9 +13,22 @@ fn main() {
         Ok(mut de1_soc) => {
             match FPGA::new("REV1CHA") {
                 Ok(mut de0_cv) => {
-                    let help_message = "1: phase--\n2: phase++\n3: prev transducer\n4: next transducer\nq: quit\n";
+                    let help_message = "1: trans-1\r\n2: trans+1\\rn3: phase-1\r\n4: phase+1\r\n 5:phase-10\r\n 6:phase+10\r\n q: quit\r\n";
                     let mut transducer: u8 = 0;
-                    let mut phases: Vec<u8> = vec![0; 256];
+                    // note, this is not most up to date calibration, just the one used before getting our latest one
+                    let mut phases: Vec<u8> = vec![29, 80, 31, 15, 70, 59, 75, 73, 64, 61, 91, 64, 30, 225, 51, 13, 16, 75, 76, 75, 53, 69, 23, 78, 81, 72, 18, 
+                    32, 98, 102, 42, 95, 74, 86, 21, 51, 89, 38, 88, 26, 79, 20, 101, 106, 110, 10, 22, 68, 70, 10, 28, 19, 87, 68, 15, 14, 49, 39, 80, 59, 80, 19, 
+                    59, 92, 178, 44, 75, 110, 67, 63, 24, 85, 28, 11, 79, 31, 93, 50, 24, 40, 79, 23, 75, 27, 106, 87, 74, 69, 93, 15, 21, 67, 11, 31, 13, 85, 86, 
+                    14, 40, 103, 28, 14, 17, 67, 70, 15, 96, 94, 90, 0, 16, 53, 12, 21, 8, 79, 22, 21, 75, 86, 151, 83, 11, 52, 5, 72, 52, 19, 21, 206, 61, 5, 59, 
+                    65, 95, 18, 76, 46, 22, 5, 32, 10, 95, 23, 25, 9, 20, 74, 93, 15, 25, 49, 11, 61, 14, 0, 25, 26, 41, 54, 83, 79, 12, 8, 13, 90, 65, 10, 26, 10, 
+                    90, 90, 34, 12, 14, 19, 93, 90, 102, 34, 86, 23, 38, 76, 97, 43, 0, 80, 23, 82, 105, 64, 13, 45, 0, 98, 6, 6, 71, 77, 57, 24, 178, 8, 98, 45, 
+                    17, 84, 75, 77, 35, 95, 96, 14, 48, 76, 66, 3, 85, 21, 80, 0, 40, 20, 32, 78, 97, 90, 82, 76, 20, 88, 79, 11, 78, 82, 23, 102, 29, 57, 75, 72, 
+                    0, 0, 84, 19, 14, 69, 22, 14, 26, 43, 3, 22, 100, 55];
+                    let zeros = vec![0.0; 128];
+                    de1_soc.set_multi(&zeros, &(0..128).collect::<Vec<u8>>());
+                    de0_cv.set_multi(&zeros, &(0..128).collect::<Vec<u8>>());
+                    de1_soc.set_phase_calibration();
+                    de0_cv.set_phase_calibration();               
                     // Workflow
                     let mut stdout = stdout();
                     //going into raw mode
@@ -36,25 +49,39 @@ fn main() {
                                 modifiers: KeyModifiers::NONE,
                                 //clearing the screen and printing our message
                             }) => {
-                                phases[transducer as usize] = phases[transducer as usize].wrapping_sub(1);
+                                transducer = transducer.wrapping_sub(1);
                             },
                             Event::Key(KeyEvent {
                                 code: KeyCode::Char('2'),
                                 modifiers: KeyModifiers::NONE,
                             }) => {
-                                phases[transducer as usize] = phases[transducer as usize].wrapping_add(1);
+                                transducer = transducer.wrapping_add(1);
                             },
                             Event::Key(KeyEvent {
                                 code: KeyCode::Char('3'),
                                 modifiers: KeyModifiers::NONE,
                             }) => {
-                                transducer = transducer.wrapping_sub(1);
+                                phases[transducer as usize] = phases[transducer as usize].wrapping_sub(1);
                             },
                             Event::Key(KeyEvent {
                                 code: KeyCode::Char('4'),
                                 modifiers: KeyModifiers::NONE,
                             }) => {
-                                transducer = transducer.wrapping_add(1);
+                                phases[transducer as usize] = phases[transducer as usize].wrapping_add(1);
+
+                            },
+                            Event::Key(KeyEvent {
+                                code: KeyCode::Char('5'),
+                                modifiers: KeyModifiers::NONE,
+                            }) => {
+                                phases[transducer as usize] = phases[transducer as usize].wrapping_sub(10);
+                            },
+                            Event::Key(KeyEvent {
+                                code: KeyCode::Char('6'),
+                                modifiers: KeyModifiers::NONE,
+                            }) => {
+                                phases[transducer as usize] = phases[transducer as usize].wrapping_add(10);
+
                             },
                             Event::Key(KeyEvent {
                                 code: KeyCode::Char('q'),
