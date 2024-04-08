@@ -2,7 +2,7 @@ use rev1::board::Board;
 use libftd2xx::{list_devices, DeviceInfo};
 use std::io::{self, Write};
 
-const NUM_TRANSDUCERS = 8
+const NUM_TRANSDUCERS:usize = 256;
 
 fn main() {
 
@@ -18,6 +18,7 @@ fn main() {
                 let flip_frame: Vec<f32> = vec![1.6; NUM_TRANSDUCERS];
                 let mut input = String::new();
                 let mut quit: bool = false;
+                let mut note: u32 = 440;
                 input.clear();
                 println!("1: Send Zeros\n2: Send 180 degrees\n3: Send Calibration Phases\n4: Calibrate\n0: Quit");
                 io::stdout().flush().unwrap();
@@ -29,6 +30,15 @@ fn main() {
                         2 => board.set_frame(&flip_frame),
                         3 => board.set_preset_calibration(),
                         4 => board.calibrate(),
+                        5 => {
+                            note = note.saturating_add(1);
+                            board.modulate(note, true);
+                        }
+                        6 => {
+                            note = note.saturating_sub(1);
+                            board.modulate(note, true);
+                        }
+                        7 => board.modulate(0, false),
                         _ => println!("Input invalid"),
                     }
                     Err(err) => {

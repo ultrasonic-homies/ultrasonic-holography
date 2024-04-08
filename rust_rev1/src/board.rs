@@ -30,6 +30,8 @@ const PHASE_CALIBRATION: [u8; 256] = [69, 90, 69, 64, 83, 76, 82, 85, 69, 70, 90
 79, 74, 55, 75, 83, 53, 65, 83, 67, 53, 79, 59, 69, 52, 62, 59, 62, 64, 80, 69, 76, 74, 50, 86, 80, 55, 68, 66, 52, 108, 56, 63, 79, 73, 0, 0, 76, 
 57, 56, 77, 59, 58, 66, 68, 56, 68, 111, 69];
 const NUM_TRANSDUCERS_PER_FPGA: usize = 128;
+const CARRIER_FREQ: f32 = 40000.0;
+
 pub struct Board {
     fpga0: FPGA,
     fpga1: FPGA,
@@ -124,6 +126,13 @@ impl Board {
         self.set_frame_bytes(&vec![0; NUM_TRANSDUCERS_PER_FPGA * 2]);
         self.fpga0.set_phase_calibration().expect(&format!("calibrate: write timed out for {}", FPGA_0_SERIAL));
         self.fpga1.set_phase_calibration().expect(&format!("calibrate: write timed out for {}", FPGA_1_SERIAL));
+    }
+
+    pub fn modulate(&mut self, freq:u32, enable: bool) {
+        let half_period: u16 = (CARRIER_FREQ / freq as f32 / 2.0).round() as u16;
+        println!("{}, {}", half_period, freq);
+        self.fpga0.modulate(half_period, enable).expect(&format!("modulate: write timed out for {}", FPGA_0_SERIAL));
+        self.fpga1.modulate(half_period, enable).expect(&format!("modulate: write timed out for {}", FPGA_1_SERIAL));
     }
 
     pub fn close(&mut self) {

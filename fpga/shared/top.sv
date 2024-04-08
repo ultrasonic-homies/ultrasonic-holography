@@ -63,7 +63,7 @@ logic [CLK_CNT_W-1:0]   pwm_cnt;
 logic                   pwm_en [NUM_CHANNELS] = '{NUM_CHANNELS {0}};
 logic                   phase_parse_en;
 logic                   phase_calib_en;
-logic [5:0]             mod_half_period;
+logic [15:0]            mod_half_period;
 logic                   mod_enable;
 logic [31:0]            latest_data;
 wire                    sync_pulse;

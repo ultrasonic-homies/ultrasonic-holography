@@ -3,11 +3,11 @@ module modulation (
     input rst,
     input sync,
     input mod_enable,
-    input [5:0] mod_half_period,
+    input [15:0] mod_half_period,
     output mod_out
 );
 
-logic [5:0] sync_counter;
+logic [15:0] sync_counter;
 logic state;
 logic mod;
 

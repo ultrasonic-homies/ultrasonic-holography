@@ -190,8 +190,9 @@ impl FPGA {
         Ok(())
     }
 
-    pub fn global_enable(&mut self, enable: bool) -> Result<(), TimeoutError> {
-        self.ftdev.write_all(&self.cmd(CommandEnum::GlobalEnable, enable as u32))
+    pub fn modulate(&mut self, half_period: u16, enable: bool) -> Result<(), TimeoutError> {
+        let data: u32 = (half_period as u32) << 4 | enable as u32;
+        self.ftdev.write_all(&self.cmd(CommandEnum::GlobalEnable, data))
     }
 
     /** test_read

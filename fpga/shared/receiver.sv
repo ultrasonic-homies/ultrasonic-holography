@@ -11,7 +11,7 @@ module receiver #(parameter
     output logic                phase_calib_en,
     output logic                mod_enable,
     output logic [31:0]         latest_data,
-    output logic [5:0]          mod_half_period,
+    output logic [15:0]         mod_half_period,
     // proto245 Interface
     // RX: Host -> FPGA
     input [7:0]                 rxfifo_data,
@@ -42,7 +42,7 @@ assign txfifo_data = 8'b0;
 logic rxfifo_rd_next;
 logic read_error_next;
 logic mod_enable_next;
-logic [5:0] mod_half_period_next;
+logic [15:0] mod_half_period_next;
 logic phase_parse_en_next;
 logic phase_calib_en_next;
 logic [31:0] latest_data_next;
@@ -110,7 +110,7 @@ always_comb begin
                     end
                     16'h0004: begin // Set Modulation Period
                         cmd_shifter_next    = 'b0;
-                        mod_half_period_next= cmd_data[9:4];
+                        mod_half_period_next= cmd_data[19:4];
                         mod_enable_next     = cmd_data[0];
                         fsm_next = WAIT_E;
                     end

@@ -1,6 +1,6 @@
 module tb_modulation;
 
-logic [5:0] mod_half_period = 'd3;
+logic [15:0] mod_half_period = 'd3;
 logic clk = 0;
 logic rst = 0;
 logic sync = 0;
