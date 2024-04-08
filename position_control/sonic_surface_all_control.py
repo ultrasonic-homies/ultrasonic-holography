@@ -11,7 +11,7 @@ from threading import Thread, Event
 from typing import Optional
 import numpy as np
 
-sonic_surface = False
+sonic_surface = True
 
 def get_time():
     return time.time_ns() * 1e-9
