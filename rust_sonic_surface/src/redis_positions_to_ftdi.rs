@@ -23,6 +23,8 @@ fn print_type_of<T>(_: &T) {
 #[tokio::main]
 async fn main() {
     let mut board = Board::new().unwrap();
+    board.set_preset_calibration();
+    board.calibrate();
     // Connect to Redis
     let pubsub_con = client::pubsub_connect("127.0.0.1", 6379)
         .await
@@ -32,7 +34,7 @@ async fn main() {
         .await
         .expect("Cannot subscribe to topic");
     // Create a broadcast channel to receive messages
-    let hat = Hat::new(256.0, 0.12, false, false);
+    let hat = Hat::new(256.0, 0.172, false, false);
     println!("Ready for position messages");
     while let Some(message) = msgs.next().await {
         match message {
@@ -50,7 +52,7 @@ async fn main() {
                 // let ss_output = convert_to_sonic_surface_output(&phases);
                 // println!("Sending message: {:?}", ss_output);
                 // let processing_dur = start_time.elapsed().unwrap();
-                board.set_frame_soft_calibrated(&phases);
+                board.set_frame(&phases);
                 let t2 = SystemTime::now();
                 // let total_dur = start_time.elapsed().unwrap();
                 // println!("processing time: {:?} s, total time {:?} s", processing_dur.as_secs_f32(), total_dur.as_secs_f32());

@@ -79,23 +79,24 @@ impl Cube {
     }
 }
 fn main() {
+    let sonic_surface: bool = false;
     // let mut hat = Hat::new(256.0, 0.14, false, false);
     let helper_sequence_on: bool = true;
     let client = redis::Client::open("redis://127.0.0.1/").expect("Failed to connect to Redis");
     let mut con = client.get_connection().expect("Failed to establish redis connection");
 
     let time_inc = 0.01;  // secs
-    let cube_start_x = 0.09;   // 5cm
-    let cube_start_y = 0.09;   // 5cm
+    let cube_start_x = if sonic_surface { 0.05} else {0.08};   // m
+    let cube_start_y = if sonic_surface { 0.05} else {0.08};   // 5cm
     let cube_start_z = 0.05;   // 14cm
     let freq = 0.5;
-    let cube = Cube::new((cube_start_x, cube_start_y, cube_start_z), 0.025);
+    let cube = Cube::new((cube_start_x, cube_start_y, cube_start_z), 0.045);
     println!("Original vertices: {:?}", cube.vertices());
     if helper_sequence_on {
-        let loading_x = 0.09;
-        let loading_y = 0.09;
+        let loading_x = if sonic_surface { 0.05} else {0.08}; 
+        let loading_y = if sonic_surface { 0.05} else {0.08}; 
         let loading_z = 0.03;
-        let num_steps = 40;
+        let num_steps = 20;
         println!("Starting helper sequence.");
         let mut current_positions: Vec<(f64, f64, f64)> =  Vec::new();
         for i in 0..cube.vertices().len() {
@@ -121,7 +122,7 @@ fn main() {
                 current_positions_copy.push((curr_x, curr_y, curr_z));
                 let json_string: String = serde_json::to_string(&current_positions_copy).expect("Failed to serialize to JSON");
                 let _: () = con.publish("positions", json_string).unwrap();
-                thread::sleep(time::Duration::from_millis(10));
+                thread::sleep(time::Duration::from_millis(40));
             }
             // add current vertex to current_positions
             current_positions.push((x, y, z));
@@ -152,6 +153,6 @@ fn main() {
 
 
         // Sleep for 10 milliseconds
-        thread::sleep(time::Duration::from_millis(10));
+        thread::sleep(time::Duration::from_millis(100));
     }
 }

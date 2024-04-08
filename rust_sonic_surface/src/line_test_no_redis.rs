@@ -27,8 +27,8 @@ fn main() {
     let mut amplitude= 0.05;
     let mut input = String::new();
     let mut n_oscillations: i32 = 2;
-    let hat_runner: HatRunner = HatRunner::new(256.0, 0.14);
-    let hat_whatever = Hat::new(256.0, 0.12, false, true);
+    let hat_runner: HatRunner = HatRunner::new(256.0, 0.153);
+    let hat_whatever = Hat::new(256.0, 0.172, false, false);
 
 
     loop {
@@ -40,7 +40,7 @@ fn main() {
         let position_vec = vec![point];
         // let position_vec = vec![vec![point]];
         let phases = hat_whatever.run_hat(&position_vec);
-        board.set_frame_soft_calibrated(&phases);
+        board.set_frame(&phases);
         // blank text to start circling 5 times, or w and s to increase and decrease frequency
         // and i and k to increase or decrease number of circles 
         let mut divisions = 360;
@@ -77,7 +77,7 @@ fn main() {
                 println!("Starting to oscillate");
                 for _ in 0..n_oscillations {
                     for phase_vec in &phases_vecs {
-                        board.set_frame_soft_calibrated(&phase_vec);
+                        board.set_frame(&phase_vec);
                         thread::sleep(time::Duration::from_millis((1000.0 * period / divisions as f64) as u64));
                     }
                 }

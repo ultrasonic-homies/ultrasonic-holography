@@ -24,11 +24,11 @@ fn main() {
     let start_z = 0.01;   // 10cm
     let mut freq = 0.5;
     let mut period = 1.0 / freq;
-    let radius = 0.02;
+    let radius = 0.04;
     let mut input = String::new();
     let mut n_circles: i32 = 1;
     let hat_runner: HatRunner = HatRunner::new(256.0, 0.14);
-    let hat_whatever = Hat::new(256.0, 0.12, false, false);
+    let hat_whatever = Hat::new(256.0, 0.172, false, false);
 
 
     loop {
@@ -40,7 +40,7 @@ fn main() {
         let position_vec = vec![point];
         // let position_vec = vec![vec![point]];
         let phases = hat_whatever.run_hat(&position_vec);
-        board.set_frame_soft_calibrated(&phases);
+        board.set_frame(&phases);
 
         print!("Press enter after centering and trapping the particle: ");
         io::stdout().flush().unwrap();
@@ -67,7 +67,7 @@ fn main() {
             phases_vecs.push(phases);
         }
         for phase_vec in phases_vecs {
-            board.set_frame_soft_calibrated(&phase_vec);
+            board.set_frame(&phase_vec);
             thread::sleep(time::Duration::from_millis(10));
         }
 
@@ -107,7 +107,7 @@ fn main() {
                 println!("Starting to circle");
                 for _ in 0..n_circles {
                     for phase_vec in &phases_vecs {
-                        board.set_frame_soft_calibrated(&phase_vec);
+                        board.set_frame(&phase_vec);
                         thread::sleep(time::Duration::from_millis((1000.0 * period / divisions as f64) as u64));
                     }
                 }
