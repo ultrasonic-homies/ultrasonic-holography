@@ -3,7 +3,7 @@ localparam CLK_FREQ           = 10_240_000;
 localparam OUT_FREQ           = 40_000;
 localparam CLK_CNT_MAX        = CLK_FREQ / OUT_FREQ;
 localparam CLK_CNT_W          = $clog2(CLK_CNT_MAX);
-localparam PHASE_JITTER       = 4;
+localparam PHASE_JITTER       = 0;
 
 // proto245 params
 localparam TX_FIFO_SIZE       = 4096;
