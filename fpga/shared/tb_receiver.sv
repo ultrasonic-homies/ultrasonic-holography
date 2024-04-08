@@ -13,7 +13,9 @@ wire read_error;
 wire phase_parse_en;
 wire phase_calib_en;
 wire [31:0] latest_data;
-logic global_enable;
+logic mod_enable;
+logic [5:0] mod_half_period;
+wire mod_out;
 
 // proto245 Interface
 logic [7:0]     rxfifo_data;
@@ -68,7 +70,7 @@ initial begin
     // Write the command for phase data calibration
     rxfifo_data = 'h55; // suffix
     #6;
-    rxfifo_data = 'h23; // data
+    rxfifo_data = 'h00; // data
     #6;
     rxfifo_data = 'h00;
     #6;
@@ -77,6 +79,23 @@ initial begin
     rxfifo_data = 'h00;
     #6;
     rxfifo_data = 'h03; // code
+    #6;
+    rxfifo_data = 'h00; // suffix
+    #6;
+    rxfifo_data = 'hAA; // prefix
+    #6;
+    // Write the command for modulation
+    rxfifo_data = 'h55; // suffix
+    #6;
+    rxfifo_data = 'h01; // data
+    #6;
+    rxfifo_data = 'h05;
+    #6;
+    rxfifo_data = 'h00;
+    #6;
+    rxfifo_data = 'h00;
+    #6;
+    rxfifo_data = 'h04; // code
     #6;
     rxfifo_data = 'h00; // suffix
     #6;

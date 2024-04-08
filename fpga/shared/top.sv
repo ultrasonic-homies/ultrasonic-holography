@@ -64,8 +64,12 @@ logic [CLK_CNT_W-1:0]   pwm_cnt;
 logic                   pwm_en [NUM_CHANNELS] = '{NUM_CHANNELS {0}};
 logic                   phase_parse_en;
 logic                   phase_calib_en;
+logic [5:0]             mod_half_period;
+logic                   mod_enable;
 logic [31:0]            latest_data;
 wire                    sync_pulse;
+wire                    mod_out;
+
 
 /** LOGIC **/
 
@@ -104,7 +108,7 @@ generate
         pwm #(CLK_FREQ, OUT_FREQ) pwm (
             .clk(pwm_clk),
             .rst(pwm_rst),
-            .en(pwm_en[i] & global_enable),
+            .en(pwm_en[i] & mod_out),
             .cnt(pwm_cnt),
             .phase(phases_out[i]),
             .out(trans[i])
@@ -133,7 +137,8 @@ receiver #(
     .read_error,
     .phase_parse_en,
     .phase_calib_en,
-    .global_enable,
+    .mod_enable,
+    .mod_half_period,
     .latest_data,
     // proto245 interface
     // RX: Host -> FPGA
@@ -205,6 +210,15 @@ sync_sender #(
     .sync_pulse,
     .cnt(pwm_cnt),
     .sync_out
+);
+
+modulation modulation(
+    .clk(pwm_clk),
+    .rst(pwm_rst),
+    .sync(sync_out),
+    .mod_enable,
+    .mod_half_period,
+    .mod_out
 );
 
 endmodule: top
