@@ -38,6 +38,8 @@ class MyWidget(QWidget):
         self.last_sent = get_time()
         if sonic_surface:
             self.wait_before_sending = 0.01
+        else:
+            self.wait_before_sending = 1/10000
 
 
     def update_label(self):
@@ -49,7 +51,7 @@ class MyWidget(QWidget):
         # Capture mouse movement event
 
         # Calculate lateral movement translation (x, y)
-        self.board_x = event.x()* (self.side_length / self.width())  # Scale to 0cm-10cm range
+        self.board_x = (self.width() - event.x() )* (self.side_length / self.width())  # Scale to 0cm-10cm range
         self.board_y = (self.height() - event.y()) * (self.side_length / self.height())  # Scale to 0cm-10cm range
         self.update_label()
         self.send_positions()
@@ -57,12 +59,12 @@ class MyWidget(QWidget):
     def send_positions(self):
         # Send board position to Redis
         curr_time = get_time()
-        if sonic_surface: # skip sending if we're on the sonic surface and we're sending too fast
-            if curr_time - self.last_sent < self.wait_before_sending:
-                return
-        dist = 0.001
-        diffs = [[0, dist, 0], [0, -dist, 0], [dist, 0, 0], [-dist, 0, 0]]
-        base_position = [self.board_x/100, self.board_y/100, self.board_z/100]
+        if curr_time - self.last_sent < self.wait_before_sending:
+            return
+        dist = 0.004
+        # diffs = [[0, dist, 0], [0, -dist, 0], [dist, 0, 0], [-dist, 0, 0]]
+        # diffs = [[0, 0, dist], [0, 0, -dist], [dist, 0, 0], [-dist, 0, 0], [0, dist, 0], [0, -dist, 0]]
+        base_position = [self.board_x/100, self.board_y/100, self.board_z/100]  # flipped for rev 1
         # positions = [list(map(sum, zip(base_position, diff))) for diff in diffs]
         positions = [base_position]
         msg_packed = repr(positions).encode('utf-8')
@@ -84,7 +86,7 @@ class MyWidget(QWidget):
         # Capture mouse wheel (scrolling) event
         self.board_z += event.angleDelta().y() * sensitivity   # Assuming each step corresponds to 1 unit of z movement
         # Ensure z coordinate stays within 0cm-10cm range
-        self.board_z = max(0, min(self.side_length, self.board_z))
+        self.board_z = max(0, min(13, self.board_z))
         self.update_label()
         self.send_positions()
 
