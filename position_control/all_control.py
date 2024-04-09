@@ -10,8 +10,9 @@ from enum import Enum
 from threading import Thread, Event
 from typing import Optional
 import numpy as np
+import random
 
-sonic_surface = False
+sonic_surface = True
 
 def get_time():
     return time.time_ns() * 1e-9
@@ -20,6 +21,7 @@ class AppState(Enum):
     MOUSE = 0
     CIRCLE = 1
     LINE = 2
+    RANDOM = 3
 
 class MyWidget(QWidget):
     def __init__(self):
@@ -73,13 +75,16 @@ class MyWidget(QWidget):
 
     def update_label(self):
         if self.state == AppState.MOUSE:
-            self.mode_label.setText(f"Mode (>M/C/L) Tracking (T): {'ON' if self.tracking else 'OFF'}")
+            self.mode_label.setText(f"Mode (>M/C/L/R) Tracking (T): {'ON' if self.tracking else 'OFF'}")
             self.position_label.setText(f"x={self.board_x:.2f}, y={self.board_y:.2f}, z={self.board_z:.2f}")
         elif self.state == AppState.CIRCLE:
-            self.mode_label.setText(f"Mode (M/>C/L)")
+            self.mode_label.setText(f"Mode (M/>C/L/R)")
             self.position_label.setText(f"x={self.board_x:.2f}, y={self.board_y:.2f}, z={self.board_z:.2f}")
         elif self.state == AppState.LINE:
-            self.mode_label.setText(f"Mode (M/C/>L)")
+            self.mode_label.setText(f"Mode (M/C/>L/R)")
+            self.position_label.setText(f"x={self.board_x:.2f}, y={self.board_y:.2f}, z={self.board_z:.2f}")
+        elif self.state == AppState.RANDOM:
+            self.mode_label.setText(f"Mode (M/C/L/>R)")
             self.position_label.setText(f"x={self.board_x:.2f}, y={self.board_y:.2f}, z={self.board_z:.2f}")
 
 
@@ -125,18 +130,32 @@ class MyWidget(QWidget):
         euclidean_distance = ((self.board_x - x) ** 2 + (self.board_y - y) ** 2 + (self.board_z - z) ** 2) ** 0.5
         # divide by 0.1 to get number of steps
         num_steps = int(euclidean_distance / 0.1) * 10
-        for i in range(num_steps):
+        print(num_steps)
+        print(f"Moving from {self.board_x}, {self.board_y}, {self.board_z} to {x}, {y}, {z}")
+        i = 0
+        while i < num_steps and euclidean_distance > 0.0001:
+            # crazy accidental exponential slowing near the end
             self.board_x = self.board_x + i * (x - self.board_x) / num_steps
-            self.board_y = self.board_y + i* (y - self.board_y) / num_steps
-            self.board_z = self.board_z + i* (z - self.board_z) / num_steps
-            self.update_label()
+            self.board_y = self.board_y + i * (y - self.board_y) / num_steps
+            self.board_z = self.board_z + i * (z - self.board_z) / num_steps
+            euclidean_distance = ((self.board_x - x) ** 2 + (self.board_y - y) ** 2 + (self.board_z - z) ** 2) ** 0.5
             self.send_positions()
+            if i % 10 == 0:
+                print(f"{self.board_x}, {self.board_y}, {self.board_z}")
+                print(i)
             time.sleep(0.005)
+            i += 1
+
+        self.update_label()
+
         
     def circle_pattern(self, stop_flag):
+        print("Starting circle pattern")
         while not stop_flag.is_set():
             divisions = 180
             for i in range(divisions):
+                if stop_flag.is_set():
+                    return
                 self.board_x = self.side_length/2 + self.circle_radius * np.cos(i * 2 * np.pi / divisions)
                 self.board_y = self.side_length/2 + self.circle_radius * np.sin(i * 2 * np.pi / divisions)
                 self.update_label()
@@ -144,14 +163,31 @@ class MyWidget(QWidget):
                 time.sleep(0.01)
     
     def line_pattern(self, stop_flag):
+        print("Starting line pattern")
         while not stop_flag.is_set():
             divisions = 100 * 2
             for i in range(divisions):
+                if stop_flag.is_set():
+                    return
                 self.board_x = self.side_length/2 + self.amplitude * np.sin(i * 2 * np.pi / divisions)
                 self.board_y = self.side_length/2
                 self.update_label()
                 self.send_positions()
                 time.sleep(0.01)
+
+    def random_pattern(self, stop_flag):
+        print("Starting random pattern")
+        while True:
+            if stop_flag.is_set():
+                return
+            print("Top of loop")
+            new_x = random.random() * self.side_length
+            new_y = random.random() * self.side_length
+            # clip x and y at 1 and self.side_length - 1
+            new_x = max(2, min(self.side_length - 2, new_x))
+            new_y = max(2, min(self.side_length - 2, new_y))
+            self.move_to(new_x, new_y, self.board_z)
+            time.sleep(0.5)
     
     # keyboard event, turn tracking on and off with t release
     def keyReleaseEvent(self, event):
@@ -176,23 +212,30 @@ class MyWidget(QWidget):
 
             # move to circle start
             self.move_to(self.side_length/2 + self.circle_radius, self.side_length/2, self.board_z)
-            self.stop_flag.clear()
+            self.stop_flag = Event()
             self.thread = Thread(target=self.circle_pattern, args=(self.stop_flag,), daemon=True)
             self.thread.start()
-            self.update_label()
 
         elif event.key() == Qt.Key_L:
-            time.sleep(0.5)
             self.state = AppState.LINE
             self.update_label()
+            time.sleep(0.5)
+
 
             # move to start of line and start sending
             self.move_to(self.side_length/2, self.side_length/2, self.board_z)
-            self.stop_flag.clear()
+            self.stop_flag = Event()
 
             self.thread = Thread(target=self.line_pattern, args=(self.stop_flag,), daemon=True)
             self.thread.start()
+        
+        elif event.key() == Qt.Key_R:
+            self.state = AppState.RANDOM
             self.update_label()
+            time.sleep(0.5)
+            self.stop_flag = Event()
+            self.thread = Thread(target=self.random_pattern, args=(self.stop_flag,), daemon=True)
+            self.thread.start()
 
     
 

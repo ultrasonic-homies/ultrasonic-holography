@@ -64,7 +64,7 @@ fn main() {
     let sonic_surface: bool = false;
     // let mut hat = Hat::new(256.0, 0.14, false, false);
     let mut board = Board::new().unwrap();
-    let hat = Hat::new(256.0, 0.172, sonic_surface, true);
+    let hat = Hat::new(256.0, 0.129, sonic_surface, true);
     board.set_preset_calibration();
     board.calibrate();
     let helper_sequence_on: bool = false;

@@ -19,16 +19,16 @@ fn main() {
     board.calibrate();
 
     let time_inc = 0.01;  // secs
-    let start_x = 0.09;   // 5cm
-    let start_y = 0.09;   // 5cm
-    let start_z = 0.01;   // 10cm
+    let start_x = 0.09;   // cm
+    let start_y = 0.09;
+    let start_z = 0.0086 * 6.0 * 12.0;  
     let mut freq = 0.5;
     let mut period = 1.0 / freq;
-    let radius = 0.04;
+    let radius = 0.05;
     let mut input = String::new();
     let mut n_circles: i32 = 1;
     let hat_runner: HatRunner = HatRunner::new(256.0, 0.14);
-    let hat_whatever = Hat::new(256.0, 0.172, false, false);
+    let hat_whatever = Hat::new(256.0, 0.129, false, false);
 
 
     loop {
@@ -40,6 +40,7 @@ fn main() {
         let position_vec = vec![point];
         // let position_vec = vec![vec![point]];
         let phases = hat_whatever.run_hat(&position_vec);
+        println!("{:?}", phases);
         board.set_frame(&phases);
 
         print!("Press enter after centering and trapping the particle: ");
@@ -79,7 +80,7 @@ fn main() {
             println!("Calculating phases for frequency = {:?}", freq);
             let start_time = SystemTime::now();
             let mut phases_vecs = vec![];
-            let divisions = 360;
+            let divisions = 700;
             for i in 0..divisions {
                 let angle = (i as f32 / divisions as f32) * 2.0 *  PI as f32;
                 let x = start_x + radius * (angle).cos();
@@ -108,7 +109,7 @@ fn main() {
                 for _ in 0..n_circles {
                     for phase_vec in &phases_vecs {
                         board.set_frame(&phase_vec);
-                        thread::sleep(time::Duration::from_millis((1000.0 * period / divisions as f64) as u64));
+                        thread::sleep(time::Duration::from_nanos((1000_000_000.0 * period / divisions as f64) as u64));
                     }
                 }
                 

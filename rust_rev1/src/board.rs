@@ -141,6 +141,22 @@ impl Board {
         self.fpga1.modulate(half_period_1, enable).expect(&format!("modulate_two_notes: write timed out for {}", FPGA_1_SERIAL));
     }
 
+    pub fn modulate_two_boards(&mut self, freq:f32, enable: bool) {
+        let period: u16 = (CARRIER_FREQ / freq as f32 / 2.0).round() as u16;
+
+        if freq < 261.1 {
+            self.fpga0.modulate(period, enable).expect(&format!("modulate_two_boards: write timed out for {}", FPGA_0_SERIAL));
+        } else {
+            self.fpga1.modulate(period, enable).expect(&format!("modulate_two_boards: write timed out for {}", FPGA_1_SERIAL));
+
+        }
+    }
+
+    pub fn shut_up(&mut self) {
+        self.fpga0.modulate(0, true).expect(&format!("shut_up: write timed out for {}", FPGA_0_SERIAL));
+        self.fpga1.modulate(0, true).expect(&format!("shut_up: write timed out for {}", FPGA_1_SERIAL));
+    }
+
     pub fn close(&mut self) {
         self.fpga0.close().unwrap();
         self.fpga1.close().unwrap();

@@ -28,7 +28,7 @@ fn main() {
     let mut input = String::new();
     let mut n_oscillations: i32 = 2;
     let hat_runner: HatRunner = HatRunner::new(256.0, 0.153);
-    let hat_whatever = Hat::new(256.0, 0.172, false, false);
+    let hat_whatever = Hat::new(256.0, 0.129, false, false);
 
 
     loop {

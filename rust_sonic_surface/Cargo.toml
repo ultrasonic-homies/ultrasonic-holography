@@ -106,3 +106,7 @@ path = "src/play_sound.rs"
 [[bin]]
 name = "two_point_juggle"
 path = "src/two_point_juggle.rs"
+
+[[bin]]
+name = "turn_off"
+path = "src/turn_off.rs"
