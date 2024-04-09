@@ -12,22 +12,34 @@ def midi_note_to_name(midi_note):
     note_name = notes[midi_note % 12]
     return f"{note_name}{octave}"
 
+
 def print_notes(filename, r):
     mid = mido.MidiFile(filename)
 
     for msg in mid.play():
         if msg.type == 'note_on':
-            # print(f"Note On: Channel={msg.channel}, Note={msg.note}, Velocity={msg.velocity}")
-            print(note_to_freq(msg.note), midi_note_to_name(msg.note))
             freq = note_to_freq(msg.note)
-            # only play notes above c4
-            if freq > 261.63:
-                r.publish("music", freq)
+
+            # print(f"Note On: Channel={msg.channel}, Note={msg.note}, Velocity={msg.velocity}")
+            # print(note_to_freq(msg.note), midi_note_to_name(msg.note))
+            # we can't play e 5, so bring anything higher down to below e5
+            r.publish("music", f"{freq},true")
         elif msg.type == 'note_off':
-            r.publish("music", 0)
+            freq = note_to_freq(msg.note)
+
+            r.publish("music", f"{freq},false")
 
 if __name__ == '__main__':
-    # midi_file = Path(__file__).resolve().parent / 'bad-apple-melody.mid'  # Replace 'your_midi_file.mid' with the path to your MIDI file
-    midi_file = Path(__file__).resolve().parent / 'river-flows.mid'  # Replace 'your_midi_file.mid' with the path to your MIDI file
+    
+    file = "pokemon2.mid"
+    midi_file = Path(__file__).resolve().parent / file  # Replace 'your_midi_file.mid' with the path to your MIDI file
+    # midi_file = Path(__file__).resolve().parent / 'river-flows.mid'  # Replace 'your_midi_file.mid' with the path to your MIDI file
+    # midi_file = Path(__file__).resolve().parent / 'underground.mid'  # Replace 'your_midi_file.mid' with the path to your MIDI file
+    # midi_file = Path(__file__).resolve().parent / 'green-hill-zone.mid'  # Replace 'your_midi_file.mid' with the path to your MIDI file
+
+    # midi_file = Path(__file__).resolve().parent / 'badapple.mid'  # Replace 'your_midi_file.mid' with the path to your MIDI file
     r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    # turn it off
     print_notes(midi_file, r)
+    r.publish("music", f"{300},false")
+    r.publish("music", f"{200},false")
