@@ -90,9 +90,14 @@ class MyWidget(QWidget):
 
     def mouseMoveEvent(self, event):
         # save the mouse position for when changing back from another mode
+        if sonic_surface:
+            event_x = (event.x()) * (self.side_length / self.width())  # Scale to 0cm-10cm range
+        else:
+            event_x = (self.width() - event.x() )* (self.side_length / self.width())
+        event_y = (self.height() - event.y()) * (self.side_length / self.height())  # Scale to 0cm-10cm range
 
-        self.mouse_x = self.board_x
-        self.mouse_y = self.board_y
+        self.mouse_x = event_x
+        self.mouse_y = event_y
         self.mouse_z = self.board_z
         if not (self.state == AppState.MOUSE and self.tracking):
             return
@@ -101,10 +106,10 @@ class MyWidget(QWidget):
         # Calculate lateral movement translation (x, y)
                 # Calculate lateral movement translation (x, y)
         if sonic_surface:
-            self.board_x = (event.x()) * (self.side_length / self.width())  # Scale to 0cm-10cm range
+            self.board_x = event_x  # Scale to 0cm-10cm range
         else:
-            self.board_x = (self.width() - event.x() )* (self.side_length / self.width())  # Scale to 0cm-10cm range
-        self.board_y = (self.height() - event.y()) * (self.side_length / self.height())  # Scale to 0cm-10cm range
+            self.board_x = event_x  # Scale to 0cm-10cm range
+        self.board_y = event_y # Scale to 0cm-10cm range
 
         self.update_label()
         self.send_positions()
@@ -130,8 +135,8 @@ class MyWidget(QWidget):
         euclidean_distance = ((self.board_x - x) ** 2 + (self.board_y - y) ** 2 + (self.board_z - z) ** 2) ** 0.5
         # divide by 0.1 to get number of steps
         num_steps = int(euclidean_distance / 0.1) * 10
-        print(num_steps)
-        print(f"Moving from {self.board_x}, {self.board_y}, {self.board_z} to {x}, {y}, {z}")
+        # print(num_steps)
+        # print(f"Moving from {self.board_x}, {self.board_y}, {self.board_z} to {x}, {y}, {z}")
         i = 0
         while i < num_steps and euclidean_distance > 0.0001:
             # crazy accidental exponential slowing near the end
@@ -140,10 +145,10 @@ class MyWidget(QWidget):
             self.board_z = self.board_z + i * (z - self.board_z) / num_steps
             euclidean_distance = ((self.board_x - x) ** 2 + (self.board_y - y) ** 2 + (self.board_z - z) ** 2) ** 0.5
             self.send_positions()
-            if i % 10 == 0:
-                print(f"{self.board_x}, {self.board_y}, {self.board_z}")
-                print(i)
-            time.sleep(0.005)
+            # if i % 10 == 0:
+            #     print(f"{self.board_x}, {self.board_y}, {self.board_z}")
+            #     print(i)
+            time.sleep(0.01)
             i += 1
 
         self.update_label()
@@ -180,14 +185,14 @@ class MyWidget(QWidget):
         while True:
             if stop_flag.is_set():
                 return
-            print("Top of loop")
+            # print("Top of loop")
             new_x = random.random() * self.side_length
             new_y = random.random() * self.side_length
             # clip x and y at 1 and self.side_length - 1
             new_x = max(2, min(self.side_length - 2, new_x))
             new_y = max(2, min(self.side_length - 2, new_y))
             self.move_to(new_x, new_y, self.board_z)
-            time.sleep(0.5)
+            time.sleep(0.1)
     
     # keyboard event, turn tracking on and off with t release
     def keyReleaseEvent(self, event):
