@@ -94,3 +94,15 @@ path = "src/line_test_no_redis.rs"
 [[bin]]
 name = "main"
 path = "src/main.rs"
+
+[[bin]]
+name = "midi_out"
+path = "src/midi_out.rs"
+
+[[bin]]
+name = "play_sound"
+path = "src/play_sound.rs"
+
+[[bin]]
+name = "two_point_juggle"
+path = "src/two_point_juggle.rs"

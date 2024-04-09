@@ -51,7 +51,10 @@ class MyWidget(QWidget):
         # Capture mouse movement event
 
         # Calculate lateral movement translation (x, y)
-        self.board_x = (self.width() - event.x() )* (self.side_length / self.width())  # Scale to 0cm-10cm range
+        if sonic_surface:
+            self.board_x = (event.x()) * (self.side_length / self.width())  # Scale to 0cm-10cm range
+        else:
+            self.board_x = (self.width() - event.x() )* (self.side_length / self.width())  # Scale to 0cm-10cm range
         self.board_y = (self.height() - event.y()) * (self.side_length / self.height())  # Scale to 0cm-10cm range
         self.update_label()
         self.send_positions()

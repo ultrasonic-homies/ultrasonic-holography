@@ -86,15 +86,15 @@ fn main() {
     let mut con = client.get_connection().expect("Failed to establish redis connection");
 
     let time_inc = 0.01;  // secs
-    let cube_start_x = if sonic_surface { 0.05} else {0.08};   // m
-    let cube_start_y = if sonic_surface { 0.05} else {0.08};   // 5cm
+    let cube_start_x = if sonic_surface { 0.05} else {0.089};   // m
+    let cube_start_y = if sonic_surface { 0.05} else {0.089};   // 5cm
     let cube_start_z = 0.05;   // 14cm
     let freq = 0.5;
     let cube = Cube::new((cube_start_x, cube_start_y, cube_start_z), 0.045);
     println!("Original vertices: {:?}", cube.vertices());
     if helper_sequence_on {
-        let loading_x = if sonic_surface { 0.05} else {0.08}; 
-        let loading_y = if sonic_surface { 0.05} else {0.08}; 
+        let loading_x = if sonic_surface { 0.05} else {0.089}; 
+        let loading_y = if sonic_surface { 0.05} else {0.089}; 
         let loading_z = 0.03;
         let num_steps = 20;
         println!("Starting helper sequence.");

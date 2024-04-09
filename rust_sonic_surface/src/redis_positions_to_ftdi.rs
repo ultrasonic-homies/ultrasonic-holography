@@ -14,6 +14,7 @@ use hat::Point;
 use serial_port_helper::{choose_serial_port, list_serial_ports};
 use sonic_surface::convert_to_sonic_surface_output;
 use rev1::board::Board;
+use std::time::Duration;
 
 
 fn print_type_of<T>(_: &T) {
@@ -48,12 +49,14 @@ async fn main() {
                     serde_json::from_str(&msg).expect("Failed to parse JSON");
                 // println!("Received control points: {:?}", control_points);
                 let phases: Vec<f32> = hat.run_hat(&control_points);
-                let t1 = SystemTime::now();
+                // let t1 = SystemTime::now();
                 // let ss_output = convert_to_sonic_surface_output(&phases);
                 // println!("Sending message: {:?}", ss_output);
                 // let processing_dur = start_time.elapsed().unwrap();
                 board.set_frame(&phases);
-                let t2 = SystemTime::now();
+                // sleep for 1/10000th of second
+                // thread::sleep(time::Duration::from_micros(100));
+                // let t2 = SystemTime::now();
                 // let total_dur = start_time.elapsed().unwrap();
                 // println!("processing time: {:?} s, total time {:?} s", processing_dur.as_secs_f32(), total_dur.as_secs_f32());
                 //print the time received

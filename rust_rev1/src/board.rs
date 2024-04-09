@@ -128,8 +128,8 @@ impl Board {
         self.fpga1.set_phase_calibration().expect(&format!("calibrate: write timed out for {}", FPGA_1_SERIAL));
     }
 
-    pub fn modulate(&mut self, freq:u32, enable: bool) {
-        let half_period: u16 = (CARRIER_FREQ / freq as f32 / 2.0).round() as u16;
+    pub fn modulate(&mut self, freq:f32, enable: bool) {
+        let half_period: u16 = (CARRIER_FREQ / freq / 2.0).round() as u16;
         self.fpga0.modulate(half_period, enable).expect(&format!("modulate: write timed out for {}", FPGA_0_SERIAL));
         self.fpga1.modulate(half_period, enable).expect(&format!("modulate: write timed out for {}", FPGA_1_SERIAL));
     }

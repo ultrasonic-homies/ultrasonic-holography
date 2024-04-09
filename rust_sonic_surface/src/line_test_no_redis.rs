@@ -21,7 +21,7 @@ fn main() {
 
     let start_x = 0.089;   // 5cm
     let start_y = 0.089;   // 5cm
-    let start_z = 0.005;   // 14cm
+    let start_z = 0.001;   // 14cm
     let mut freq = 0.5;
     let mut period = 1.0 / freq;
     let mut amplitude= 0.05;
