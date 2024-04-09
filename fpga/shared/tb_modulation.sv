@@ -3,7 +3,6 @@ module tb_modulation;
 logic [15:0] mod_half_period = 'd3;
 logic clk = 0;
 logic rst = 0;
-logic sync = 0;
 logic mod_enable = 0;
 wire mod_out;
 modulation dut(.*);
@@ -20,7 +19,7 @@ initial begin
     assert(mod_out == 0);
     #24;
     assert(mod_out == 1);
-    #2;
+    #24;
     // Test Enable
     mod_enable = 0;
     #2;
@@ -39,14 +38,17 @@ initial begin
     assert(mod_out == 0);
     #48;
     assert(mod_out == 1);
+    // Test global disable
+    mod_half_period = 'd0;
+    #2;
+    assert(mod_out == 0);
+    mod_enable = 0;
+    #2;
+    assert(mod_out == 1);
 end
 
 initial begin
     forever #1 clk = !clk;
-end
-
-initial begin
-    forever #4 sync = !sync;
 end
 
 endmodule: tb_modulation
