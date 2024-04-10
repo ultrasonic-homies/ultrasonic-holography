@@ -14,10 +14,10 @@ fn main() {
     let time_inc = 0.01;  // secs
     let start_x = 0.08;   // 5cm
     let start_y = 0.08;   // 5cm
-    let start_z = 0.02;   // 10cm
+    let start_z = 0.04;   // 10cm
     let mut freq = 0.5;
     let mut period = 1.0 / freq;
-    let radius = 0.02;
+    let radius = 0.025;
     let mut input = String::new();
     let mut n_circles: i32 = 1;
 
@@ -48,7 +48,7 @@ fn main() {
             let json_string: String = serde_json::to_string(&position_vec).expect("Failed to serialize to JSON");
             let _: () = redis_con.publish("positions", json_string).unwrap();
             let curr_time = SystemTime::now();
-            println!("Sent position: at time: {:?}", curr_time);
+            // println!("Sent position: at time: {:?}", curr_time);
             thread::sleep(time::Duration::from_millis(10));
         }
 
@@ -63,9 +63,9 @@ fn main() {
             period = 1.0 / freq;
             if input.trim() == "" {
                 println!("Starting to circle");
-                for _ in 0..n_circles {
+                loop {
                     // output a circle of positions at frequency, e.g. 0.5 hz should 2 seconds per circle
-                    let divisions = 360;
+                    let divisions = 720;
                     for i in (0..divisions) {
                         let angle = (i as f64 / divisions as f64) * 2.0 *  PI;
                         let x = start_x + radius * (angle).cos();
@@ -81,8 +81,8 @@ fn main() {
                         let json_string: String = serde_json::to_string(&position_vec).expect("Failed to serialize to JSON");
                         let _: () = redis_con.publish("positions", json_string).unwrap();
                         let curr_time = SystemTime::now();
-                        println!("Sent position: at time: {:?}", curr_time);
-                        thread::sleep(time::Duration::from_millis((1000.0 * period / divisions as f64) as u64));
+                        // println!("Sent position: at time: {:?}", curr_time);
+                        thread::sleep(time::Duration::from_micros((1000000.0 * period / divisions as f64) as u64));
                     }
                 }
             }

@@ -19,7 +19,7 @@ bpy.ops.object.delete()
 # Define the dimensions of the array
 sonic_surface = False
 n_transducers = 10 if sonic_surface else 16
-spacing = 10/1000 if sonic_surface else 11.26/1000 # Adjust this to control the spacing between cylinders
+spacing = 10/1000 if sonic_surface else 11.2/1000 # Adjust this to control the spacing between cylinders
 
 # Create a cylinder template
 
@@ -75,7 +75,11 @@ def use_locations_from_queue():
         num_locations = len(locations)
         max_locations = max(max_locations, num_locations)
         for index, location in enumerate(locations):
-            location = [location[0], location[1], location[2]]
+
+            if not sonic_surface:
+                location = [17.8/100- location[0], location[1], location[2]]
+            else:
+                location = [location[0], location[1], location[2]]
             name = "sphere_" + str(index)
             if obj:= bpy.context.scene.objects.get(name):
                 obj.location = location

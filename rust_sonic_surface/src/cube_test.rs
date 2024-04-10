@@ -122,7 +122,7 @@ fn main() {
                 current_positions_copy.push((curr_x, curr_y, curr_z));
                 let json_string: String = serde_json::to_string(&current_positions_copy).expect("Failed to serialize to JSON");
                 let _: () = con.publish("positions", json_string).unwrap();
-                thread::sleep(time::Duration::from_millis(40));
+                thread::sleep(time::Duration::from_millis(1000));
             }
             // add current vertex to current_positions
             current_positions.push((x, y, z));

@@ -12,8 +12,7 @@ from typing import Optional
 import numpy as np
 import random
 
-sonic_surface = True
-
+sonic_surface = False
 def get_time():
     return time.time_ns() * 1e-9
 
