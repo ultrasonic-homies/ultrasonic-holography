@@ -1,0 +1,1520 @@
+*drive_select_vio.lib
+.lib drive_max
+.prot
+.param rngateextra = vc
+.param rp7 = vc
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = vc
+.param rn6 = vc
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_12_2ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_12_4ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = 0
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_12_6ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_12_8ma
+.prot
+.param rngateextra = 0
+.param rp7 = vc
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = 0
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_12_10ma
+.prot
+.param rngateextra = 0
+.param rp7 = vc
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = vc
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_12_12ma
+.prot
+.param rngateextra = 0
+.param rp7 = vc
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = vc
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_15_2ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = vc
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = 0
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_15_4ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_15_6ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_15_8ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = 0
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_15_10ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_15_12ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = vc
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_15_16ma
+.prot
+.param rngateextra = 0
+.param rp7 = vc
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = vc
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_18_2ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = 0
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = 0
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_18_4ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = 0
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_18_6ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = 0
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_18_8ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_18_10ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = 0
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = vc
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_18_12ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = 0
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_18_16ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = 0
+.param rp1 = 0
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_25_4ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = vc
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = 0
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_25_8ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_25_12ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = 0
+.param rp1 = 0
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_25_16ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = vc
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = 0
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_30ttl_4ma
+.prot
+.param rngateextra = vc
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_30ttl_8ma
+.prot
+.param rngateextra = vc
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_30ttl_12ma
+.prot
+.param rngateextra = vc
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_30ttl_16ma
+.prot
+.param rngateextra = vc
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = 0
+.param rp1 = 0
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_30cmos_4ma
+.prot
+.param rngateextra = vc
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_30cmos_8ma
+.prot
+.param rngateextra = vc
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = 0
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_30cmos_12ma
+.prot
+.param rngateextra = vc
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = 0
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_30cmos_16ma
+.prot
+.param rngateextra = vc
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_sstl2c2_16ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_sstl2c1_8ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_sstl2c1_12ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = 0
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_sstl18c2_12ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_sstl18c2_16ma
+.prot
+.param rngateextra = 0
+.param rp7 = vc
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_sstl18c1_8ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_sstl18c1_10ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_sstl18c1_12ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = 0
+.param rp1 = 0
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_hstl18_8ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = vc
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = 0
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_hstl18_10ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_hstl18_12ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_hstl18_16ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_hstl15_8ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = 0
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_hstl15_10ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = vc
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = 0
+.param rn1 = vc
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_hstl15_12ma
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = 0
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_hstl15_16ma
+.prot
+.param rngateextra = 0
+.param rp7 = vc
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = 0
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_hstl12_8ma
+.prot
+.param rngateextra = 0
+.param rp7 = vc
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = 0
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_hstl12_10ma
+.prot
+.param rngateextra = 0
+.param rp7 = vc
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = vc
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_hstl12_12ma
+.prot
+.param rngateextra = 0
+.param rp7 = vc
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = vc
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_hstl12_14ma
+.prot
+.param rngateextra = 0
+.param rp7 = vc
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = vc
+.param rn6 = vc
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_30_oct_50
+.prot
+.param rngateextra = vc
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_30_oct_25
+.prot
+.param rngateextra = vc
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_25_oct_50
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_25_oct_25
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_18_oct_50
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = vc
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_18_oct_25
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_15_oct_50
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_15_oct_25
+.prot
+.param rngateextra = 0
+.param rp7 = vc
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_12_oct_50
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_12_oct_25
+.prot
+.param rngateextra = 0
+.param rp7 = vc
+.param rp6 = vc
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = vc
+.param rn6 = 0
+.param rn5 = vc
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = vc
+.unprot
+.endl
+*
+.lib p_pci
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = vc
+.param rp4 = vc
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = vc
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_33ttl_4ma
+.prot
+.param rngateextra = vc
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = 0
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_33ttl_8ma
+.prot
+.param rngateextra = vc
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = vc
+.param rp3 = 0
+.param rp2 = vc
+.param rp1 = 0
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_33cmos_2ma
+.prot
+.param rngateextra = vc
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = vc
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = 0
+.param rn2 = vc
+.param rn1 = vc
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_diff_3_resistor
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = vc
+.param rp5 = vc
+.param rp4 = 0
+.param rp3 = 0
+.param rp2 = 0
+.param rp1 = 0
+.param rp0 = 0
+.param rn7 = 0
+.param rn6 = vc
+.param rn5 = 0
+.param rn4 = vc
+.param rn3 = 0
+.param rn2 = 0
+.param rn1 = 0
+.param rn0 = 0
+.unprot
+.endl
+*
+.lib p_diff_1_resistor
+.prot
+.param rngateextra = 0
+.param rp7 = 0
+.param rp6 = 0
+.param rp5 = 0
+.param rp4 = 0
+.param rp3 = vc
+.param rp2 = 0
+.param rp1 = vc
+.param rp0 = vc
+.param rn7 = 0
+.param rn6 = 0
+.param rn5 = 0
+.param rn4 = 0
+.param rn3 = vc
+.param rn2 = 0
+.param rn1 = vc
+.param rn0 = 0
+.unprot
+.endl
+*
+

@@ -1,0 +1,100 @@
+***** Spice Revision Log
+* Rev: 1.0   Thu May 24 11:16:00 PDT 2007   
+* Initial release C4 Loading for various IO standards.
+* Incorporated Revision Logging
+*
+* IO_load.lib
+* Selects loading condition for various IO standards
+*
+.lib pci
+.param loadcap=10e-12
+.endl
+*
+.lib ttl
+.param loadcap=10e-12
+.endl
+*
+.lib sstl2_class1
+.param loadcap=7e-12
+.param rseries=25
+.param rt1=99999999
+.param rt2=50
+.endl
+*
+.lib sstl2_class2
+.param loadcap=7e-12
+.param rseries=25
+.param rt1=50
+.param rt2=50
+.endl
+*
+.lib sstl18_class1
+.param loadcap=7e-12
+.param rseries=25
+.param rt1=999999999
+.param rt2=50
+.endl
+*
+.lib sstl18_class2
+.param loadcap=7e-12
+.param rseries=25
+.param rt1=50
+.param rt2=50
+.endl
+*
+.lib hstl18_class1
+.param loadcap=7e-12
+.param rt1=999999999
+.param rt2=50
+.endl
+*
+.lib hstl18_class2
+.param loadcap=7e-12
+.param rt1=50
+.param rt2=50
+.endl
+*
+.lib hstl15_class1
+.param loadcap=7e-12
+.param rt1=999999999
+.param rt2=50
+.endl
+*
+.lib hstl15_class2
+.param loadcap=7e-12
+.param rt1=50
+.param rt2=50
+.endl
+*
+.lib hstl12_class1
+.param loadcap=7e-12
+.param rt1=999999999
+.param rt2=50
+.endl
+*
+.lib hstl12_class2
+.param loadcap=7e-12
+.param rt1=50
+.param rt2=50
+.endl
+*
+.lib oct_rs_25ohm
+.param loadcap=5e-12
+.param rt1=50
+.param rt2=50
+.endl
+*
+.lib oct_rs_50ohm
+.param loadcap=5e-12
+.param rt1=999999999
+.param rt2=50
+.endl
+*
+.lib oct_rt_25ohm
+.param rt1=50
+.endl
+*
+.lib oct_rt_50ohm
+.param rt1=999999999
+.endl
+*

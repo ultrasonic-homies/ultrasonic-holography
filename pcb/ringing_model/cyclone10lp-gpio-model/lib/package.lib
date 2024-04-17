@@ -1,0 +1,44 @@
+***********************************************************************************
+*Package models:
+*
+*This library automatically inserts a package model into the spice deck calling it
+*between nodes pkg_die and pkg_board.  Users can connect to these nodes by using
+*dummy resistors of value 0.001 ohms.
+
+***********************************************************************************
+* EPSR15_Q148 Feasibility Package Model Trace - Die Pad to Ball - Generic for all IOs
+* Generic wire and trace total length set at 3.3mm
+***********************************************************************************
+.lib pkg_EPSR15_Q148
+.subckt PKG_Q148 pkg_die pkg_board
+.prot
+Wpkg      N=1  L=0.0033  RLGCMODEL=pkg_model  pkg_die 0 pkg_board 0
+.model pkg_model  w modeltype=rlgc, n=1 
++ Lo = 0.00000089
++ Co = 0.00000000025
++ Ro = 60.0
++ Go = 0
++ Rs = 0.03
++ Gd = 0
+.unpr
+.ends
+.endl
+***********************************************************************************
+* EPSR15_F169 Feasibility Package Model Trace - Die Pad to Ball - Generic for all IOs
+* Generic wire and trace total length set at 6.0mm
+***********************************************************************************
+.lib pkg_EPSR15_F169
+.subckt PKG_F169 pkg_die pkg_board
+.prot
+Wpkg      N=1  L=0.006  RLGCMODEL=pkg_model  pkg_die 0 pkg_board 0
+.model pkg_model  w modeltype=rlgc, n=1 
++ Lo = 0.00000075
++ Co = 0.0000000001
++ Ro = 50.0
++ Go = 0
++ Rs = 0.03
++ Gd = 0
+.unpr
+.ends
+.endl
+

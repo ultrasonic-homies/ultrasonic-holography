@@ -1,0 +1,27 @@
+*drive_select_LVDS.lib
+.lib enable_pre_emphasis
+.prot
+.param ra3 = 0
+.param ra2 = 0
+.param ra1 = 0
+.param ra0 = vc
+.param rb3 = 0
+.param rb2 = vc
+.param rb1 = 0
+.param rb0 = 0
+.unprot
+.endl
+*
+.lib disable_pre_emphasis
+.prot
+.param ra3 = 0
+.param ra2 = vc
+.param ra1 = vc
+.param ra0 = vc
+.param rb3 = 0
+.param rb2 = vc
+.param rb1 = 0
+.param rb0 = 0
+.unprot
+.endl
+*
