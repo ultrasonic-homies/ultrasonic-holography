@@ -1,0 +1,4 @@
+*.inc linguist-vendored
+*.lib linguist-vendored
+*.sp linguist-vendored
+*.ipynb linguist-vendored
