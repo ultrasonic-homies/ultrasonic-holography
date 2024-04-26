@@ -85,7 +85,10 @@ To run these, just cd into `rust_sonic_surface` and run
 
 ## Haptic feedback
 
-Haptic feedback was achieved by just running one of the mouse control setups and setting the height to around 2.5cm. It worked on Sonic Surface, but it was much stronger on the rev 1 board. The best results were when the hand was placed palm-up on the ground under the board. Moving the mouse resulted in a slight tingly/static-y feeling for the hand. Modulating the frequency down to something lower might increase the sensation, we should try it out.
+Haptic feedback was achieved by just running one of the mouse control setups and setting the height to around 2.5cm. It worked on Sonic Surface, but it was much stronger on the rev 1 board. The best results were when the hand was placed palm-up on the ground under the board. Moving the mouse resulted in a slight tingly/static-y feeling for the hand.
+
+On the rev 1 board, the haptic feedback gets even stronger if you modulate the ultrasound to turn on and off at a lower frequency (e.g. 200 Hz).
+This is done by setting the `haptic_feedback` boolean to true at the top of `redis_positions_to_ftdi.rs`. In summary, that script with the boolean set to true + one of the python scripts that lets you move the trap with the mouse = strongest haptic feedback.
 
 
 ## Playing music (Rev 1 board only)

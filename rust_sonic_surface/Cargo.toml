@@ -100,8 +100,8 @@ name = "midi_out"
 path = "src/midi_out.rs"
 
 [[bin]]
-name = "play_sound"
-path = "src/play_sound.rs"
+name = "play_midi"
+path = "src/play_midi.rs"
 
 [[bin]]
 name = "two_point_juggle"

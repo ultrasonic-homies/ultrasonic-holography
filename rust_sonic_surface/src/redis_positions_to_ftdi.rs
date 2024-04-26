@@ -21,9 +21,16 @@ fn print_type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
 }
 
+
 #[tokio::main]
 async fn main() {
+    let haptic_feedback: bool = false;
     let mut board = Board::new().unwrap();
+    // if doing haptic feedback, setting board to 200 hz helps a lot
+    if haptic_feedback {
+        board.modulate(200.0, true);
+    }
+    board.modulate(200.0, true);
     board.set_preset_calibration();
     board.calibrate();
     // Connect to Redis

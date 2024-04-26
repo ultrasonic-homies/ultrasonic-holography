@@ -31,7 +31,7 @@ def print_notes(filename, r):
 
 if __name__ == '__main__':
     
-    file = "pokemon2.mid"
+    file = "megalovania.mid"
     midi_file = Path(__file__).resolve().parent / file  # Replace 'your_midi_file.mid' with the path to your MIDI file
     # midi_file = Path(__file__).resolve().parent / 'river-flows.mid'  # Replace 'your_midi_file.mid' with the path to your MIDI file
     # midi_file = Path(__file__).resolve().parent / 'underground.mid'  # Replace 'your_midi_file.mid' with the path to your MIDI file
