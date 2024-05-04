@@ -8,6 +8,193 @@ software written in Rust/Python.
 
 # 1. Hardware Setup
 
+## Assembly
+
+
+## Transducer Polarity Test
+
+The polarity marked on the bottom of the transducers are often unreliable. Instead, test for the polarity and ensure that the polarity is consistent. This reduces the amount of calibration required in the next step.
+
+### Simple Transducer Polarity Test
+
+Equipment:
+- Multimeter
+
+Instructions
+- Set the multimeter to voltage mode at 100mV.
+- Touch the negative probe of the multimeter to the unmarked leg of a transducer. Then, touch the positive probe to the marked leg.
+- The voltage reading should temporarily spike either to a positive or negative value.
+- If the voltage is positive, the marked leg is the positive input. Otherwise, the marked leg is the negative input.
+
+## Calibration
+
+Due to wide manufacturing tolerances, there is a lot of variability between each transducer. We have built in a calibration function in our hardware layer. See: [Function](https://www.github.com/ultrasonic-homies/ultrasonic-holography/blob/6c5b075/rust_rev1/src/fpga.rs#L188) or in repo
+[Function](rust_rev1/src/fpga.rs#L188)
+
+### Suggested Calibration Instructions
+
+Prerequisites
+
+- Rev 1 board is working
+
+Equipment
+
+- 2-Channel Oscilloscope
+- Spare transducer
+
+Instructions
+
+- Have Rev 1 up and running
+- Probe both legs of a spare transducer on one oscilloscope channel
+- Probe the "SYNC" breakout point on the other channel and use this as the trigger
+- Run test script
+```bash
+cd fpga/tests/phase_calibration
+cargo run
+```
+- Place the spare transducer directly in front of transducer 0 on the board (top left corner with respect to PCB logo)
+- Use test script command line interface to adjust the phase
+- Once you exit the script, the calibration values will be printed. Each transducer has a calibration with a value between 0 and 255.
+- Copy and paste this array into `PHASE_CALIBRATION` in `rust_rev1/board.rs`
+- Now, calling `set_preset_calibration()` followed by `calibrate()` will save the calibration into hardware. (See `/rust_rev1/board.rs`)
+
+## Generating Quartus Project
+
+The Quartus project (including `.qpf` file) is configured in the `.tcl` file, and is generated with the shell script `create_proj.sh`
+
+```bash
+cd ultrasonic_holography/fpga/<your fpga>
+./create_proj.sh
+```
+
+To clean the repository of Quartus project files, run `clean.sh`
+
+```bash
+cd ultrasonic_holography/fpga/<your fpga>
+./clean.sh
+```
+
+## Changing Pin Assignments
+
+We use the "Import Assignments" feature to assign our pins. Specifically, we import from `.qsf` files, which use the `TCL` language to specify pin assignments. To change pin assignments:
+
+- Remove the existing pin assignments
+    - Assignments -> Remove Assignments
+![remove_assignments](pictures/readme_remove_assignments.png)
+- Import the assignments from your `.qsf` file.
+    - Assignments -> Import Assignments
+![pin_assignments](pictures/readme_pin_assignments.png)
+
+### Generating `.qsf` Pinout Files
+We created a script that converts the Altium CSV pinouts to a `.qsf` file that can be imported to Quartus.
+
+Instructions
+- Place your CSV file in the `\fpga\scripts\` folder
+- Ensure that the net conversion is configured correctly in `net_name_map.py`
+- Ensure that the input and output paths are configured correctly in `altium_csv_to_qsf.py`
+- Run the following:
+```bash
+cd fpga/scripts
+python altium_csv_to_qsf.py
+```
+## Compiling Quartus Project
+
+These steps are essential to compiling your Quartus project.
+
+- Correct header file is included in [top.sv](/fpga/shared/top.sv#L27)
+- Pins are assigned
+- Files are included in your project
+    - Project -> "Add/Remove Files in Project..."
+    ![quartus_files](pictures/readme_quartus_files.png)
+
+Once compiled, you will obtain a `.sof` configuration file in your `output_files` folder.
+
+## Programming FPGA
+
+The FPGA does not have persistent memory on its own. You can either program it each time on stastup, or use a configuration device, like the EPCQ16A, to load the program onto the FPGA on power-up.
+
+### One-time Program
+
+Equipment
+- USB Blaster Cable
+- PC with `.sof` file
+
+Instructions
+- Attach the Blaster cable to the PC
+- With the Rev 1 Board powered down, attach the Blaster cable to the Primary JTAG header
+- Power on the Rev 1 Board
+- In the Quartus Programmer (Tools -> Programmer):
+    - Select the USB Blaster in Hardware Setup
+    ![programming_blaster](pictures/readme_programming_blaster.png)
+    - Delete all existing files loaded into the Programmer
+    ![programming_delete](pictures/readme_programming_delete.png)
+    - Add your `.sof` file
+    - Check the Program/Configure box
+    ![programming_checkbox](pictures/readme_programming_checkbox.png)
+    - Click Start
+
+### Persistent Program
+
+Equipment
+- USB Blaster Cable
+    - Ensure that you have a Terasic or Quartus official Blaster cable!
+- PC with `.sof` file
+
+Instructions
+
+- Go to File -> "Convert Programming Files..."
+    ![programming_convert](pictures/readme_programming_convert.png)
+- Click "Open Conversion Setup Data..." and locate [`/fpga/cyclone10_lp/jic_conversion_setup.cof`](/fpga/cyclone10_lp/jic_conversion_setup.cof)
+    ![programming_import](pictures/readme_programming_import.png)
+- Check that the correct `.sof` program is specified
+    ![programming_jic](pictures/readme_programming_jic.png)
+- Click "Generate", which should generate a `.jic` file in your `output_files` folder
+- Attach the Blaster cable to the PC
+- With the Rev 1 Board powered down, attach the Blaster cable to the Primary JTAG header
+- Power on the Rev 1 Board
+- In the Quartus Programmer (Tools -> Programmer):
+    - Select the USB Blaster in Hardware Setup
+    ![programming_blaster](pictures/readme_programming_blaster.png)
+    - Delete all existing files loaded into the Programmer
+    ![programming_delete](pictures/readme_programming_delete.png)
+    - Add your `.sof` file
+    - Check the Program/Configure box
+    ![programming_jic_2](pictures/readme_programming_jic_2.png)
+    - Click Start
+
+## First Time FT2232H Setup
+
+The FT2232H by default is a USB to UART device. However, it can be configured by an EEPROM device on power-on to be an FT245 protocol device, which is required for the operation of the Rev 1 Board. The FTDI company provides utilities to program the EEPROM through USB. Due to the persistent nature of the EEPROM, this only needs to be done once.
+
+Equipment
+- Functioning Rev 1 Board
+- PC and USB Cable
+
+Instructions
+
+- Download FT_Prog EEPROM utility by FTDI [here](https://ftdichip.com/utilities/)
+- Connect FT2232H device to PC via USB, ensuring that VCCIO pins are powered
+- Load the template in [`ft2232h\ft_prog_dual_fifo.xml`](ft2232h\ft_prog_dual_fifo.xml)
+![step2](pictures/readme_ftdi_step2.png)
+- Scan and parse for the device.
+![step3](pictures/readme_ftdi_step3.png)
+- The device should appear in the Device Tree. Note the EEPROM type.
+![step4](pictures/readme_ftdi_step4.png)
+- Right-click the device and apply the template
+![step5](pictures/readme_ftdi_step5.png)
+- Program the device using the button with the lightning icon
+
+Now, you have written the configuration into EEPROM and the FT2232H should be configured correctly on power-up.
+
+### Explanation of Template
+USB Config Descriptor -> USB Powered
+- Device is powered through USB port. Either is possible with the FT2232H though.
+
+Hardware Specific -> Port A/B -> Hardware -> 245 FIFO
+- Parallel FIFO mode. FT2232H supports async dual channel, but only sync for channel A.
+
+Hardware Specific -> Port A/B -> Driver -> D2XX Direct
+- Use D2XX driver with its C DLL instead of the COM port. This is necessary for synchronous mode, but optional for async. D2XX has wrappers in Python and Rust.
 
 # 2. Software Setup
 To fully run our system, you need Rust, Python and Blender installed. To run a less complex (and possibly faster) version of our system, you only need Rust. The versions we used were Python 3.9.13 and Rust 1.74.0, but we shouldn't have any packages that depend on these specific versions.
