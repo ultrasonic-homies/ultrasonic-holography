@@ -6,6 +6,38 @@ This project features a 10-layer PCB with 16x16 transducers, 2 Intel Cyclone FPG
 software written in Rust/Python. 
 
 
+Table of contents:
+- [1. Hardware Setup](#1-hardware-setup)
+  * [Assembly](#assembly)
+  * [Transducer Polarity Test](#transducer-polarity-test)
+    + [Simple Transducer Polarity Test](#simple-transducer-polarity-test)
+  * [Calibration](#calibration)
+    + [Suggested Calibration Instructions](#suggested-calibration-instructions)
+  * [Generating Quartus Project](#generating-quartus-project)
+  * [Changing Pin Assignments](#changing-pin-assignments)
+    + [Generating `.qsf` Pinout Files](#generating--qsf--pinout-files)
+  * [Compiling Quartus Project](#compiling-quartus-project)
+  * [Programming FPGA](#programming-fpga)
+    + [One-time Program](#one-time-program)
+    + [Persistent Program](#persistent-program)
+  * [First Time FT2232H Setup](#first-time-ft2232h-setup)
+    + [Explanation of Template](#explanation-of-template)
+- [2. Software Setup](#2-software-setup)
+  * [Levitation](#levitation)
+    + [Redis](#redis)
+    + [Rust phase solver](#rust-phase-solver)
+    + [Blender](#blender)
+    + [Position sending](#position-sending)
+      - [Python options:](#python-options-)
+      - [Rust options:](#rust-options-)
+  * [Levitation without Blender and Redis](#levitation-without-blender-and-redis)
+  * [Haptic feedback](#haptic-feedback)
+  * [Playing music (Rev 1 board only)](#playing-music--rev-1-board-only-)
+  * [Bad Apple](#bad-apple)
+  * [Solvers](#solvers)
+  * [Possible software improvements](#possible-software-improvements)
+
+
 # 1. Hardware Setup
 
 ## Assembly
