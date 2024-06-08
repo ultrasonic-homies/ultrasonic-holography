@@ -1,5 +1,7 @@
 # ultrasonic-holography
 
+![banner](/pictures/banner.png)
+
 Levitation of styrofoam beads, modulated music playing, and haptic feedback using our custom ultrasonic board.
 
 This project features a 10-layer PCB with 16x16 transducers, 2 Intel Cyclone FPGAs, the HAT phase solver implemented in Rust, and position control
