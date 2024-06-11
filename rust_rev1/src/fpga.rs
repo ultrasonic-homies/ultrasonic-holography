@@ -190,8 +190,17 @@ impl FPGA {
         Ok(())
     }
 
-    pub fn modulate(&mut self, half_period: u16, enable: bool) -> Result<(), TimeoutError> {
-        let data: u32 = (half_period as u32) << 4 | enable as u32;
+    /** modulate
+     * sets the modulation period of the specified modulation channel
+     * @param mod_channels_onehot: one-hot encoding of the modulation channels to set
+     *  e.g. value 5 (1001 in binary) sets channels 0 and 4
+     * @param half_period: half of the desired period of modulation.
+     *  Special case: value 0 turns the transducers off completely, minimizing current draw.
+     * @param enable: enables or disables modulation.
+     *  e.g. value false causes the transducers to oscillate at a pure 40kHz.
+     */
+    pub fn modulate(&mut self, mod_channels_onehot: u8, half_period: u16, enable: bool) -> Result<(), TimeoutError> {
+        let data: u32 = (mod_channels_onehot as u32) << 20 | (half_period as u32) << 4 | enable as u32;
         self.ftdev.write_all(&self.cmd(CommandEnum::GlobalEnable, data))
     }
 
