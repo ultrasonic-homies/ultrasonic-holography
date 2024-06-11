@@ -5,15 +5,19 @@ logic clk = 0;
 logic rst = 0;
 logic mod_enable = 0;
 wire mod_out;
+logic mod_set = 0;
 modulation dut(.*);
 
 initial begin
     mod_enable = 1;
+    mod_set = 1;
     rst = 1;
     #2;
     rst = 0;
     // Test Period
     #2;
+    assert(mod_out == 0);
+    #24;
     assert(mod_out == 1);
     #24;
     assert(mod_out == 0);
@@ -35,11 +39,21 @@ initial begin
     // Test Changing Period
     mod_half_period = 'd6;
     #48;
+    assert(mod_out == 1);
+    #48;
     assert(mod_out == 0);
     #48;
     assert(mod_out == 1);
-    // Test global disable
+    // Test mod set
+    mod_set = 'b0;
     mod_half_period = 'd0;
+    #2;
+    assert(mod_out == 1);
+    #2;
+    mod_set = 'b1;
+    #2;
+    mod_set = 'b0;
+    // Test global disable
     #2;
     assert(mod_out == 0);
     mod_enable = 0;

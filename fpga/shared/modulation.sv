@@ -1,6 +1,7 @@
 module modulation (
     input clk,
     input rst,
+    input mod_set,
     input mod_enable,
     input [15:0] mod_half_period,
     output mod_out
@@ -12,6 +13,7 @@ logic [15:0] sync_counter;
 logic [COUNTER_WIDTH-1:0] local_counter; // Set MSB freq to 5.12MHz
 logic state;
 logic mod;
+logic [15:0] mod_half_period_saved;
 
 assign mod_out = !mod_enable | mod;
 
@@ -25,13 +27,26 @@ always_ff @(posedge clk) begin
     end
 end
 
+// Set Period
+always_ff @(posedge clk) begin
+    if (rst) begin
+        mod_half_period_saved <= 'b0;
+    end
+    else if (mod_set) begin
+        mod_half_period_saved <= mod_half_period;
+    end
+    else begin
+        // Maintain period
+    end
+end
+
 always_ff @(posedge clk) begin
     if (rst) begin
         mod <= 'b1;
         state <= 'b0;
         sync_counter <= 'b0;
     end
-    else if (mod_half_period == 'b0) begin // Global Disable
+    else if (mod_half_period_saved == 'b0) begin // Global Disable
         mod <= 'b0;
     end
     else begin
@@ -40,7 +55,7 @@ always_ff @(posedge clk) begin
                 // Detect Sync Rising Edge
                 if (local_counter[COUNTER_WIDTH-1]) begin
                     state <= 'b1;
-                    if (sync_counter +'b1 < mod_half_period) begin
+                    if (sync_counter +'b1 < mod_half_period_saved) begin
                         sync_counter <= sync_counter + 'b1;
                     end
                     else begin
