@@ -49,12 +49,16 @@ initial begin
     mod_half_period = 'd0;
     #2;
     assert(mod_out == 1);
-    #2;
+    mod_half_period = 'd6;
+    #3;
+    mod_half_period = 'd0;
     mod_set = 'b1;
     #2;
     mod_set = 'b0;
+    mod_half_period = 'd6;
+    #3;
+    assert(dut.mod_half_period_saved == 'd0);
     // Test global disable
-    #2;
     assert(mod_out == 0);
     mod_enable = 0;
     #2;
