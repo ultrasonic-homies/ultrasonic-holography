@@ -65,9 +65,10 @@ logic                   phase_parse_en;
 logic                   phase_calib_en;
 logic [15:0]            mod_half_period;
 logic                   mod_enable;
+logic [MOD_CHANNELS-1:0]mod_set;
 logic [31:0]            latest_data;
 wire                    sync_pulse;
-wire                    mod_out;
+wire [MOD_CHANNELS-1:0] mod_out;
 
 
 /** LOGIC **/
@@ -107,7 +108,7 @@ generate
         pwm #(CLK_FREQ, OUT_FREQ) pwm (
             .clk(pwm_clk),
             .rst(pwm_rst),
-            .en(pwm_en[i] & mod_out),
+            .en(pwm_en[i] & mod_out[i % MOD_CHANNELS]),
             .cnt(pwm_cnt),
             .phase(phases_out[i]),
             .out(trans[i])
@@ -127,7 +128,8 @@ endgenerate
 
 receiver #(
     .TX_FIFO_LOAD_W     (TX_FIFO_LOAD_W),
-    .RX_FIFO_LOAD_W     (RX_FIFO_LOAD_W)
+    .RX_FIFO_LOAD_W     (RX_FIFO_LOAD_W),
+    .MOD_CHANNELS       (MOD_CHANNELS)
 ) receiver (
     // internal inputs
     .clk(sys_clk),
@@ -137,6 +139,7 @@ receiver #(
     .phase_parse_en,
     .phase_calib_en,
     .mod_enable,
+    .mod_set,
     .mod_half_period,
     .latest_data,
     // proto245 interface
@@ -211,12 +214,18 @@ sync_sender #(
     .sync_out
 );
 
-modulation modulation(
-    .clk(pwm_clk),
-    .rst(pwm_rst),
-    .mod_enable,
-    .mod_half_period,
-    .mod_out
-);
+genvar ch;
+generate
+    for (ch = 0; ch < MOD_CHANNELS; ch++) begin:mod_channels
+        modulation modulation(
+            .clk(pwm_clk),
+            .rst(pwm_rst),
+            .mod_set(mod_set[ch]),
+            .mod_enable,
+            .mod_half_period,
+            .mod_out(mod_out[ch])
+        );
+    end
+endgenerate
 
 endmodule: top
