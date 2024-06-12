@@ -54,12 +54,16 @@ class OBSThread(QThread):
                 break
         while self.ThreadActive:
             ret, frame = cap.read()
+            if frame is None:
+                sys.exit(1, "No secondary/virtual camera found, is OBS running?")
             if ret:
-                width = 
                 img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                print(img.shape)
+                height = img.shape[0]
+
+                # crop to square with dimensions heightxheight
+                img = img[:, :height, :].copy()
                 ConvertToQtFormat = QImage(img.data, img.shape[1], img.shape[0], QImage.Format_RGB888)
-                Pic = ConvertToQtFormat.scaled(1000, 1000, Qt.KeepAspectRatio)
+                Pic = ConvertToQtFormat.scaled(800, 800, Qt.KeepAspectRatio)
                 self.ImageUpdate.emit(Pic)
     def stop(self):
         self.ThreadActive = False

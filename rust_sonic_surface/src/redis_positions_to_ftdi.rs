@@ -30,6 +30,7 @@ async fn main() {
     if haptic_feedback {
         board.modulate(200.0, true);
     }
+    // board.modulate(200.0, true);
     board.set_preset_calibration();
     board.calibrate();
     // Connect to Redis
@@ -41,7 +42,7 @@ async fn main() {
         .await
         .expect("Cannot subscribe to topic");
     // Create a broadcast channel to receive messages
-    let hat = Hat::new(256.0, 0.129, false, false);
+    let hat = Hat::new(256.0, 0.148, false, false);
     println!("Ready for position messages");
     while let Some(message) = msgs.next().await {
         match message {
