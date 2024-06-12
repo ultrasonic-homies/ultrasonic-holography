@@ -213,6 +213,8 @@ class Ui_AcousticLevitationWindow(object):
 "}")
         self.stop_button.setObjectName("stop_button")
         self.verticalLayout.addWidget(self.stop_button)
+        spacerItem6 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.verticalLayout.addItem(spacerItem6)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.verticalLayout.addLayout(self.verticalLayout_2)
