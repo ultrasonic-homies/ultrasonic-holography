@@ -94,7 +94,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="mode_label">
         <property name="font">
          <font>
           <family>Comic Sans MS</family>
@@ -105,11 +105,14 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">padding: 10px 0px 5px 85px ;
+         <string notr="true">
 color: white;</string>
         </property>
         <property name="text">
-         <string>Current Mode: Stopped</string>
+         <string>Mode: Stopped</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
         <property name="margin">
          <number>0</number>
@@ -130,7 +133,7 @@ color: white;</string>
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="line_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -179,7 +182,7 @@ QPushButton:hover {
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="circle_mode">
+       <widget class="QPushButton" name="circle_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
@@ -226,7 +229,7 @@ QPushButton:hover {
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="random_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -274,7 +277,7 @@ QPushButton:hover {
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="mouse_button">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -325,7 +328,7 @@ QPushButton:hover {
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_5">
+       <widget class="QPushButton" name="megalovania_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -373,7 +376,7 @@ QPushButton:hover {
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_4">
+       <widget class="QPushButton" name="stop_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
           <horstretch>0</horstretch>
