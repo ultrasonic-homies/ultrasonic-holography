@@ -28,7 +28,7 @@ fn main() {
     let mut input = String::new();
     let mut n_circles: i32 = 1;
     let hat_runner: HatRunner = HatRunner::new(256.0, 0.14);
-    let hat_whatever = Hat::new(256.0, 0.129, false, false);
+    let hat_whatever = Hat::new(256.0, 0.148, false, false);
 
 
     loop {

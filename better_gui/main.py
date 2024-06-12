@@ -1,7 +1,7 @@
 # qt5-tools designer 
 # pyuic5 -x .\better_gui\better_gui.ui -o .\better_gui\better_gui.py
 # use the ui from better_gui.py
-from better_gui import Ui_AcousticLevitationWindow
+from new_gui import Ui_AcousticLevitationWindow
 # import the necessary modules
 from PyQt5 import QtWidgets
 import sys
@@ -11,8 +11,22 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap
 import os
 import cv2
+from enum import Enum
+import redis
+import time
+from threading import Thread, Event
+from typing import Optional
 
+class AppState(Enum):
+    LINE = 0
+    CIRCLE = 1
+    RANDOM = 2
+    MOUSE = 3
+    MEGALOVANIA = 4
+    STOPPED = 5
 
+def get_time():
+    return time.time_ns() * 1e-9
 
 # make the main application
 class AcousticLevitationApp(QtWidgets.QMainWindow):
@@ -32,7 +46,87 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
 
         self.obs_thread.start()
         self.obs_thread.ImageUpdate.connect(self.ImageUpdateSlot)
+        self.showFullScreen()
         self.show()
+        self.wait_before_sending = 1/1000
+        self.side_length = 17.8 # cm, board length
+        self.mouse_x = self.side_length / 2
+        self.mouse_y = self.side_length / 2
+        self.mouse_z = 0.5
+        self.board_x = self.side_length / 2  # cm
+        self.board_y = self.side_length / 2
+        self.board_z = 0.5
+
+        self.state = AppState.STOPPED
+        self.tracking = False
+        self.ui.big_label.setMouseTracking(True)
+
+         # circle stuff
+        self.circle_radius = 5
+        self.circle_frequency = 1
+
+        # line stuff
+        self.amplitude = 5
+        self.line_freq = 1
+
+        self.redis = redis.StrictRedis(host='localhost', port=6379, db=0)
+        self.last_sent = get_time()
+        self.thread: Optional[Thread] = None
+        self.stop_flag = Event()
+        self.update_label()
+
+        self.ui.line_button.clicked.connect(self.line_pressed)
+        self.ui.circle_button.clicked.connect(self.circle_pressed)
+        self.ui.random_button.clicked.connect(self.random_pressed)
+        self.ui.mouse_button.clicked.connect(self.mouse_pressed)
+        self.ui.megalovania_button.clicked.connect(self.megalovania_pressed)
+        self.ui.stop_button.clicked.connect(self.stop_pressed)
+        
+    
+    def update_label(self):
+        # could do string enum but I don't have time
+        if self.state == AppState.LINE:
+            self.ui.mode_label.setText("Mode: Line")
+        elif self.state == AppState.CIRCLE:
+            self.ui.mode_label.setText("Mode: Circle")
+        elif self.state == AppState.RANDOM:
+            self.ui.mode_label.setText("Mode: Random")
+        elif self.state == AppState.MOUSE:
+            self.ui.mode_label.setText("Mode: Mouse")
+        elif self.state == AppState.MEGALOVANIA:
+            self.ui.mode_label.setText("Mode: Megalovania")
+        elif self.state == AppState.STOPPED:
+            self.ui.mode_label.setText("Mode: Stopped")
+    
+    def line_pressed(self):
+        self.state = AppState.LINE
+        print("line pressed")
+        self.update_label()
+
+    def circle_pressed(self):
+        print("circle pressed")
+        self.state = AppState.CIRCLE
+        self.update_label()
+    
+    def random_pressed(self):
+        self.state = AppState.RANDOM
+        self.update_label()
+    
+    def mouse_pressed(self):
+        self.state = AppState.MOUSE
+        self.update_label()
+    
+    def megalovania_pressed(self):
+        self.state = AppState.MEGALOVANIA
+        self.update_label()
+    
+    def stop_pressed(self):
+        self.state = AppState.STOPPED
+        self.update_label()
+
+    
+    
+
 
     def ImageUpdateSlot(self, Image):
         self.ui.big_label.setPixmap(QPixmap.fromImage(Image))
@@ -65,7 +159,7 @@ class OBSThread(QThread):
                 pic = QImage(img.data, img.shape[1], img.shape[0], QImage.Format_RGB888)
                 self.ImageUpdate.emit(pic)
 
-                
+
     def stop(self):
         self.ThreadActive = False
         self.quit()
