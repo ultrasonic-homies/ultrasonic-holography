@@ -1,6 +1,7 @@
 module receiver #(parameter
     TX_FIFO_LOAD_W,
-    RX_FIFO_LOAD_W
+    RX_FIFO_LOAD_W,
+    MOD_CHANNELS
 )(
     // Internal Inputs
     input                       clk,
@@ -10,6 +11,7 @@ module receiver #(parameter
     output logic                phase_parse_en,
     output logic                phase_calib_en,
     output logic                mod_enable,
+    output logic [MOD_CHANNELS-1:0] mod_set,
     output logic [31:0]         latest_data,
     output logic [15:0]         mod_half_period,
     // proto245 Interface
@@ -41,6 +43,7 @@ assign txfifo_data = 8'b0;
 
 logic rxfifo_rd_next;
 logic read_error_next;
+logic [MOD_CHANNELS-1:0] mod_set_next;
 logic mod_enable_next;
 logic [15:0] mod_half_period_next;
 logic phase_parse_en_next;
@@ -64,6 +67,7 @@ always_comb begin
     phase_parse_en_next = 'b0;
     phase_calib_en_next = 'b0;
     read_error_next = read_error;
+    mod_set_next = 'b0;
     mod_enable_next = mod_enable;
     mod_half_period_next = mod_half_period;
 
@@ -110,6 +114,7 @@ always_comb begin
                     end
                     16'h0004: begin // Set Modulation Period
                         cmd_shifter_next    = 'b0;
+                        mod_set_next        = cmd_data[MOD_CHANNELS+19:20];
                         mod_half_period_next= cmd_data[19:4];
                         mod_enable_next     = cmd_data[0];
                         fsm_next = WAIT_E;
@@ -165,6 +170,7 @@ always_ff @(posedge clk) begin
         phase_parse_en  <= 1'b0;
         phase_calib_en  <= 1'b0;
         mod_enable      <= 1'b0;
+        mod_set         <= '0;
         mod_half_period <= '0;
 
     end
@@ -177,6 +183,7 @@ always_ff @(posedge clk) begin
         read_error      <= read_error_next;
         phase_parse_en  <= phase_parse_en_next;
         phase_calib_en  <= phase_calib_en_next;
+        mod_set         <= mod_set_next;
         mod_enable      <= mod_enable_next;
         mod_half_period <= mod_half_period_next;
     end

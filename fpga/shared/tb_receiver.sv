@@ -4,6 +4,7 @@ module tb_receiver();
 
 localparam TX_FIFO_LOAD_W = 13; // log2(4096) + 1;
 localparam RX_FIFO_LOAD_W = 13;
+localparam MOD_CHANNELS = 4;
 
 // Internal Inputs
 logic clk;
@@ -14,8 +15,8 @@ wire phase_parse_en;
 wire phase_calib_en;
 wire [31:0] latest_data;
 logic mod_enable;
-logic [5:0] mod_half_period;
-wire mod_out;
+logic [MOD_CHANNELS-1:0] mod_set;
+logic [15:0] mod_half_period;
 
 // proto245 Interface
 logic [7:0]     rxfifo_data;
@@ -34,7 +35,8 @@ assign txfifo_full = 0;
 
 receiver #(
     TX_FIFO_LOAD_W,
-    RX_FIFO_LOAD_W
+    RX_FIFO_LOAD_W,
+    MOD_CHANNELS
 ) dut (.*);
 
 initial begin
@@ -87,11 +89,11 @@ initial begin
     // Write the command for modulation
     rxfifo_data = 'h55; // suffix
     #6;
-    rxfifo_data = 'h01; // data
+    rxfifo_data = 'h01; // half_period | enable
     #6;
-    rxfifo_data = 'h05;
+    rxfifo_data = 'h05; // half_period
     #6;
-    rxfifo_data = 'h00;
+    rxfifo_data = 'hf0; // channel | half_period
     #6;
     rxfifo_data = 'h00;
     #6;

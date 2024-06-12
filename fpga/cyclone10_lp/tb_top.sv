@@ -32,6 +32,8 @@ initial begin
     #10;
     ext_rst = 1;
     #10;
+    ext_rst = 0;
+    #10;
 
 end
 

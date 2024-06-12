@@ -32,6 +32,20 @@ const PHASE_CALIBRATION: [u8; 256] = [69, 90, 69, 64, 83, 76, 82, 85, 69, 70, 90
 const NUM_TRANSDUCERS_PER_FPGA: usize = 128;
 const CARRIER_FREQ: f32 = 5_120_000.0;
 
+const CUTOFF_FREQ_HZ: [f32; 8] = [
+    130.8, // C3
+    164.8, // E3
+    196.0, // G3
+    261.6, // C4
+    329.6, // E4
+    392.0, // G4
+    466.2, // Bb4
+    523.2, // C5
+];
+
+// Modulation channels are encoded in one-hot
+const ALL_MOD_CHANNELS: u8 = 0b1111;
+
 pub struct Board {
     fpga0: FPGA,
     fpga1: FPGA,
@@ -130,31 +144,59 @@ impl Board {
 
     pub fn modulate(&mut self, freq:f32, enable: bool) {
         let half_period: u16 = (CARRIER_FREQ / freq / 2.0).round() as u16;
-        self.fpga0.modulate(half_period, enable).expect(&format!("modulate: write timed out for {}", FPGA_0_SERIAL));
-        self.fpga1.modulate(half_period, enable).expect(&format!("modulate: write timed out for {}", FPGA_1_SERIAL));
+        self.fpga0.modulate(ALL_MOD_CHANNELS, half_period, enable).expect(&format!("modulate: write timed out for {}", FPGA_0_SERIAL));
+        self.fpga1.modulate(ALL_MOD_CHANNELS, half_period, enable).expect(&format!("modulate: write timed out for {}", FPGA_1_SERIAL));
     }
 
+    /** modulate_two_notes
+     * set the modulation of each half of the board
+     */
     pub fn modulate_two_notes(&mut self, freq_0:u32, freq_1:u32, enable: bool) {
         let half_period_0: u16 = (CARRIER_FREQ / freq_0 as f32 / 2.0).round() as u16;
         let half_period_1: u16 = (CARRIER_FREQ / freq_1 as f32 / 2.0).round() as u16;
-        self.fpga0.modulate(half_period_0, enable).expect(&format!("modulate_two_notes: write timed out for {}", FPGA_0_SERIAL));
-        self.fpga1.modulate(half_period_1, enable).expect(&format!("modulate_two_notes: write timed out for {}", FPGA_1_SERIAL));
+        self.fpga0.modulate(ALL_MOD_CHANNELS, half_period_0, enable).expect(&format!("modulate_two_notes: write timed out for {}", FPGA_0_SERIAL));
+        self.fpga1.modulate(ALL_MOD_CHANNELS, half_period_1, enable).expect(&format!("modulate_two_notes: write timed out for {}", FPGA_1_SERIAL));
     }
 
+    /** modulate_two_boards
+     * set the modulation of one half of the board, whether the frequency is above or below C4
+     */
     pub fn modulate_two_boards(&mut self, freq:f32, enable: bool) {
         let period: u16 = (CARRIER_FREQ / freq as f32 / 2.0).round() as u16;
 
         if freq < 261.1 {
-            self.fpga0.modulate(period, enable).expect(&format!("modulate_two_boards: write timed out for {}", FPGA_0_SERIAL));
+            self.fpga0.modulate(ALL_MOD_CHANNELS, period, enable).expect(&format!("modulate_two_boards: write timed out for {}", FPGA_0_SERIAL));
         } else {
-            self.fpga1.modulate(period, enable).expect(&format!("modulate_two_boards: write timed out for {}", FPGA_1_SERIAL));
+            self.fpga1.modulate(ALL_MOD_CHANNELS, period, enable).expect(&format!("modulate_two_boards: write timed out for {}", FPGA_1_SERIAL));
+        }
+    }
 
+    /** modulate_multi_notes
+     * set the modulation of a single channel depending on the frequency
+     */
+    pub fn modulate_multi_notes(&mut self, freq:f32, enable: bool) {
+        let period: u16 = (CARRIER_FREQ / freq as f32 / 2.0).round() as u16;
+        for i in 0..CUTOFF_FREQ_HZ.len() {
+            if freq > CUTOFF_FREQ_HZ[i] {
+                /*
+                    i == 0 -> set fpga0, channel 1
+                    i == 1 -> set fpga1, channel 1
+                    i == 2 -> set fpga0, channel 2
+                    etc.
+                */
+                if i % 2 == 0 {
+                    self.fpga0.modulate(1 << (i / 2), period, enable).expect(&format!("modulate_two_boards: write timed out for {}", FPGA_0_SERIAL));
+                }
+                else {
+                    self.fpga1.modulate(1 << (i / 2), period, enable).expect(&format!("modulate_two_boards: write timed out for {}", FPGA_0_SERIAL));
+                }
+            }
         }
     }
 
     pub fn shut_up(&mut self) {
-        self.fpga0.modulate(0, true).expect(&format!("shut_up: write timed out for {}", FPGA_0_SERIAL));
-        self.fpga1.modulate(0, true).expect(&format!("shut_up: write timed out for {}", FPGA_1_SERIAL));
+        self.fpga0.modulate(ALL_MOD_CHANNELS, 0, true).expect(&format!("shut_up: write timed out for {}", FPGA_0_SERIAL));
+        self.fpga1.modulate(ALL_MOD_CHANNELS, 0, true).expect(&format!("shut_up: write timed out for {}", FPGA_1_SERIAL));
     }
 
     pub fn close(&mut self) {
