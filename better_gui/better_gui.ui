@@ -426,12 +426,15 @@ QPushButton:hover {
       </property>
       <property name="maximumSize">
        <size>
-        <width>1000</width>
-        <height>1000</height>
+        <width>1300</width>
+        <height>1300</height>
        </size>
       </property>
       <property name="text">
        <string>TextLabel</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
