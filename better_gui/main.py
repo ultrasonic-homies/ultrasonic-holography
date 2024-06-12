@@ -47,7 +47,7 @@ class OBSThread(QThread):
     ImageUpdate = pyqtSignal(QImage)
     def run(self):
         self.ThreadActive = True
-        for i in range(1, 10):
+        for i in range(0, 10):
             cap = cv2.VideoCapture(i)
             if cap.isOpened():
                 print()
@@ -55,16 +55,17 @@ class OBSThread(QThread):
         while self.ThreadActive:
             ret, frame = cap.read()
             if frame is None:
-                sys.exit(1, "No secondary/virtual camera found, is OBS running?")
+                raise Exception("No secondary/virtual camera found, is OBS running?")
             if ret:
                 img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 height = img.shape[0]
 
                 # crop to square with dimensions heightxheight
                 img = img[:, :height, :].copy()
-                ConvertToQtFormat = QImage(img.data, img.shape[1], img.shape[0], QImage.Format_RGB888)
-                Pic = ConvertToQtFormat.scaled(800, 800, Qt.KeepAspectRatio)
-                self.ImageUpdate.emit(Pic)
+                pic = QImage(img.data, img.shape[1], img.shape[0], QImage.Format_RGB888)
+                self.ImageUpdate.emit(pic)
+
+                
     def stop(self):
         self.ThreadActive = False
         self.quit()

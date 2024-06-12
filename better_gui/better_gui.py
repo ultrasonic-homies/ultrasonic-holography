@@ -35,7 +35,7 @@ class Ui_AcousticLevitationWindow(object):
         self.master_gui_title.setMaximumSize(QtCore.QSize(400, 127))
         self.master_gui_title.setStyleSheet("")
         self.master_gui_title.setText("")
-        self.master_gui_title.setPixmap(QtGui.QPixmap(".\\better_gui\\acoustic-levitation.png"))
+        self.master_gui_title.setPixmap(QtGui.QPixmap("/Users/kevinlinxc/src/ultrasonic-holography/better_gui/acoustic-levitation.png"))
         self.master_gui_title.setScaledContents(True)
         self.master_gui_title.setAlignment(QtCore.Qt.AlignCenter)
         self.master_gui_title.setObjectName("master_gui_title")
