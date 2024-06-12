@@ -30,7 +30,6 @@ async fn main() {
     if haptic_feedback {
         board.modulate(200.0, true);
     }
-    board.modulate(200.0, true);
     board.set_preset_calibration();
     board.calibrate();
     // Connect to Redis
