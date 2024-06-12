@@ -99,7 +99,7 @@ class Ui_AcousticLevitationWindow(object):
         font.setPointSize(25)
         self.circle_mode.setFont(font)
         self.circle_mode.setStyleSheet("QPushButton {\n"
-"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(255, 209, 102),     stop:1 rgb(255, 255, 152));\n"
+"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(255, 132, 30),     stop:1 rgb(255, 182, 22));\n"
 "    border-radius: 20px;\n"
 "    border-image: none;\n"
 "    border: none;\n"
@@ -124,7 +124,7 @@ class Ui_AcousticLevitationWindow(object):
         font.setPointSize(25)
         self.pushButton_2.setFont(font)
         self.pushButton_2.setStyleSheet("QPushButton {\n"
-"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(63, 188, 151),     stop:1 rgb(63, 238, 201));\n"
+"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(255, 209, 102),     stop:1 rgb(255, 255, 152));\n"
 "    border-radius: 20px;\n"
 "    border-image: none;\n"
 "    border: none;\n"
@@ -150,7 +150,7 @@ class Ui_AcousticLevitationWindow(object):
         font.setPointSize(25)
         self.pushButton_3.setFont(font)
         self.pushButton_3.setStyleSheet("QPushButton {\n"
-"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(29, 139, 178),     stop:1 rgb(29, 189, 228));\n"
+"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(63, 188, 151),     stop:1 rgb(63, 238, 201));\n"
 "    border-radius: 20px;\n"
 "    border-image: none;\n"
 "    border: none;\n"
@@ -162,8 +162,33 @@ class Ui_AcousticLevitationWindow(object):
 "}")
         self.pushButton_3.setObjectName("pushButton_3")
         self.verticalLayout.addWidget(self.pushButton_3)
-        spacerItem4 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        spacerItem4 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         self.verticalLayout.addItem(spacerItem4)
+        self.pushButton_5 = QtWidgets.QPushButton(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.pushButton_5.sizePolicy().hasHeightForWidth())
+        self.pushButton_5.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setFamily("Comic Sans MS")
+        font.setPointSize(25)
+        self.pushButton_5.setFont(font)
+        self.pushButton_5.setStyleSheet("QPushButton {\n"
+"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(29, 139, 178),     stop:1 rgb(29, 189, 228));\n"
+"    border-radius: 20px;\n"
+"    border-image: none;\n"
+"    border: none;\n"
+"    color: black;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    border: 2px solid #C9D6EA;\n"
+"}")
+        self.pushButton_5.setObjectName("pushButton_5")
+        self.verticalLayout.addWidget(self.pushButton_5)
+        spacerItem5 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        self.verticalLayout.addItem(spacerItem5)
         self.pushButton_4 = QtWidgets.QPushButton(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -187,6 +212,9 @@ class Ui_AcousticLevitationWindow(object):
 "}")
         self.pushButton_4.setObjectName("pushButton_4")
         self.verticalLayout.addWidget(self.pushButton_4)
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.verticalLayout.addLayout(self.verticalLayout_2)
         self.horizontalLayout.addLayout(self.verticalLayout)
         self.line = QtWidgets.QFrame(self.centralwidget)
         self.line.setFrameShape(QtWidgets.QFrame.VLine)
@@ -226,6 +254,7 @@ class Ui_AcousticLevitationWindow(object):
         self.circle_mode.setText(_translate("AcousticLevitationWindow", "Circle Path"))
         self.pushButton_2.setText(_translate("AcousticLevitationWindow", "Random Path"))
         self.pushButton_3.setText(_translate("AcousticLevitationWindow", "Mouse Control"))
+        self.pushButton_5.setText(_translate("AcousticLevitationWindow", "Megalovania"))
         self.pushButton_4.setText(_translate("AcousticLevitationWindow", "STOP"))
         self.big_label.setText(_translate("AcousticLevitationWindow", "TextLabel"))
 

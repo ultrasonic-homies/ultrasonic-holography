@@ -193,7 +193,7 @@ QPushButton:hover {
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton {
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(255, 209, 102), 	stop:1 rgb(255, 255, 152));
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(255, 132, 30), 	stop:1 rgb(255, 182, 22));
 	border-radius: 20px;
 	border-image: none;
 	border: none;
@@ -241,7 +241,7 @@ QPushButton:hover {
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton {
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(63, 188, 151), 	stop:1 rgb(63, 238, 201));
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(255, 209, 102), 	stop:1 rgb(255, 255, 152));
 	border-radius: 20px;
 	border-image: none;
 	border: none;
@@ -292,7 +292,7 @@ QPushButton:hover {
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton {
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(29, 139, 178), 	stop:1 rgb(29, 189, 228));
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(63, 188, 151), 	stop:1 rgb(63, 238, 201));
 	border-radius: 20px;
 	border-image: none;
 	border: none;
@@ -305,6 +305,54 @@ QPushButton:hover {
         </property>
         <property name="text">
          <string>Mouse Control</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>10</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_5">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Comic Sans MS</family>
+          <pointsize>25</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(29, 139, 178), 	stop:1 rgb(29, 189, 228));
+	border-radius: 20px;
+	border-image: none;
+	border: none;
+	color: black;
+}
+
+QPushButton:hover {
+    border: 2px solid #C9D6EA;
+}</string>
+        </property>
+        <property name="text">
+         <string>Megalovania</string>
         </property>
        </widget>
       </item>
@@ -355,6 +403,9 @@ QPushButton:hover {
          <string>STOP</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2"/>
       </item>
      </layout>
     </item>
