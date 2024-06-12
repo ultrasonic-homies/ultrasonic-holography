@@ -119,9 +119,6 @@ class MyWidget(QWidget):
         if sonic_surface:
             if curr_time - self.last_sent < self.wait_before_sending:
                 return
-        dist = 0.004
-        # diffs = [[0, dist, 0], [0, -dist, 0], [dist, 0, 0], [-dist, 0, 0]]
-        # diffs = [[0, 0, dist], [0, 0, -dist], [dist, 0, 0], [-dist, 0, 0], [0, dist, 0], [0, -dist, 0]]
         base_position = [self.board_x/100, self.board_y/100, self.board_z/100]
         # positions = [list(map(sum, zip(base_position, diff))) for diff in diffs]
         positions = [base_position]
