@@ -20,7 +20,7 @@
    <string notr="true">background-color: qradialgradient(spread:repeat, cx:0.5, cy:0.5, radius:0.077, fx:0.5, fy:0.5, stop:0 rgba(0, 169, 255, 147), stop:0.497326 rgba(0, 0, 0, 147), stop:1 rgba(0, 169, 255, 147))</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,1,20">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,5">
     <property name="spacing">
      <number>3</number>
     </property>
@@ -74,6 +74,12 @@
       </item>
       <item>
        <widget class="QLabel" name="madein1week">
+        <property name="maximumSize">
+         <size>
+          <width>400</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>Comic Sans MS</family>
@@ -95,6 +101,12 @@
       </item>
       <item>
        <widget class="QLabel" name="mode_label">
+        <property name="maximumSize">
+         <size>
+          <width>400</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>Comic Sans MS</family>
@@ -139,6 +151,12 @@ color: white;</string>
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>400</width>
+          <height>16777215</height>
+         </size>
         </property>
         <property name="font">
          <font>
@@ -189,6 +207,12 @@ QPushButton:hover {
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>400</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>25</pointsize>
@@ -235,6 +259,12 @@ QPushButton:hover {
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>400</width>
+          <height>16777215</height>
+         </size>
         </property>
         <property name="font">
          <font>
@@ -287,6 +317,12 @@ QPushButton:hover {
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>400</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>Comic Sans MS</family>
@@ -334,6 +370,12 @@ QPushButton:hover {
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>400</width>
+          <height>16777215</height>
+         </size>
         </property>
         <property name="font">
          <font>
@@ -383,6 +425,12 @@ QPushButton:hover {
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>400</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>Comic Sans MS</family>
@@ -423,9 +471,6 @@ QPushButton:hover {
         </property>
        </spacer>
       </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2"/>
-      </item>
      </layout>
     </item>
     <item>
@@ -438,15 +483,15 @@ QPushButton:hover {
     <item>
      <widget class="QLabel" name="big_label">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
       <property name="maximumSize">
        <size>
-        <width>1300</width>
-        <height>1300</height>
+        <width>1000</width>
+        <height>1000</height>
        </size>
       </property>
       <property name="text">
