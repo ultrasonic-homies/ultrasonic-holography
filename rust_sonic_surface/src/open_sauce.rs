@@ -69,7 +69,7 @@ async fn main() {
                             }
                             let control_points: Vec<Point> =
                                 serde_json::from_str(&actual_msg.command).expect("Failed to parse JSON");
-                            println!("Received control points: {:?}", control_points);
+                            // println!("Received control points: {:?}", control_points);
                             // println!("Received control points: {:?}", control_points);
                             let phases: Vec<f32> = hat.run_hat(&control_points);
                             // let t1 = SystemTime::now();
@@ -84,7 +84,7 @@ async fn main() {
                             let split_msg: Vec<&str> = msg.split(",").collect();
                             let freq: f32 = split_msg[0].parse().unwrap();
                             let on_off: bool = split_msg[1].parse().unwrap();
-                            println!("Received music: {:?}", split_msg);
+                            // println!("Received music: {:?}", split_msg);
                             // board.modulate_two_boards(freq, on_off);
                             playing_music = true;
                             // do something with music

@@ -22,6 +22,7 @@ import redis
 from pathlib import Path
 import json
 import ormsgpack
+import pyautogui
 
 
 def note_to_freq(note_number):
@@ -59,6 +60,20 @@ def print_notes(filename, r, stop_flag: Event):
             # msg_json = json.dumps(message)
             # print(msg_json)
             r.publish("commands", msg_json)
+
+
+def get_normalized_mouse_position():
+    # Get the screen size
+    screen_width, screen_height = pyautogui.size()
+
+    # Get the current mouse position
+    mouse_x, mouse_y = pyautogui.position()
+
+    # Normalize the mouse position
+    normalized_x = mouse_x / screen_width
+    normalized_y = mouse_y / screen_height
+
+    return 1 - normalized_x, 1 - normalized_y # flip idk why
 
 
 class AppState(Enum):
@@ -180,7 +195,10 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
         self.state = AppState.MOUSE
         self.update_label()
         time.sleep(0.5)
-        self.move_to(self.mouse_x, self.mouse_y, self.mouse_z)
+        
+        self.stop_flag = Event()
+        self.thread = Thread(target=self.follow_mouse, args=(self.stop_flag,), daemon=True)
+        self.thread.start()
     
     def megalovania_pressed(self):
         print("Starting Megalovania")
@@ -292,34 +310,26 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
             self.move_to(new_x, new_y, self.board_z)
             time.sleep(0.1)
 
+    def follow_mouse(self, stop_flag):
+        print("Starting follow mouse")
+        mouse_x, mouse_y = get_normalized_mouse_position()
+        # change normalization to -board_length/2 to board_length/2
+        initial_x = self.side_length * (mouse_x)
+        initial_y = self.side_length * (mouse_y)
+        self.move_to(initial_x, initial_y, self.board_z)
+        while True:
+            if stop_flag.is_set():
+                return
+            mouse_x, mouse_y = get_normalized_mouse_position()
+            # change normalization to -board_length/2 to board_length/2
+            self.board_x = self.side_length * (mouse_x)
+            self.board_y = self.side_length * (mouse_y)
+            self.send_positions()
+            self.update_label()
+
 
     def ImageUpdateSlot(self, Image):
         self.ui.big_label.setPixmap(QPixmap.fromImage(Image))
-    
-    def mouseMoveEvent(self, event):
-        # save the mouse position for when changing back from another mode
-        event_x = (self.width() - event.x() )* (self.side_length / self.width())
-        event_y = (self.height() - event.y()) * (self.side_length / self.height())  # Scale to 0cm-10cm range
-
-        self.mouse_x = event_x
-        self.mouse_y = event_y
-        self.mouse_z = self.board_z
-        if not (self.state == AppState.MOUSE):
-            return
-        # Capture mouse movement event
-
-        # Calculate lateral movement translation (x, y)
-                # Calculate lateral movement translation (x, y)
-        self.board_x = event_x  # Scale to 0cm-10cm range
-        self.board_y = event_y # Scale to 0cm-10cm range
-
-    
-        # if euclidean distance is big, move to new position
-        euclidean_distance = ((self.board_x - event_x) ** 2 + (self.board_y - event_y) ** 2) ** 0.5
-        if euclidean_distance > 0.1:
-            self.move_to(event_x, event_y, self.board_z)
-        self.send_positions()
-        self.update_label()
 
     
 if __name__ == "__main__":
