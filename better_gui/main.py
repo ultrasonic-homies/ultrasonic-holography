@@ -17,6 +17,7 @@ import numpy as np
 import mido
 import redis
 from pathlib import Path
+import json
 
 
 def note_to_freq(note_number):
@@ -41,13 +42,15 @@ def print_notes(filename, r, stop_flag: Event):
             # print(f"Note On: Channel={msg.channel}, Note={msg.note}, Velocity={msg.velocity}")
             # print(note_to_freq(msg.note), midi_note_to_name(msg.note))
             # we can't play e 5, so bring anything higher down to below e5
-            message = {"type": "music", "command": f"{freq},true"}
-            msg_json = repr(message).encode('utf-8')
+            message = {"type": "m", "command": f"{freq},true"}
+            msg_json = json.dumps(message)
+            # print(msg_json)
             r.publish("commands", msg_json)
         elif msg.type == 'note_off':
             freq = note_to_freq(msg.note)
-            message = {"type": "music", "command": f"{freq},false"}
-            msg_json = repr(message).encode('utf-8')
+            message = {"type": "m", "command": f"{freq},false"}
+            msg_json = json.dumps(message)
+            # print(msg_json)
             r.publish("commands", msg_json)
 
 
@@ -184,6 +187,7 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
         # midi_file = Path(__file__).resolve().parent / 'badapple.mid'  # Replace 'your_midi_file.mid' with the path to your MIDI file
         r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
         # turn it off
+        self.stop_flag = Event()
         self.thread = Thread(target=print_notes, args=(midi_file, r, self.stop_flag), daemon=True)
         self.thread.start()
 
@@ -206,8 +210,10 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
         base_position = [self.board_x/100, self.board_y/100, self.board_z/100]
         # positions = [list(map(sum, zip(base_position, diff))) for diff in diffs]
         positions = [base_position]
-        message = {"type": "positions", "command": positions}
-        msg_json = repr(message).encode('utf-8')
+        positions_repr = repr(positions).encode('utf-8')
+        self.redis.publish("positions", positions_repr)
+        message = {"type": "p", "command": repr(positions)}
+        msg_json = json.dumps(message)
         self.redis.publish("commands", msg_json)
         self.last_sent = curr_time
     

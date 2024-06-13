@@ -32,14 +32,14 @@ struct Message {
 #[tokio::main]
 async fn main() {
     let haptic_feedback: bool = false;
-    let mut board = Board::new().unwrap();
+    // let mut board = Board::new().unwrap();
     // if doing haptic feedback, setting board to 200 hz helps a lot
     if haptic_feedback {
-        board.modulate(200.0, true);
+        // board.modulate(200.0, true);
     }
     // board.modulate(200.0, true);
-    board.set_preset_calibration();
-    board.calibrate();
+    // board.set_preset_calibration();
+    // board.calibrate();
     // Connect to Redis
     let pubsub_con = client::pubsub_connect("127.0.0.1", 6379)
         .await
@@ -57,16 +57,16 @@ async fn main() {
             Ok(message) => {
                 let t0 = SystemTime::now();
                 let msg = String::from_resp(message).unwrap();
-
+                println!("Received message: {:?}", msg);
                 // println!("Received message: {:?}", msg);
                 // create hat points from the list of points like [[1,2,3]]
                 let msg: Message =
                     serde_json::from_str(&msg).expect("Failed to parse JSON");
                 
                 // check if "type" is "music" or "positions". If it's positions, make vector of Points
-                if msg.r#type == "positions" {
+                if msg.r#type == "p" { //positions
                     if playing_music {
-                        board.shut_up();
+                        // board.shut_up();
                         playing_music = false;
                     }
                     let control_points: Vec<Point> =
@@ -78,8 +78,8 @@ async fn main() {
                     // let ss_output = convert_to_sonic_surface_output(&phases);
                     // println!("Sending message: {:?}", ss_output);
                     // let processing_dur = start_time.elapsed().unwrap();
-                    board.set_frame(&phases);
-                } else if msg.r#type == "music" {
+                    // board.set_frame(&phases);
+                } else if msg.r#type == "m" { //music
                     let music_command: &str = &msg.command;
                     // convert to String
                     let msg = String::from(music_command);
@@ -87,7 +87,7 @@ async fn main() {
                     let freq: f32 = split_msg[0].parse().unwrap();
                     let on_off: bool = split_msg[1].parse().unwrap();
                     println!("Received music: {:?}", split_msg);
-                    board.modulate_two_boards(freq, on_off);
+                    // board.modulate_two_boards(freq, on_off);
                     playing_music = true;
                     // do something with music
                 }
