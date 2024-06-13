@@ -6,6 +6,9 @@ from new_gui import Ui_AcousticLevitationWindow
 from PyQt5 import QtWidgets
 import sys
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import QObject, QEvent
+# import qapplication
+from PyQt5.QtWidgets import QApplication
 import cv2
 from enum import Enum
 import redis
@@ -18,6 +21,7 @@ import mido
 import redis
 from pathlib import Path
 import json
+import ormsgpack
 
 
 def note_to_freq(note_number):
@@ -43,13 +47,16 @@ def print_notes(filename, r, stop_flag: Event):
             # print(note_to_freq(msg.note), midi_note_to_name(msg.note))
             # we can't play e 5, so bring anything higher down to below e5
             message = {"type": "m", "command": f"{freq},true"}
-            msg_json = json.dumps(message)
+            msg_json = ormsgpack.packb(message)
+            # msg_json = json.dumps(message)
             # print(msg_json)
             r.publish("commands", msg_json)
         elif msg.type == 'note_off':
             freq = note_to_freq(msg.note)
             message = {"type": "m", "command": f"{freq},false"}
-            msg_json = json.dumps(message)
+            msg_json = ormsgpack.packb(message)
+
+            # msg_json = json.dumps(message)
             # print(msg_json)
             r.publish("commands", msg_json)
 
@@ -213,7 +220,8 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
         positions_repr = repr(positions).encode('utf-8')
         self.redis.publish("positions", positions_repr)
         message = {"type": "p", "command": repr(positions)}
-        msg_json = json.dumps(message)
+        msg_json = ormsgpack.packb(message)
+        # msg_json = json.dumps(message)
         self.redis.publish("commands", msg_json)
         self.last_sent = curr_time
     
@@ -313,11 +321,6 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
         self.send_positions()
         self.update_label()
 
-
-
-    def stop(self):
-        self.ThreadActive = False
-        self.quit()
     
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
