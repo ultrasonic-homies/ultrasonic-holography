@@ -110,3 +110,7 @@ path = "src/two_point_juggle.rs"
 [[bin]]
 name = "turn_off"
 path = "src/turn_off.rs"
+
+[[bin]]
+name = "open_sauce"
+path = "src/open_sauce.rs"

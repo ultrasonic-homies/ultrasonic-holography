@@ -41,5 +41,3 @@ if __name__ == '__main__':
     r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
     # turn it off
     print_notes(midi_file, r)
-    r.publish("music", f"{300},false")
-    r.publish("music", f"{200},false")
