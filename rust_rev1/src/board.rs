@@ -188,9 +188,19 @@ impl Board {
                     self.fpga0.modulate(1 << (i / 2), period, enable).expect(&format!("modulate_two_boards: write timed out for {}", FPGA_0_SERIAL));
                 }
                 else {
-                    self.fpga1.modulate(1 << (i / 2), period, enable).expect(&format!("modulate_two_boards: write timed out for {}", FPGA_0_SERIAL));
+                    self.fpga1.modulate(1 << (i / 2), period, enable).expect(&format!("modulate_two_boards: write timed out for {}", FPGA_1_SERIAL));
                 }
+                break;
             }
+        }
+    }
+
+    pub fn modulate_multi_test(&mut self, channel: u8, fpga: bool, freq: f32, enable: bool) {
+        let period: u16 = (CARRIER_FREQ / freq as f32 / 2.0).round() as u16;
+        if fpga {
+            self.fpga0.modulate(channel, period, enable).expect(&format!("modulate_two_boards: write timed out for {}", FPGA_0_SERIAL));
+        } else {
+            self.fpga1.modulate(channel, period, enable).expect(&format!("modulate_two_boards: write timed out for {}", FPGA_1_SERIAL));
         }
     }
 

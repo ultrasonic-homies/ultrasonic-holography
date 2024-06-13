@@ -67,7 +67,7 @@ always_comb begin
     phase_parse_en_next = 'b0;
     phase_calib_en_next = 'b0;
     read_error_next = read_error;
-    mod_set_next = 'b0;
+    mod_set_next = mod_set;
     mod_enable_next = mod_enable;
     mod_half_period_next = mod_half_period;
 

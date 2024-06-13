@@ -14,8 +14,24 @@ logic [COUNTER_WIDTH-1:0] local_counter; // Set MSB freq to 5.12MHz
 logic state;
 logic mod;
 logic [15:0] mod_half_period_saved;
+logic [15:0] mod_half_period_saved_next;
+logic mod_enable_saved;
+logic mod_enable_saved_next;
 
-assign mod_out = !mod_enable | mod;
+
+assign mod_out = !mod_enable_saved | mod;
+
+// Modulation Setting
+always_comb begin
+    if (mod_set) begin
+        mod_half_period_saved_next = mod_half_period;
+        mod_enable_saved_next = mod_enable;
+    end
+    else begin
+        mod_half_period_saved_next = mod_half_period_saved;
+        mod_enable_saved_next = mod_enable_saved;
+    end
+end
 
 // Local counter
 always_ff @(posedge clk) begin
@@ -31,12 +47,12 @@ end
 always_ff @(posedge clk) begin
     if (rst) begin
         mod_half_period_saved <= 'b0;
-    end
-    else if (mod_set) begin
-        mod_half_period_saved <= mod_half_period;
+        mod_enable_saved <= 'b0;
     end
     else begin
         // Maintain period
+        mod_half_period_saved <= mod_half_period_saved_next;
+        mod_enable_saved <= mod_enable_saved_next;
     end
 end
 
