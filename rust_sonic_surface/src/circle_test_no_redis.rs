@@ -21,14 +21,14 @@ fn main() {
     let time_inc = 0.01;  // secs
     let start_x = 0.09;   // cm
     let start_y = 0.09;
-    let start_z = 0.04;  
-    let mut freq = 5.5;
+    let start_z = 0.01;  
+    let mut freq = 6.6;
     let mut period = 1.0 / freq;
     let radius = 0.03;
     let mut input = String::new();
     let mut n_circles: i32 = 1;
     let hat_runner: HatRunner = HatRunner::new(256.0, 0.14);
-    let hat_whatever = Hat::new(256.0, 0.148, false, false);
+    let hat_whatever = Hat::new(256.0, 0.129, false, false);
 
 
     loop {

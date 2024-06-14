@@ -7,3 +7,4 @@ acoustic_sim/rust/target/
 **.pkl
 **.avi
 **bad_apple/*/**.png
+**.mp4
