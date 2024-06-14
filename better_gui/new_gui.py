@@ -209,11 +209,11 @@ class Ui_AcousticLevitationWindow(object):
         font.setPointSize(25)
         self.stop_button.setFont(font)
         self.stop_button.setStyleSheet("QPushButton {\n"
-"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(149, 81, 166),     stop:1 rgb(149, 131, 216));\n"
+"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(169, 101, 186),     stop:1 rgb(169, 151, 226));\n"
 "    border-radius: 20px;\n"
 "    border-image: none;\n"
 "    border: none;\n"
-"    color: white;\n"
+"    color: black;\n"
 "}\n"
 "\n"
 "QPushButton:hover {\n"
@@ -221,26 +221,41 @@ class Ui_AcousticLevitationWindow(object):
 "}")
         self.stop_button.setObjectName("stop_button")
         self.verticalLayout.addWidget(self.stop_button)
-        spacerItem6 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        spacerItem6 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self.verticalLayout.addItem(spacerItem6)
+        self.center_button = QtWidgets.QPushButton(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.center_button.sizePolicy().hasHeightForWidth())
+        self.center_button.setSizePolicy(sizePolicy)
+        self.center_button.setMaximumSize(QtCore.QSize(400, 16777215))
+        font = QtGui.QFont()
+        font.setFamily("Comic Sans MS")
+        font.setPointSize(25)
+        self.center_button.setFont(font)
+        self.center_button.setStyleSheet("QPushButton {\n"
+"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(255, 105, 180),     stop:1 rgb(255, 155, 230));\n"
+"    border-radius: 20px;\n"
+"    border-image: none;\n"
+"    border: none;\n"
+"    color: black;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    border: 2px solid #C9D6EA;\n"
+"}")
+        self.center_button.setObjectName("center_button")
+        self.verticalLayout.addWidget(self.center_button)
+        spacerItem7 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.verticalLayout.addItem(spacerItem7)
         self.horizontalLayout.addLayout(self.verticalLayout)
         self.line = QtWidgets.QFrame(self.centralwidget)
         self.line.setFrameShape(QtWidgets.QFrame.VLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
         self.horizontalLayout.addWidget(self.line)
-        self.big_label = QtWidgets.QLabel(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.big_label.sizePolicy().hasHeightForWidth())
-        self.big_label.setSizePolicy(sizePolicy)
-        self.big_label.setMaximumSize(QtCore.QSize(1000, 1000))
-        self.big_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.big_label.setObjectName("big_label")
-        self.horizontalLayout.addWidget(self.big_label)
         self.horizontalLayout.setStretch(0, 1)
-        self.horizontalLayout.setStretch(2, 5)
         AcousticLevitationWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(AcousticLevitationWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1234, 22))
@@ -264,7 +279,7 @@ class Ui_AcousticLevitationWindow(object):
         self.mouse_button.setText(_translate("AcousticLevitationWindow", "Mouse Control"))
         self.megalovania_button.setText(_translate("AcousticLevitationWindow", "Megalovania"))
         self.stop_button.setText(_translate("AcousticLevitationWindow", "STOP"))
-        self.big_label.setText(_translate("AcousticLevitationWindow", "TextLabel"))
+        self.center_button.setText(_translate("AcousticLevitationWindow", "CENTER"))
 
 
 if __name__ == "__main__":
