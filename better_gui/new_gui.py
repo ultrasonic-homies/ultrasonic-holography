@@ -101,6 +101,7 @@ class Ui_AcousticLevitationWindow(object):
         self.circle_button.setSizePolicy(sizePolicy)
         self.circle_button.setMaximumSize(QtCore.QSize(400, 16777215))
         font = QtGui.QFont()
+        font.setFamily("Comic Sans MS")
         font.setPointSize(25)
         self.circle_button.setFont(font)
         self.circle_button.setStyleSheet("QPushButton {\n"

@@ -7,6 +7,7 @@ Levitation of styrofoam beads, modulated music playing, and haptic feedback usin
 This project features a 10-layer PCB with 16x16 transducers, 2 Intel Cyclone FPGAs, the HAT phase solver implemented in Rust, and position control
 software written in Rust/Python. 
 
+See our  [final report](final-report.pdf) for more background and design decisions.
 
 Table of contents:
 - [1. Hardware Setup](#1-hardware-setup)
@@ -338,3 +339,27 @@ The solver code is in `rust_sonic_surface/src/hat`. There is `hat.rs` which we p
 - Use a 3D camera and implement the Bunny paper feature of being able to levitate even when disturbances are in the acoustic field
 - Use a 3d camera to control the position of the particle using your hand/a wand. 
 - Experiment more with trapping multiple particles - do we need multiple traps per particle?
+
+
+## Open Sauce setup
+
+We made a very professional GUI for Open Sauce 2024:
+![open sauce gui](pictures/opensauce.png)
+
+This setup allows all the features from all_control.py, but also playing sound, namely Megalovania, as well as helpers to stop the script and center the ball. Besides lacking the ability to do a circle path quickly using Rust, it is the most complete software setup for the project.
+
+To run it, run:
+
+```
+cargo run --release --bin open_sauce
+```
+to create a service listening for MIDI notes and ball positions,
+
+and run 
+
+```
+python better_gui/main.py
+```
+
+for the PyQT UI. Open Blender for visualization to match the screenshot, and ensure Redis is running e.g. in Docker.
+

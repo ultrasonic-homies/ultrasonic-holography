@@ -1,3 +1,4 @@
+# this file is extremely rough, hacked together for open-sauce at the last minute
 # qt5-tools designer 
 # pyuic5 -x .\better_gui\better_gui.ui -o .\better_gui\better_gui.py
 # use the ui from better_gui.py
@@ -5,8 +6,8 @@ from new_gui import Ui_AcousticLevitationWindow
 # import the necessary modules
 from PyQt5 import QtWidgets
 import sys
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import QObject, QEvent
+from PyQt5.QtGui import QKeyEvent, QPixmap
+from PyQt5.QtCore import Qt
 # import qapplication
 from PyQt5.QtWidgets import QApplication
 import cv2
@@ -23,6 +24,8 @@ from pathlib import Path
 import json
 import ormsgpack
 import pyautogui
+import subprocess
+import signal
 
 
 def note_to_freq(note_number):
@@ -109,16 +112,16 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
         self.side_length = 17.8 # cm, board length
         self.mouse_x = self.side_length / 2
         self.mouse_y = self.side_length / 2
-        self.mouse_z = 0.5
+        self.mouse_z = 1
         self.board_x = self.side_length / 2  # cm
         self.board_y = self.side_length / 2
-        self.board_z = 0.5
+        self.board_z = 1
 
         self.state = AppState.STOPPED
         self.setMouseTracking(True)
 
          # circle stuff
-        self.circle_radius = 5
+        self.circle_radius = 3
         self.circle_frequency = 1
 
         # line stuff
@@ -137,6 +140,8 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
         self.ui.mouse_button.clicked.connect(self.mouse_pressed)
         self.ui.megalovania_button.clicked.connect(self.megalovania_pressed)
         self.ui.stop_button.clicked.connect(self.stop_pressed)
+        self.ui.center_button.clicked.connect(self.center_pressed)
+        self.tracking = True
         
     
     def update_label(self):
@@ -174,6 +179,8 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
         self.update_label()
 
         time.sleep(0.5)
+        initial_x = self.side_length/2 + self.circle_radius
+        initial_y = self.side_length/2
 
         self.move_to(self.side_length/2 + self.circle_radius, self.side_length/2, self.board_z)
         self.stop_flag = Event()
@@ -221,8 +228,13 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
         self.stop_current_thread()
         self.state = AppState.STOPPED
         self.update_label()
-
     
+    def center_pressed(self):
+        self.stop_current_thread()
+        self.move_to(self.side_length/2, self.side_length/2, self.board_z)
+        self.update_label()
+        self.state = AppState.STOPPED
+
     def stop_current_thread(self):
         self.stop_flag.set()
         if self.thread is not None:
@@ -266,21 +278,7 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
             i += 1
 
         self.update_label()
-    
-    
-    def circle_pattern(self, stop_flag):
-        print("Starting circle pattern")
-        while not stop_flag.is_set():
-            divisions = 180
-            for i in range(divisions):
-                if stop_flag.is_set():
-                    return
-                self.board_x = self.side_length/2 + self.circle_radius * np.cos(i * 2 * np.pi / divisions)
-                self.board_y = self.side_length/2 + self.circle_radius * np.sin(i * 2 * np.pi / divisions)
-                self.update_label()
-                self.send_positions()
-                time.sleep(0.01)
-
+        
     
     def line_pattern(self, stop_flag):
         print("Starting line pattern")
@@ -291,6 +289,19 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
                     return
                 self.board_x = self.side_length/2 + self.amplitude * np.sin(i * 2 * np.pi / divisions)
                 self.board_y = self.side_length/2
+                self.update_label()
+                self.send_positions()
+                time.sleep(0.01)
+
+    def circle_pattern(self, stop_flag):
+        print("Starting circle pattern")
+        while not stop_flag.is_set():
+            divisions = 180
+            for i in range(divisions):
+                if stop_flag.is_set():
+                    return
+                self.board_x = self.side_length/2 + self.circle_radius * np.cos(i * 2 * np.pi / divisions)
+                self.board_y = self.side_length/2 + self.circle_radius * np.sin(i * 2 * np.pi / divisions)
                 self.update_label()
                 self.send_positions()
                 time.sleep(0.01)
@@ -320,16 +331,42 @@ class AcousticLevitationApp(QtWidgets.QMainWindow):
         while True:
             if stop_flag.is_set():
                 return
-            mouse_x, mouse_y = get_normalized_mouse_position()
+            self.mouse_x, self.mouse_y = get_normalized_mouse_position()
             # change normalization to -board_length/2 to board_length/2
-            self.board_x = self.side_length * (mouse_x)
-            self.board_y = self.side_length * (mouse_y)
-            self.send_positions()
-            self.update_label()
+            if self.tracking:
+                self.board_x = self.side_length * (self.mouse_x)
+                self.board_y = self.side_length * (self.mouse_y)
+                self.send_positions()
+                self.update_label()
 
 
     def ImageUpdateSlot(self, Image):
         self.ui.big_label.setPixmap(QPixmap.fromImage(Image))
+    
+    def keyReleaseEvent(self, event: QKeyEvent):
+        if event.key() == Qt.Key_T and self.state == AppState.MOUSE:
+            if not self.tracking:
+                self.board_x = self.side_length * self.mouse_x
+                self.board_y = self.side_length * self.mouse_y
+                self.move_to(self.board_x, self.board_y, self.board_z)
+            if self.tracking:
+                self.ui.mouse_button.setText("Mouse Control (T)")
+                print("Tracking off")
+            else:
+                self.ui.mouse_button.setText("Mouse Control")
+                print("Tracking on")
+            self.tracking = not self.tracking
+    
+    def wheelEvent(self, event):
+        # always allow scroll so we can move circle or line higher
+        sensitivity = 0.004
+        # Capture mouse wheel (scrolling) event
+        self.board_z += event.angleDelta().y() * sensitivity   # Assuming each step corresponds to 1 unit of z movement
+        # Ensure z coordinate stays within 0cm-10cm range
+        self.board_z = max(0, min(13, self.board_z))
+        self.update_label()
+        self.send_positions()
+            
 
     
 if __name__ == "__main__":
