@@ -344,7 +344,7 @@ The solver code is in `rust_sonic_surface/src/hat`. There is `hat.rs` which we p
 ## Open Sauce setup
 
 We made a very professional GUI for Open Sauce 2024:
-![open sauce gui](pictures/opensauce.png)
+![open sauce gui](pictures/open_sauce.png)
 
 This setup allows all the features from all_control.py, but also playing sound, namely Megalovania, as well as helpers to stop the script and center the ball. Besides lacking the ability to do a circle path quickly using Rust, it is the most complete software setup for the project.
 
